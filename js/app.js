@@ -1,10 +1,14 @@
 /*
  * JALAN — جالان app logic.
- * Extracted from the original single-file build with no behavior changes,
- * except for the storage shim below (see README "Known fixes").
+ * Extracted from the source single-file build with two intentional changes
+ * (see README "Known fixes" and "Drinks/Protein architecture fix"):
+ *  1. A localStorage-backed shim for window.storage (persistence fix).
+ *  2. Protein Shake merged into the Drinks section as a subcategory instead
+ *     of its own primary Home shortcut/section, per product rule: "Protein
+ *     Shake lives inside Drinks, not as a primary Home shortcut."
  */
 
-// The original build targeted a host environment that injects a `window.storage`
+// The source build targeted a host environment that injects a `window.storage`
 // async key/value API. Outside that environment (a normal browser / static host)
 // `window.storage` does not exist, so Favorites/Visited/Notes/menu-cache silently
 // failed to persist. This shim provides the same {get(key), set(key,value)} async
@@ -24,702 +28,720 @@ if (!window.storage) {
 }
 
 
-const HUE = {padel:150,box:0,surf:200,adv:100,cult:290,fam:50,cafe:28,bakery:44,breakfast:16,
-  italian:352,steak:6,burger:22,sandwich:58,mex:330,seafood:196,indo:128,asian:272,indian:38,
-  me:12,beachclub:182,bar:256,hotel:212,spa:306,gym:158,shop:230,nature:142,attraction:202,rest:88,other:210};
-const SAT = {shop:12,other:8};
-const EMO = {cafe:"☕",bakery:"🍰",breakfast:"🍳",italian:"🍝",steak:"🥩",burger:"🍔",sandwich:"🥪",
-  mex:"🌮",seafood:"🦐",indo:"🍜",asian:"🍣",indian:"🍛",me:"🥙",beachclub:"🏖️",bar:"🍸",hotel:"🏨",
-  spa:"💆",gym:"🏋️",shop:"🛍️",nature:"🌴",attraction:"📸",rest:"🍽️",other:"📍",
-  padel:"🎾",box:"🥊",surf:"🏄",adv:"⛰️",cult:"🎭",fam:"🎡"};
-const tintBg = k => `hsl(${HUE[k]??210} ${SAT[k]??58}% 93%)`;
-const tintFg = k => `hsl(${HUE[k]??210} ${(SAT[k]??58)+2}% 30%)`;
+const HUE={padel:150,tennis:140,box:0,boxing:0,muaythai:8,pilates:320,crossfit:20,hyrox:35,yoga:170,
+ surf:200,recovery:190,adv:100,cult:290,fam:50,cafe:28,coffee:26,matcha:120,juice:60,protein:340,
+ bakery:44,breakfast:16,italian:352,steak:6,burger:22,sandwich:58,mex:330,seafood:196,indo:128,
+ asian:272,indian:38,me:12,beachclub:182,bar:256,hotel:212,spa:306,gym:158,shop:230,nature:142,
+ attraction:202,rest:88,other:210};
+const SAT={shop:12,other:8};
+const EMO={cafe:"☕",coffee:"☕",matcha:"🍵",juice:"🥤",protein:"💪",bakery:"🍰",breakfast:"🍳",
+ italian:"🍝",steak:"🥩",burger:"🍔",sandwich:"🥪",mex:"🌮",seafood:"🦐",indo:"🍜",asian:"🍣",
+ indian:"🍛",me:"🥙",beachclub:"🏖️",bar:"🍸",hotel:"🏨",spa:"💆",gym:"🏋️",shop:"🛍️",nature:"🌴",
+ attraction:"📸",rest:"🍽️",other:"📍",padel:"🎾",tennis:"🎾",box:"🥊",boxing:"🥊",muaythai:"🥊",
+ pilates:"🤸",crossfit:"🏋️‍♂️",hyrox:"⚡",yoga:"🧘",surf:"🏄",recovery:"♨️",adv:"⛰️",cult:"🎭",fam:"🎡"};
+const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي",protein:"بروتين وصحي",cafe:"كافيه",
+ bakery:"حلا ومخبوزات",breakfast:"فطور وبرنش",italian:"إيطالي",steak:"ستيك ومشاوي",seafood:"بحري",
+ indo:"إندونيسي",asian:"آسيوي",indian:"هندي",me:"شرق أوسطي وعربي",burger:"برجر",sandwich:"ساندويتش",
+ mex:"مكسيكي",rest:"مطاعم متنوعة",bar:"بار ولاونج",beachclub:"بيتش كلب",nature:"شواطئ وطبيعة",
+ hotel:"إقامة",spa:"سبا وجمال",shop:"تسوق",other:"أخرى",attraction:"معالم",adv:"مغامرات",
+ cult:"ثقافة وعروض",fam:"عائلي",gym:"جيم",padel:"بادل",tennis:"تنس",pilates:"بيلاتس",
+ crossfit:"كروس فت",hyrox:"هايروكس",boxing:"ملاكمة",muaythai:"موي تاي",yoga:"يوقا",
+ surf:"سيرف",recovery:"استشفاء وساونا"};
+const tintBg=k=>`hsl(${HUE[k]??210} ${SAT[k]??58}% 93%)`;
+const tintFg=k=>`hsl(${HUE[k]??210} ${(SAT[k]??58)+2}% 30%)`;
 
-const SECTIONS = [
-  {id:"food",  label:"مطاعم وكافيهات", ic:"🍽️", keys:["cafe","bakery","italian","steak","seafood","indo",
-     "asian","indian","me","burger","sandwich","mex","breakfast","rest","bar"]},
-  {id:"beach", label:"شواطئ وبيتش كلب", ic:"🏖️", keys:["beachclub","nature"]},
-  {id:"act",   label:"أنشطة ورياضة",  ic:"🎯", keys:["padel","box","surf","adv","cult","fam","gym"]},
-  {id:"stay",  label:"إقامة",          ic:"🏨", keys:["hotel"]},
-  {id:"spa",   label:"سبا وجمال",      ic:"💆", keys:["spa"]},
-  {id:"shop",  label:"تسوق",           ic:"🛍️", keys:["shop","other"]},
-  {id:"sight", label:"معالم",          ic:"📸", keys:["attraction"]}
+const SECTIONS=[
+ {id:"food",label:"أكل",ic:"🍽️",keys:["italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","rest","cafe"],
+  subs:["rest","italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","cafe"]},
+ {id:"drinks",label:"مشروبات",ic:"🥤",keys:["coffee","matcha","juice","protein","cafe"],subs:["coffee","matcha","juice","protein"]},
+ {id:"sports",label:"رياضة",ic:"🎯",keys:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","recovery"],
+  subs:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","recovery"]},
+ {id:"beach",label:"شواطئ وبيتش كلب",ic:"🏖️",keys:["beachclub","nature"],subs:["beachclub","nature"]},
+ {id:"visit",label:"تستحق الزيارة",ic:"📸",keys:["attraction","adv","cult","fam"],subs:["attraction","adv","cult","fam"]},
+ {id:"stay",label:"إقامة",ic:"🏨",keys:["hotel"],subs:[]},
+ {id:"spa",label:"سبا وجمال",ic:"💆",keys:["spa","recovery"],subs:[]},
+ {id:"shop",label:"تسوق",ic:"🛍️",keys:["shop","other"],subs:[]}
 ];
-const TABS = ["food","beach","act"];
-const MEALS = [["b","🍳 فطور"],["br","🥐 برنش"],["l","🍽️ غداء"],["d","🌙 عشاء"]];
-const secOf = id => SECTIONS.find(x=>x.id===id);
-const AREAS = [...new Set(PLACES.map(p=>p.a))]
-  .sort((a,b)=>PLACES.filter(p=>p.a===b).length-PLACES.filter(p=>p.a===a).length);
+const TABS=["food","drinks","sports"];
+const MEALS=[["b","فطور","🍳"],["br","برنش","🥐"],["l","غداء","🍽️"],["d","عشاء","🌙"]];
+const secOf=id=>SECTIONS.find(s=>s.id===id);
+const AREAS=[...new Set(PLACES.map(p=>p.a))].sort((a,b)=>PLACES.filter(p=>p.a===b).length-PLACES.filter(p=>p.a===a).length);
+const hasCat=(p,k)=>(p.cats||[p.k]).includes(k);
+const inSec=(p,S)=>S.keys.some(k=>hasCat(p,k));
 
-let marks = {};
-const KEY = "bali:marks";
-async function loadMarks(){ try{ const r = await window.storage.get(KEY); if(r&&r.value) marks = JSON.parse(r.value); }catch(e){ marks={}; } }
-async function saveMarks(){ try{ await window.storage.set(KEY, JSON.stringify(marks)); }catch(e){} }
-const mk = n => marks[n] || {};
+let marks={};const KEY="bali:marks";
+async function loadMarks(){try{const r=await window.storage.get(KEY);if(r&&r.value)marks=JSON.parse(r.value);}catch(e){marks={};}}
+async function saveMarks(){try{await window.storage.set(KEY,JSON.stringify(marks));}catch(e){}}
+const mk=n=>marks[n]||{};
 
-const state = {q:"", area:"", sec:"", sub:"", cats:new Set(), meal:"", price:new Set(),
-  minR:0, starred:false, unvisited:false, hasDesc:false, sug:false, act:false, sort:"rating", map:false, home:true};
-let me = null;
+const state={q:"",area:"",sec:"",sub:"",meal:"",mealPicked:false,subPicked:false,
+ cats:new Set(),price:new Set(),minR:0,
+ starred:false,unvisited:false,sug:false,openNow:false,maxKm:0,tagsOn:new Set(),
+ sort:"best",map:false,home:true,flowWhy:null,customOnly:null};
+let me=null,meLabel="";
 
-const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const fmtKm = v => v<1 ? Math.round(v*1000)+" م" : (v<100 ? v.toFixed(1) : Math.round(v).toLocaleString("en")) + " كم";
-const dist = (a,b,c,d)=>{const R=6371,t=x=>x*Math.PI/180;
-  const dLa=t(c-a),dLo=t(d-b);const h=Math.sin(dLa/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dLo/2)**2;
-  return 2*R*Math.asin(Math.sqrt(h));};
+const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtKm=v=>v<1?Math.round(v*1000)+" م":(v<100?v.toFixed(1):Math.round(v).toLocaleString("en"))+" كم";
+const dist=(a,b,c,d)=>{const R=6371,t=x=>x*Math.PI/180;const dLa=t(c-a),dLo=t(d-b);
+ const h=Math.sin(dLa/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));};
+const kmOf=p=>(me&&p.lat)?dist(me[0],me[1],p.lat,p.lng):null;
+const nowMin=()=>{const d=new Date();return d.getHours()*60+d.getMinutes();};
+function openState(p){                      // 1 open · 0 closed · null unknown
+  if(!p.oh) return null;
+  const n=nowMin(),[o,c]=p.oh;
+  return (c>o) ? (n>=o&&n<c?1:0) : (n>=o||n<c?1:0);
+}
+const hhmm=m=>{const h=Math.floor(m/60)%24,x=m%60;const ap=h<12?"ص":"م";const h12=h%12===0?12:h%12;
+ return h12+(x?":"+String(x).padStart(2,"0"):"")+ap;};
 
-function passSection(p){
-  if(state.sec){ const S=secOf(state.sec); if(!S || !S.keys.includes(p.k)) return false; }
-  if(state.sub){ const t=state.sub.slice(0,1), v=state.sub.slice(2);
-    if(t==="m"){ if(!p[v]) return false; } else if(p.k!==v) return false; }
-  return true;
+/* ---------------- recommendation engine ---------------- */
+function score(p){
+  let s=0;const r=p.r||0;
+  s+=0.42*Math.max(0,Math.min(1,(r-3.5)/1.5));
+  s+=0.14*Math.max(0,Math.min(1,Math.log10((p.rc||0)+1)/4.5));
+  const km=kmOf(p);
+  if(km!=null){const ref=state.maxKm||25;s+=0.22*Math.max(0,1-km/ref);}
+  const op=openState(p);
+  s+=op===1?0.10:(op===null?0.04:0);
+  if(p.desc)s+=0.04;
+  if(mk(p.n).s)s+=0.12;
+  if(mk(p.n).v)s-=0.06;
+  return s;
+}
+function whyList(p){
+  const w=[],km=kmOf(p),op=openState(p);
+  if(km!=null&&km<3)w.push("قريب منك ("+fmtKm(km)+")");
+  else if(km!=null&&km<10)w.push("على بُعد "+fmtKm(km));
+  if(op===1)w.push("مفتوح الآن");
+  if(op===0&&p.oh)w.push("مسكّر — يفتح "+hhmm(p.oh[0]));
+  if((p.r||0)>=4.7)w.push("تقييمه "+p.r.toFixed(1)+" وهو من الأعلى");
+  else if((p.r||0)>=4.4)w.push("تقييمه "+p.r.toFixed(1));
+  if((p.rc||0)>=3000)w.push("مجرّب من "+p.rc.toLocaleString("en")+" شخص");
+  if(state.meal){const m=MEALS.find(x=>x[0]===state.meal);if(m&&p[state.meal])w.push("مناسب لل"+m[1]);}
+  if(mk(p.n).s)w.push("مميّز عندك ★");
+  if(p.p&&state.price.size&&state.price.has(p.p))w.push("ضمن ميزانيتك");
+  if((p.tags||[]).includes("halal"))w.push("حلال");
+  if((p.tags||[]).includes("arabic"))w.push("فيه طاقم يتكلم عربي");
+  if(p.desc){const m=p.desc.match(/المشهور:\s*([^\.\n]{6,70})/);if(m)w.push("جرّب: "+m[1].trim());}
+  return w.slice(0,5);
 }
 
+/* ---------------- filtering ---------------- */
+function passSec(p){
+  if(state.sec){const S=secOf(state.sec);if(!S||!inSec(p,S))return false;}
+  if(state.sub&&!hasCat(p,state.sub))return false;
+  if(state.meal&&!p[state.meal])return false;
+  return true;
+}
 function filtered(){
-  let out = PLACES.filter(p=>{
-    if(state.q){const s=(p.n+" "+p.o+" "+p.a+" "+p.c+" "+(p.desc||"")).toLowerCase();
-      if(!s.includes(state.q.toLowerCase())) return false;}
-    if(!passSection(p)) return false;
-    if(state.area && p.a!==state.area) return false;
-    if(state.cats.size && !state.cats.has(p.c)) return false;
-    if(state.meal && !p[state.meal]) return false;
-    if(state.price.size && !state.price.has(p.p||"")) return false;
-    if(state.minR && (!p.r || p.r<state.minR)) return false;
-    if(state.starred && !mk(p.n).s) return false;
-    if(state.unvisited && mk(p.n).v) return false;
-    if(state.hasDesc && !p.desc) return false;
-    if(state.sug && !p.sug) return false;
-    if(state.act && !p.act) return false;
+  let out=(state.customOnly?PLACES.filter(state.customOnly):PLACES).filter(p=>{
+    if(state.q){const s=(p.n+" "+p.o+" "+p.a+" "+p.c+" "+(p.cu||"")+" "+(p.cats||[]).join(" ")+" "+(p.tags||[]).join(" ")+" "+(p.desc||"")).toLowerCase();
+      if(!s.includes(state.q.toLowerCase()))return false;}
+    if(!passSec(p))return false;
+    if(state.area&&p.a!==state.area)return false;
+    if(state.cats.size&&![...state.cats].some(c=>hasCat(p,c)))return false;
+    if(state.price.size&&!state.price.has(p.p||""))return false;
+    if(state.minR&&(!p.r||p.r<state.minR))return false;
+    if(state.starred&&!mk(p.n).s)return false;
+    if(state.unvisited&&mk(p.n).v)return false;
+    if(state.sug&&!p.sug)return false;
+    if(state.openNow&&openState(p)===0)return false;
+    if(state.maxKm){const km=kmOf(p);if(km!=null&&km>state.maxKm)return false;}
+    for(const t of state.tagsOn){
+      if(t==="nopork"){if((p.tags||[]).includes("pork"))return false;}
+      else if(t==="noalcohol"){if((p.tags||[]).includes("alcohol")&&!(p.tags||[]).includes("noalcohol"))return false;}
+      else if(t==="nobooking"){if(p.res)return false;}
+      else if(!(p.tags||[]).includes(t))return false;
+    }
     return true;
   });
-  if(state.sort==="pop") out.sort((a,b)=>(b.rc||0)-(a.rc||0));
-  else if(state.sort==="near" && me)
-    out.sort((a,b)=>(a.lat?dist(me[0],me[1],a.lat,a.lng):9e9)-(b.lat?dist(me[0],me[1],b.lat,b.lng):9e9));
-  else out.sort((a,b)=>(b.r||0)-(a.r||0)||(b.rc||0)-(a.rc||0));
+  if(state.sort==="pop")out.sort((a,b)=>(b.rc||0)-(a.rc||0));
+  else if(state.sort==="rating")out.sort((a,b)=>(b.r||0)-(a.r||0)||(b.rc||0)-(a.rc||0));
+  else if(state.sort==="near"&&me)out.sort((a,b)=>((kmOf(a)??9e9)-(kmOf(b)??9e9)));
+  else out.sort((a,b)=>score(b)-score(a));
   return out;
 }
 
-/* ---------- chips + tabs ---------- */
-function chipBtn(label, on, n, onclick){
-  const b = document.createElement("button");
-  b.className = "chip"; b.setAttribute("aria-pressed", on);
-  b.innerHTML = label + (n!=null ? ` <b>${n}</b>` : "");
-  b.onclick = onclick;
-  return b;
-}
-const secCount = S => PLACES.filter(p=>S.keys.includes(p.k)).length;
-
-function pickSec(id){
-  state.home = false;
-  state.sec = (state.sec===id) ? "" : id;
-  state.sub=""; state.cats.clear(); state.meal="";
-  close(); window.scrollTo({top:0}); render();
-}
-
+/* ---------------- chrome ---------------- */
+function chipBtn(label,on,n,fn){const b=document.createElement("button");b.className="chip";
+ b.setAttribute("aria-pressed",on);b.innerHTML=label+(n!=null?` <b>${n}</b>`:"");b.onclick=fn;return b;}
 function renderTabs(){
-  const nav = document.getElementById("tabs");
-  nav.innerHTML = "";
-  const add=(ic,label,on,fn)=>{
-    const b=document.createElement("button");
-    b.setAttribute("aria-pressed",on);
-    b.innerHTML=`<span class="ic">${ic}</span><span>${label}</span>`;
-    b.onclick=fn; nav.appendChild(b);
-  };
-  add("◎","الرئيسية", state.home, goHome);
-  TABS.forEach(id=>{ const S=secOf(id); add(S.ic, S.label.split(" ")[0], state.sec===id, ()=>pickSec(id)); });
-  const rest = SECTIONS.filter(S=>!TABS.includes(S.id));
-  add("⋯","المزيد", rest.some(S=>S.id===state.sec), openMore);
+  const nav=document.getElementById("tabs");nav.innerHTML="";
+  const add=(ic,label,on,fn)=>{const b=document.createElement("button");b.setAttribute("aria-pressed",on);
+   b.innerHTML=`<span class="ic">${ic}</span><span>${label}</span>`;b.onclick=fn;nav.appendChild(b);};
+  add("◎","الرئيسية",state.home,goHome);
+  TABS.forEach(id=>{const S=secOf(id);add(S.ic,S.label,state.sec===id,()=>pickSec(id));});
+  add("⋯","المزيد",!!state.sec&&!TABS.includes(state.sec),openMore);
 }
-
+function renderChips(){
+  const base=PLACES.filter(passSec);
+  const ac=document.getElementById("areaChips");ac.innerHTML="";
+  ac.appendChild(chipBtn("كل المناطق",!state.area,base.length,()=>{state.area="";render();}));
+  AREAS.forEach(a=>{const n=base.filter(p=>p.a===a).length;if(!n)return;
+   ac.appendChild(chipBtn(a,state.area===a,n,()=>{state.area=state.area===a?"":a;render();}));});
+}
+function pickSec(id){state.home=false;state.sec=state.sec===id?"":id;state.sub="";state.meal="";
+ state.mealPicked=false;state.subPicked=false;state.customOnly=null;
+ state.cats.clear();close();window.scrollTo({top:0});render();}
+function goHome(){Object.assign(state,{home:true,sec:"",sub:"",meal:"",mealPicked:false,subPicked:false,
+ area:"",q:"",minR:0,openNow:false,maxKm:0,starred:false,unvisited:false,sug:false,
+ flowWhy:null,customOnly:null});
+ state.cats.clear();state.price.clear();state.tagsOn.clear();
+ const qq=document.getElementById("q");if(qq)qq.value="";
+ if(state.map){state.map=false;document.getElementById("map").style.display="none";
+  document.getElementById("list").style.display="block";const b=document.getElementById("mapBtn");b.dataset.on="";b.textContent="خريطة";}
+ close();window.scrollTo({top:0});render();}
 function openMore(){
-  const rest = SECTIONS.filter(S=>!TABS.includes(S.id));
-  document.getElementById("mpanel").innerHTML = `<div class="grab"></div>
-    <div class="morelist">${rest.map(S=>`<button data-id="${S.id}">
-      <span style="font-size:19px">${S.ic}</span><span>${S.label}</span>
-      <span class="n">${secCount(S)}</span></button>`).join("")}
-      <button data-id="__about"><span style="font-size:19px">ℹ️</span><span>عن جالان ونسخة احتياطية</span>
-      <span class="n"></span></button>
-      <button data-id="__plan"><span style="font-size:19px">🗓️</span><span>جداول مقترحة</span>
-      <span class="n"></span></button>
-      <button data-id="__star"><span style="font-size:19px">★</span><span>المميّزة عندي</span>
-      <span class="n">${PLACES.filter(p=>mk(p.n).s).length}</span></button></div>`;
+  const rest=SECTIONS.filter(S=>!TABS.includes(S.id));
+  document.getElementById("mpanel").innerHTML=`<div class="grab"></div><div class="morelist">
+   ${rest.map(S=>`<button data-id="${S.id}"><span style="font-size:19px">${S.ic}</span><span>${S.label}</span>
+    <span class="n">${PLACES.filter(p=>inSec(p,S)).length}</span></button>`).join("")}
+   <button data-id="__plan"><span style="font-size:19px">🗓️</span><span>خطط يومي</span><span class="n"></span></button>
+   <button data-id="__star"><span style="font-size:19px">★</span><span>المميّزة عندي</span>
+    <span class="n">${PLACES.filter(p=>mk(p.n).s).length}</span></button>
+   <button data-id="__vis"><span style="font-size:19px">✓</span><span>اللي زرتها</span>
+    <span class="n">${PLACES.filter(p=>mk(p.n).v).length}</span></button>
+   <button data-id="__about"><span style="font-size:19px">ℹ️</span><span>عن جالان ونسخة احتياطية</span><span class="n"></span></button>
+  </div>`;
   document.querySelectorAll("#mpanel .morelist button").forEach(b=>b.onclick=()=>{
-    if(b.dataset.id==="__about"){ openAbout(); return; }
-    if(b.dataset.id==="__plan"){ openPlan(planArea||AREAS[0]); return; }
-    if(b.dataset.id==="__star"){ state.starred=true; state.home=false; state.sec=""; state.sub=""; close(); render(); }
-    else pickSec(b.dataset.id);
+    const id=b.dataset.id;
+    if(id==="__plan"){openPlan(planArea||AREAS[0]);return;}
+    if(id==="__about"){openAbout();return;}
+    if(id==="__star"){state.starred=true;state.home=false;state.sec="";close();render();return;}
+    if(id==="__vis"){state.home=false;state.sec="";state.starred=false;state.unvisited=false;
+      state.q="";close();state.sort="rating";
+      const only=p=>mk(p.n).v;state.customOnly=only;render();return;}
+    pickSec(id);
   });
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
   document.getElementById("more").classList.add("on");
 }
 
-function renderChips(){
-  const sub = document.getElementById("subChips");
-  sub.innerHTML = "";
-  if(state.sec){
-    const S = secOf(state.sec);
-    const inSec = PLACES.filter(p=>S.keys.includes(p.k));
-    if(state.sec === "food"){
-      MEALS.forEach(([k,lab])=>{
-        const n = inSec.filter(p=>p[k]).length; if(!n) return;
-        sub.appendChild(chipBtn(lab, state.sub==="m:"+k, n, ()=>{
-          state.sub = state.sub==="m:"+k ? "" : "m:"+k; render(); }));
-      });
-    }
-    const cats = [...new Set(inSec.map(p=>p.k))]
-      .sort((a,b)=>inSec.filter(p=>p.k===b).length-inSec.filter(p=>p.k===a).length);
-    cats.forEach(k=>{
-      const one = inSec.find(p=>p.k===k), n = inSec.filter(p=>p.k===k).length;
-      sub.appendChild(chipBtn((EMO[k]||"")+" "+one.c.replace(/^[^\s]*\s/,""), state.sub==="c:"+k, n, ()=>{
-        state.sub = state.sub==="c:"+k ? "" : "c:"+k; render(); }));
-    });
-  }
-  const base = PLACES.filter(passSection);
-  const ac = document.getElementById("areaChips");
-  ac.innerHTML = "";
-  ac.appendChild(chipBtn("كل المناطق", !state.area, base.length, ()=>{ state.area=""; render(); }));
-  AREAS.forEach(a=>{
-    const n = base.filter(p=>p.a===a).length; if(!n) return;
-    ac.appendChild(chipBtn(a, state.area===a, n, ()=>{
-      state.area = state.area===a ? "" : a; render(); }));
-  });
-}
-
-/* ---------- list ---------- */
-function goHome(){
-  state.home=true; state.sec=""; state.sub=""; state.area=""; state.q="";
-  document.getElementById("q").value="";
-  state.cats.clear(); state.price.clear(); state.meal=""; state.minR=0;
-  state.starred=false; state.unvisited=false; state.hasDesc=false; state.sug=false; state.act=false;
-  if(state.map){ state.map=false; document.getElementById("map").style.display="none";
-    document.getElementById("list").style.display="block";
-    const b=document.getElementById("mapBtn"); b.dataset.on=""; b.textContent="خريطة"; }
-  close(); window.scrollTo({top:0}); render();
-}
-
-function mealNow(){
-  const h = new Date().getHours();
-  if(h < 11) return ["b","🍳 فطور الحين"];
-  if(h < 16) return ["l","🍽️ غداء الحين"];
-  return ["d","🌙 عشاء الحين"];
-}
-
-function renderHome(){
-  const [mk_, mlabel] = mealNow();
-  const cards = SECTIONS.map(S=>{
-    const inS = PLACES.filter(p=>S.keys.includes(p.k));
-    const top = inS.slice().sort((a,b)=>(b.r||0)-(a.r||0))[0];
-    const k = inS[0] ? inS[0].k : "other";
-    return `<button class="card" data-sec="${S.id}">
-      <span class="band" style="background:linear-gradient(135deg,${tintBg(k)},${tintBg(k)} 40%,#fff0)"></span>
-      <span class="ci">${S.ic}</span>
-      <b>${S.label}</b>
-      <span class="cn">${inS.length} مكان</span>
-      <span class="cs">${top?esc(top.n):""}</span>
-    </button>`;
-  }).join("");
-  const HERO = "https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20terraces,%20Bali.jpg?width=1200";
-  document.getElementById("list").innerHTML = `<div class="home-wrap">
-    <div class="hero">
-      <img src="${HERO}" alt="" onerror="this.style.display='none'">
-      <div class="veil"></div>
-      <div class="in">
-        <div class="kicker">JALAN</div>
-        <h2 class="serif">وين نروح اليوم؟</h2>
-        <p>${PLACES.length} محطة مختارة في ${AREAS.length} مناطق — اختر من وين تبدأ.</p>
-      </div>
-    </div>
-    <p class="credit">صورة: Vyacheslav Argenberg ·
-      <a href="https://creativecommons.org/licenses/by/4.0" target="_blank" rel="noopener">CC BY 4.0</a> · Wikimedia Commons</p>
-    <div class="quick">
-      <button class="hero" data-q="near">📍 الأقرب لي</button>
-      <button data-q="meal">${mlabel}</button>
-      <button data-q="star">★ المميّزة عندي</button>
-      <button data-q="plan">🗓️ رتّب لي يوم</button>
-      <button data-q="top">🔝 الأعلى تقييمًا</button>
-    </div>
-    <div class="grid">${cards}</div>
-    <button class="allbtn" data-q="all">تصفّح كل الأماكن ←</button>
-  </div>`;
-  document.querySelectorAll("#list .card").forEach(b=>b.onclick=()=>pickSec(b.dataset.sec));
-  document.querySelectorAll("#list [data-q]").forEach(b=>b.onclick=()=>{
-    const q=b.dataset.q; state.home=false;
-    if(q==="near"){ state.sort="near"; setSortUI("near"); openNear(); return; }
-    else if(q==="meal"){ state.sec="food"; state.sub="m:"+mk_; }
-    else if(q==="star"){ state.starred=true; }
-    else if(q==="top"){ state.minR=4.7; }
-    else if(q==="plan"){ state.home=true; openPlan(planArea||AREAS[0]); return; }
-    window.scrollTo({top:0}); render();
-  });
-}
-
+/* ---------------- render ---------------- */
 function render(){
-  document.body.classList.toggle("home", state.home && !state.map);
+  document.body.classList.toggle("home",state.home&&!state.map);
   renderTabs();
-  if(state.home && !state.map){ document.getElementById("total").textContent=""; renderHome(); return; }
+  const tb=document.getElementById("toolbar"),ct=document.getElementById("count");
+  if(state.home&&!state.map){tb.style.display="none";ct.style.display="none";
+    document.getElementById("areaChips").style.display="none";
+    document.getElementById("total").textContent="";renderHome();return;}
+  document.getElementById("areaChips").style.display="";
+  const S=state.sec?secOf(state.sec):null;
+  const foodStep=S&&S.id==="food"&&!state.mealPicked;
+  const subStep=S&&S.subs.length&&!state.subPicked&&!state.q&&!foodStep;
+  const needPicker=(foodStep||subStep)&&!state.q;
+  tb.style.display=needPicker?"none":"";ct.style.display=needPicker?"none":"";
   renderChips();
-  const rows = filtered();
-  const S = state.sec ? secOf(state.sec) : null;
-  document.getElementById("total").textContent = PLACES.length + " مكان";
-  document.getElementById("count").textContent =
-    rows.length + " نتيجة" + (S ? " · " + S.label : "") + (state.area ? " · " + state.area : "") +
-    (state.sort==="near" ? (me ? " · الأقرب من " + meLabel : " — اختر نقطة انطلاق") : "");
-  const list = document.getElementById("list");
-  if(state.map){ drawMap(rows); return; }
-  if(!rows.length){
-    list.innerHTML = `<div class="empty"><b>ما فيه نتائج هنا</b>
-      جرّب تشيل فلتر أو توسّع المنطقة.
-      <br><button id="reset">امسح كل الفلاتر</button></div>`;
-    document.getElementById("reset").onclick = ()=>{
-      state.q=""; document.getElementById("q").value="";
-      state.area=""; state.sub=""; state.cats.clear(); state.price.clear();
-      state.meal=""; state.minR=0; state.starred=false; state.unvisited=false;
-      state.hasDesc=false; state.sug=false; state.act=false; render(); };
-    return;
-  }
-  list.innerHTML = rows.map(p=>{
-    const m = mk(p.n);
-    const d = (me&&p.lat)?`<div class="dist">${fmtKm(dist(me[0],me[1],p.lat,p.lng))}</div>`:"";
-    const rest = [p.p, p.a].filter(Boolean).join(" · ");
-    const badge = (m.s?"★":"") + (m.v?"✓":"");
-    const snip = p.desc ? p.desc.replace(/\n/g," ").replace(/[⚠️📅💰💡🎾🥊🏄]/g,"").trim() : "";
+  document.getElementById("total").textContent=PLACES.length+" مكان";
+  if(needPicker){renderPicker(S);return;}
+  const rows=filtered();
+  const parts=[rows.length+" نتيجة"];
+  if(S)parts.push(S.label);
+  if(state.meal)parts.push(MEALS.find(m=>m[0]===state.meal)[1]);
+  if(state.sub)parts.push(LBL[state.sub]||state.sub);
+  if(state.area)parts.push(state.area);
+  if(me)parts.push("من "+meLabel);
+  ct.textContent=parts.join(" · ");
+  const list=document.getElementById("list");
+  if(state.map){drawMap(rows);return;}
+  if(!rows.length){renderEmpty();return;}
+  const canBack=S&&(state.subPicked||(S.id==="food"&&state.mealPicked))&&(S.subs.length||S.id==="food");
+  const headBits=[];
+  if(S&&S.id==="food")headBits.push(state.meal?MEALS.find(m=>m[0]===state.meal)[1]:(state.mealPicked?"كل أماكن الأكل":""));
+  if(S&&S.subs.length)headBits.push(state.sub?(LBL[state.sub]||""):(state.subPicked?"الكل":""));
+  const head=canBack?`<div class="vhead"><button id="back">‹ رجوع</button>
+    <span>${esc(headBits.filter(Boolean).join(" · "))}</span></div>`:"";
+  list.innerHTML=head+rows.map(p=>{
+    const m=mk(p.n),km=kmOf(p),op=openState(p);
+    const d=km!=null?`<div class="dist">${fmtKm(km)}</div>`:"";
+    const rest=[p.p,p.a].filter(Boolean).join(" · ");
+    const badge=(m.s?"★":"")+(m.v?"✓":"");
+    const why=(state.sort==="best")?whyList(p).slice(0,2):[];
+    const snip=(!why.length&&p.desc)?p.desc.replace(/\n/g," ").replace(/[⚠️📅💰💡🎾🥊🏄🧘♨️]/g,"").trim():"";
     return `<button class="row" data-n="${esc(p.n)}">
-      <span class="rmain">
-        <span class="rname">${esc(p.n)}</span>
-        <span class="rmeta">
-          ${p.act?'<span class="act">نشاط</span>':""}${p.sug?'<span class="sug">مقترح</span>':""}
-          <span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
-          <span class="dots">${esc(rest)}${p.t?' · <span class="utag">'+esc(p.t)+"</span>":""}</span>
-        </span>
-        ${snip?`<span class="snip">${esc(snip)}</span>`:""}
-      </span>
-      <span class="rside">
-        <div class="rate ${p.r>=4.7?"hi":""}">${p.r?p.r.toFixed(1):"—"}</div>
-        ${p.rc?`<div class="rc">${p.rc.toLocaleString("en")}</div>`:""}
-        ${d}${badge?`<div class="marks">${badge}</div>`:""}
-      </span></button>`;
-  }).join("");
+      <span class="rmain"><span class="rname">${esc(p.n)}</span>
+      <span class="rmeta">${p.act?'<span class="act">نشاط</span>':""}${p.sug?'<span class="sug">مقترح</span>':""}
+       ${op===0?'<span class="shut">مسكّر</span>':""}
+       <span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
+       <span class="dots">${esc(rest)}</span></span>
+      ${why.length?`<span class="why">${why.map(w=>"• "+esc(w)).join(" ")}</span>`:""}
+      ${snip?`<span class="snip">${esc(snip)}</span>`:""}</span>
+      <span class="rside"><div class="rate ${p.r>=4.7?"hi":""}">${p.r?p.r.toFixed(1):"—"}</div>
+      ${p.rc?`<div class="rc">${p.rc.toLocaleString("en")}</div>`:""}${d}
+      ${badge?`<div class="marks">${badge}</div>`:""}</span></button>`;}).join("");
+  const bk=document.getElementById("back");
+  if(bk)bk.onclick=()=>{
+    if(S&&S.subs.length&&state.subPicked){state.sub="";state.subPicked=false;}
+    else if(S&&S.id==="food"&&state.mealPicked){state.meal="";state.mealPicked=false;}
+    render();};
   list.querySelectorAll(".row").forEach(el=>el.onclick=()=>openDetail(el.dataset.n));
 }
+function renderPicker(S){
+  const list=document.getElementById("list");
+  const pool=PLACES.filter(p=>inSec(p,S));
+  if(S.id==="food"&&!state.mealPicked){
+    list.innerHTML=`<div class="vlist">
+      <button class="vrow" data-meal="__all"><span class="vi">🍽️</span><span class="vt">كل أماكن الأكل</span>
+        <span class="vn">${pool.length}</span><span class="va">‹</span></button>
+      ${MEALS.map(([k,lab,ic])=>{const n=pool.filter(p=>p[k]).length;return !n?"":
+        `<button class="vrow" data-meal="${k}"><span class="vi">${ic}</span><span class="vt">${lab}</span>
+         <span class="vn">${n}</span><span class="va">‹</span></button>`;}).join("")}</div>`;
+    list.querySelectorAll("[data-meal]").forEach(b=>b.onclick=()=>{
+      const v=b.dataset.meal;state.meal=(v==="__all")?"":v;state.mealPicked=true;
+      window.scrollTo({top:0});render();});
+    return;
+  }
+  const base=state.meal?pool.filter(p=>p[state.meal]):pool;
+  list.innerHTML=(S.id==="food"?`<div class="vhead"><button id="back2">‹ رجوع</button>
+     <span>${state.meal?esc(MEALS.find(m=>m[0]===state.meal)[1]):"كل أماكن الأكل"}</span></div>`:"")+
+    `<div class="vlist">
+     <button class="vrow" data-sub="__all"><span class="vi">${S.ic}</span><span class="vt">الكل</span>
+       <span class="vn">${base.length}</span><span class="va">‹</span></button>
+     ${S.subs.map(k=>{const n=base.filter(p=>hasCat(p,k)).length;return !n?"":
+      `<button class="vrow" data-sub="${k}"><span class="vi">${EMO[k]||"📍"}</span>
+       <span class="vt">${LBL[k]||k}</span><span class="vn">${n}</span><span class="va">‹</span></button>`;}).join("")}
+    </div>`;
+  const b2=document.getElementById("back2");
+  if(b2)b2.onclick=()=>{state.meal="";state.mealPicked=false;render();};
+  list.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>{
+    const v=b.dataset.sub;state.sub=(v==="__all")?"":v;state.subPicked=true;
+    window.scrollTo({top:0});render();});
+}
+function renderEmpty(){
+  document.getElementById("list").innerHTML=`<div class="empty"><b>ما لقينا شي يطابق كل اختياراتك</b>
+   جرّب توسّع البحث:
+   <div class="esc">
+     ${state.maxKm?`<button data-e="km">وسّع المسافة</button>`:""}
+     ${state.price.size?`<button data-e="price">شيل فلتر السعر</button>`:""}
+     ${state.openNow?`<button data-e="open">اعرض المسكّرة كمان</button>`:""}
+     ${state.area?`<button data-e="area">اعرض كل المناطق</button>`:""}
+     <button data-e="all">امسح كل الفلاتر</button>
+     <button class="p" data-e="sur">✨ اختَر لي</button>
+   </div></div>`;
+  document.querySelectorAll("#list [data-e]").forEach(b=>b.onclick=()=>{
+    const e=b.dataset.e;
+    if(e==="km")state.maxKm=0; else if(e==="price")state.price.clear();
+    else if(e==="open")state.openNow=false; else if(e==="area")state.area="";
+    else if(e==="sur"){surprise();return;}
+    else{Object.assign(state,{q:"",area:"",minR:0,openNow:false,maxKm:0,starred:false,unvisited:false,sug:false});
+      state.cats.clear();state.price.clear();state.tagsOn.clear();document.getElementById("q").value="";}
+    render();});
+}
+function renderHome(){
+  const H="https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20terraces,%20Bali.jpg?width=1200";
+  const cards=SECTIONS.map(S=>{const ps=PLACES.filter(p=>inSec(p,S));
+   const top=ps.slice().sort((a,b)=>(b.r||0)-(a.r||0))[0];const k=ps[0]?ps[0].k:"other";
+   return `<button class="card" data-sec="${S.id}">
+    <span class="band" style="background:linear-gradient(135deg,${tintBg(k)},${tintBg(k)} 40%,#fff0)"></span>
+    <span class="ci">${S.ic}</span><b>${S.label}</b><span class="cn">${ps.length} مكان</span>
+    <span class="cs">${top?esc(top.n):""}</span></button>`;}).join("");
+  const openCnt=PLACES.filter(p=>openState(p)===1).length;
+  document.getElementById("list").innerHTML=`<div class="home-wrap">
+   <div class="hero"><img src="${H}" alt="" onerror="this.style.display='none'"><div class="veil"></div>
+    <div class="in"><div class="kicker">JALAN</div><h2 class="serif">وين نروح اليوم؟</h2>
+    <p>${PLACES.length} محطة في ${AREAS.length} مناطق · ${openCnt} مفتوحة الآن</p></div></div>
+   <p class="credit">صورة: Vyacheslav Argenberg · <a href="https://creativecommons.org/licenses/by/4.0" target="_blank" rel="noopener">CC BY 4.0</a></p>
+   <button class="cta" id="flowbtn">وين نروح الآن؟<small>خمس خطوات سريعة ونعطيك الأنسب لك الحين</small></button>
+   <button class="cta2" id="surbtn">✨ اختَر لي — قرار سريع</button>
+   <div class="quick">
+     <button data-q="near">📍 قريب مني</button><button data-q="meal">🍽️ وش آكل؟</button>
+     <button data-q="drinks">🥤 مشروبات</button>
+     <button data-q="sports">🎯 رياضة</button><button data-q="beach">🏝️ شواطئ</button>
+     <button data-q="plan">🗓️ خطط يومي</button><button data-q="star">★ المميّزة</button>
+   </div>
+   <div class="hsec">الأقسام</div><div class="grid">${cards}</div>
+   <div class="hsec">مفتوح الآن وقريب</div><div id="hnow"></div>
+   <div class="hsec">جديد على جالان</div><div id="hnew"></div></div>`;
+  document.querySelectorAll("#list .card").forEach(b=>b.onclick=()=>pickSec(b.dataset.sec));
+  document.getElementById("flowbtn").onclick=()=>openFlow(0);
+  document.getElementById("surbtn").onclick=surprise;
+  document.querySelectorAll("#list [data-q]").forEach(b=>b.onclick=()=>{
+    const q=b.dataset.q;state.home=false;
+    if(q==="near"){state.sort="near";setSortUI("near");openNear();return;}
+    if(q==="meal"){pickSec("food");return;}
+    if(q==="drinks"){pickSec("drinks");return;}
+    if(q==="sports"){pickSec("sports");return;}
+    if(q==="beach"){pickSec("beach");return;}
+    if(q==="plan"){state.home=true;openPlan(planArea||AREAS[0]);return;}
+    if(q==="star"){state.starred=true;}
+    render();});
+  const mini=(arr,el)=>{document.getElementById(el).innerHTML=arr.map(p=>
+    `<button class="row" data-n="${esc(p.n)}" style="border-radius:12px;border:1px solid var(--stone);margin-bottom:8px">
+     <span class="rmain"><span class="rname">${esc(p.n)}</span>
+     <span class="rmeta"><span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
+     <span class="dots">${esc(p.a)}${kmOf(p)!=null?" · "+fmtKm(kmOf(p)):""}</span></span></span>
+     <span class="rside"><div class="rate ${p.r>=4.7?"hi":""}">${p.r?p.r.toFixed(1):"—"}</div></span></button>`).join("");
+    document.querySelectorAll("#"+el+" .row").forEach(b=>b.onclick=()=>openDetail(b.dataset.n));};
+  mini(PLACES.filter(p=>openState(p)===1).sort((a,b)=>score(b)-score(a)).slice(0,4),"hnow");
+  mini(PLACES.filter(p=>p.sug).sort((a,b)=>(b.r||0)-(a.r||0)).slice(0,4),"hnew");
+}
 
-/* ---------- detail ---------- */
+/* ---------------- decision flow ---------------- */
+const FLOW={where:null,what:null,km:null,budget:null,extra:new Set()};
+const WHATS=[["b","فطور","🍳"],["br","برنش","🥐"],["l","غداء","🍽️"],["d","عشاء","🌙"],
+ ["coffee","قهوة","☕"],["matcha","ماتشا","🍵"],["juice","عصائر","🥤"],["protein","بروتين","💪"],
+ ["bakery","حلا","🍰"],["sports","رياضة","🎯"],["visit","نشاط وزيارة","📸"],["beachclub","شاطئ","🏖️"]];
+function openFlow(step){
+  const P_=document.getElementById("wpanel");
+  const btn=(t,on,id)=>`<button class="fchip" data-id="${id}" aria-pressed="${on}">${t}</button>`;
+  let html=`<div class="grab"></div><div class="step">خطوة ${step+1} من 5</div>`;
+  if(step===0){html+=`<div class="ptitle">وين أنت؟</div><div class="fchips" style="flex-direction:column">
+    <button class="vrow" data-w="gps"><span class="vi">📍</span><span class="vt">موقعي الحالي</span><span class="va">‹</span></button>
+    ${AREAS.map(a=>`<button class="vrow" data-w="area:${esc(a)}"><span class="vi">🗺️</span><span class="vt">${esc(a)}</span>
+     <span class="vn">${PLACES.filter(p=>p.a===a).length}</span><span class="va">‹</span></button>`).join("")}
+    ${PLACES.filter(p=>p.k==="hotel").slice(0,6).map(h=>`<button class="vrow" data-w="hotel:${esc(h.n)}">
+     <span class="vi">🏨</span><span class="vt">${esc(h.n)}</span><span class="va">‹</span></button>`).join("")}</div>`;}
+  if(step===1){html+=`<div class="ptitle">وش تبي؟</div><div class="fchips">
+    ${WHATS.map(([k,l,i])=>btn(i+" "+l,FLOW.what===k,"what:"+k)).join("")}</div>
+    <div class="frow"><button class="tbtn" data-n="2" style="background:var(--jade);border-color:var(--jade);color:#fff">التالي</button></div>`;}
+  if(step===2){html+=`<div class="ptitle">كم تبي تبعد؟</div><div class="fchips">
+    ${[[2,"قريب جدًا"],[5,"أقل من ١٠ دقايق"],[10,"أقل من ٢٠ دقيقة"],[18,"أقل من ٣٠ دقيقة"],[0,"أي مسافة"]]
+      .map(([v,l])=>btn(l,FLOW.km===v,"km:"+v)).join("")}</div>
+    <div class="frow"><button class="tbtn" data-n="3" style="background:var(--jade);border-color:var(--jade);color:#fff">التالي</button></div>`;}
+  if(step===3){html+=`<div class="ptitle">الميزانية</div><div class="fchips">
+    ${[["$","اقتصادي"],["$$","متوسط"],["$$$$","مرتفع"],["","لا يهم"]].map(([v,l])=>btn(l,FLOW.budget===v,"bud:"+v)).join("")}</div>
+    <div class="frow"><button class="tbtn" data-n="4" style="background:var(--jade);border-color:var(--jade);color:#fff">التالي</button></div>`;}
+  if(step===4){html+=`<div class="ptitle">شي إضافي؟</div><div class="fchips">
+    ${[["open","مفتوح الآن"],["nobooking","بدون حجز"],["family","مناسب للعائلة"],["quiet","هادئ"],
+       ["healthy","صحي"],["halal","حلال"],["noalcohol","بدون كحول"],["nopork","بدون خنزير"],
+       ["arabic","عربي"],["work","مناسب للعمل"],["view","إطلالة وغروب"]]
+      .map(([v,l])=>btn(l,FLOW.extra.has(v),"ex:"+v)).join("")}</div>
+    <div class="frow"><button class="tbtn" data-n="go" style="background:var(--jade);border-color:var(--jade);color:#fff">اعرض النتائج</button></div>`;}
+  P_.innerHTML=html;
+  P_.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
+    const v=b.dataset.w;
+    if(v==="gps"){askGps(()=>openFlow(1));return;}
+    if(v.startsWith("area:")){const a=v.slice(5);const c=areaCenter(a);if(c){me=c;meLabel=a;}FLOW.where=a;}
+    if(v.startsWith("hotel:")){const h=PLACES.find(p=>p.n===v.slice(6));if(h){me=[h.lat,h.lng];meLabel=h.n;}}
+    openFlow(1);});
+  P_.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{
+    const raw=b.dataset.id,i=raw.indexOf(":"),k=raw.slice(0,i),v=raw.slice(i+1);
+    if(k==="what")FLOW.what=v;
+    if(k==="km")FLOW.km=+v;
+    if(k==="bud")FLOW.budget=v;
+    if(k==="ex")FLOW.extra.has(v)?FLOW.extra.delete(v):FLOW.extra.add(v);
+    openFlow(step);});
+  P_.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{
+    if(b.dataset.n==="go")applyFlow();else openFlow(+b.dataset.n);});
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+  document.getElementById("flow").classList.add("on");
+}
+function applyFlow(){
+  Object.assign(state,{home:false,sec:"",sub:"",meal:"",mealPicked:true,subPicked:true,
+    area:"",q:"",minR:0,openNow:false,maxKm:0,
+    starred:false,unvisited:false,sug:false,sort:"best"});
+  state.cats.clear();state.price.clear();state.tagsOn.clear();
+  const w=FLOW.what;
+  if(["b","br","l","d"].includes(w)){state.sec="food";state.meal=w;}
+  else if(["coffee","matcha","juice"].includes(w)){state.sec="drinks";state.sub=w;}
+  else if(w==="protein"){state.sec="drinks";state.sub="protein";}
+  else if(w==="bakery"){state.sec="food";state.sub="bakery";}
+  else if(w==="sports"){state.sec="sports";}
+  else if(w==="visit"){state.sec="visit";}
+  else if(w==="beachclub"){state.sec="beach";state.sub="beachclub";}
+  if(FLOW.km)state.maxKm=FLOW.km;
+  if(FLOW.budget)state.price.add(FLOW.budget);
+  FLOW.extra.forEach(x=>{if(x==="open")state.openNow=true;else state.tagsOn.add(x);});
+  setSortUI("best");close();window.scrollTo({top:0});render();
+}
+function surprise(){
+  const pool=filtered().length?filtered():PLACES.filter(p=>p.desc);
+  const top=pool.slice().sort((a,b)=>score(b)-score(a)).slice(0,8);
+  if(!top.length)return;
+  const pick=top[Math.floor(Math.random()*Math.min(5,top.length))];
+  state.home=false;close();openDetail(pick.n);
+}
+
+/* ---------------- detail ---------------- */
 function openDetail(name){
-  const p = PLACES.find(x=>x.n===name); if(!p) return;
-  const m = mk(p.n);
-  const photos = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.n+" Bali")}`;
-  document.getElementById("dpanel").innerHTML = `
-    <div class="grab"></div>
-    <div class="dband" style="background:linear-gradient(135deg,${tintBg(p.k)},${tintFg(p.k)}18)">
-      <span>${EMO[p.k]||"📍"}</span></div>
-    <div class="dname">${esc(p.n)}</div>
-    <div class="dsub">
-      <span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
-      <span>${esc(p.a)}${p.o?" · محفوظ باسم: "+esc(p.o):""}</span>
-      ${p.sug?'<span class="sug">مقترح — مو من قوائمك</span>':""}
-    </div>
-    <div class="dstats">
-      <div><span>التقييم</span><strong>${p.r?p.r.toFixed(1):"—"}</strong></div>
-      <div><span>المراجعات</span><strong>${p.rc?p.rc.toLocaleString("en"):"—"}</strong></div>
-      <div><span>السعر</span><strong>${p.p||"—"}</strong></div>
-      ${me&&p.lat?`<div><span>المسافة من ${esc(meLabel)}</span><strong style="font-size:15px">${fmtKm(dist(me[0],me[1],p.lat,p.lng))}</strong></div>`:""}
-    </div>
-    ${p.desc?`<p class="ddesc">${esc(p.desc)}</p>`:""}
-    ${p.res?`<p class="dres">${p.act?"يحتاج حجز مسبق":"يفضّل الحجز المسبق"}</p>`:""}
-    <a class="primary" href="${p.u}" target="_blank" rel="noopener">افتح في الخرائط</a>
-    <div class="acts">
-      <a href="${photos}" target="_blank" rel="noopener">شوف الصور</a>
-      ${p.ph?`<a href="https://wa.me/${p.ph.replace(/[^0-9]/g,"")}" target="_blank" rel="noopener">واتساب</a>
-      <a href="tel:${p.ph}">اتصال</a>`:""}
-      ${FOODK.has(p.k)?`<button id="menubtn">المنيو بالعربي</button>`:""}
-      <button id="star" class="${m.s?"on":""}">${m.s?"★ مميّز":"☆ ميّزه"}</button>
-      <button id="vis" class="${m.v?"on":""}">${m.v?"✓ زرته":"سجّل زيارة"}</button>
-    </div>
-    <div id="menuwrap"></div>
-    <textarea id="note" placeholder="ملاحظاتك عن المكان…">${esc(m.note||"")}</textarea>`;
-  const set = async (patch)=>{ marks[p.n] = Object.assign({}, mk(p.n), patch); await saveMarks(); openDetail(p.n); render(); };
-  document.getElementById("star").onclick = ()=>set({s: mk(p.n).s?0:1});
-  document.getElementById("vis").onclick  = ()=>set({v: mk(p.n).v?0:1});
-  const mb = document.getElementById("menubtn");
-  if(mb) mb.onclick = ()=>showMenu(p, false);
-  if(FOODK.has(p.k)) peekCachedMenu(p);
-  document.getElementById("note").onchange = e=>{ marks[p.n]=Object.assign({},mk(p.n),{note:e.target.value}); saveMarks(); };
+  const p=PLACES.find(x=>x.n===name);if(!p)return;
+  const m=mk(p.n),km=kmOf(p),op=openState(p);
+  const photos=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.n+" Bali")}`;
+  const T=p.tags||[];
+  const warn=[];if(T.includes("pork"))warn.push("فيه أطباق خنزير");
+  if(T.includes("alcohol")&&!T.includes("noalcohol"))warn.push("يقدّم كحول");
+  if(T.includes("minspend"))warn.push("حد أدنى للصرف");
+  if(T.includes("premium"))warn.push("أسعاره مرتفعة");
+  if(p.res)warn.push("يحتاج حجز مسبق");
+  const good=[];if(T.includes("halal"))good.push("حلال");
+  if(T.includes("arabic"))good.push("طاقم يتكلم عربي");
+  if(T.includes("prayer"))good.push("فيه مصلى");
+  if(T.includes("noalcohol"))good.push("خيارات بدون كحول");
+  if(T.includes("family"))good.push("مناسب للعائلة");
+  if(T.includes("work"))good.push("مناسب للعمل");
+  const why=whyList(p);
+  document.getElementById("dpanel").innerHTML=`<div class="grab"></div>
+   <div class="dband" style="background:linear-gradient(135deg,${tintBg(p.k)},${tintFg(p.k)}18)"><span>${EMO[p.k]||"📍"}</span></div>
+   <div class="dname">${esc(p.n)}</div>
+   <div class="dsub"><span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
+    <span>${esc(p.a)}${p.o?" · محفوظ باسم: "+esc(p.o):""}</span>
+    ${p.sug?'<span class="sug">مقترح</span>':""}
+    ${op===1?'<span class="sug">مفتوح الآن</span>':op===0?`<span class="shut">مسكّر · يفتح ${hhmm(p.oh[0])}</span>`:""}</div>
+   <div class="dstats">
+    <div><span>التقييم</span><strong>${p.r?p.r.toFixed(1):"—"}</strong></div>
+    <div><span>المراجعات</span><strong>${p.rc?p.rc.toLocaleString("en"):"—"}</strong></div>
+    <div><span>السعر</span><strong>${p.p||"—"}</strong></div>
+    ${km!=null?`<div><span>من ${esc(meLabel)}</span><strong style="font-size:15px">${fmtKm(km)}</strong></div>`:""}
+    ${p.oh?`<div><span>الدوام</span><strong style="font-size:14px">${hhmm(p.oh[0])}–${hhmm(p.oh[1])}</strong></div>`:""}</div>
+   ${why.length?`<div class="whybox"><h4>ليش هذا المكان؟</h4><ul>${why.map(w=>"<li>"+esc(w)+"</li>").join("")}</ul></div>`:""}
+   ${warn.length?`<div class="warn">${warn.map(w=>"<span>⚠️ "+esc(w)+"</span>").join("")}</div>`:""}
+   ${good.length?`<div class="warn good">${good.map(w=>"<span>✓ "+esc(w)+"</span>").join("")}</div>`:""}
+   ${p.desc?`<p class="ddesc">${esc(p.desc)}</p>`:""}
+   <a class="primary" href="${p.u}" target="_blank" rel="noopener">افتح في الخرائط</a>
+   <div class="acts"><a href="${photos}" target="_blank" rel="noopener">شوف الصور</a>
+    ${p.ph?`<a href="https://wa.me/${p.ph.replace(/[^0-9]/g,"")}" target="_blank" rel="noopener">واتساب</a>
+    <a href="tel:${p.ph}">اتصال</a>`:""}
+    ${FOODK.has(p.k)?`<button id="menubtn">المنيو بالعربي</button>`:""}
+    <button id="star" class="${m.s?"on":""}">${m.s?"★ مميّز":"☆ ميّزه"}</button>
+    <button id="vis" class="${m.v?"on":""}">${m.v?"✓ زرته":"سجّل زيارة"}</button></div>
+   <div id="menuwrap"></div>
+   <textarea id="note" placeholder="ملاحظاتك عن المكان…">${esc(m.note||"")}</textarea>`;
+  const set=async patch=>{marks[p.n]=Object.assign({},mk(p.n),patch);await saveMarks();openDetail(p.n);render();};
+  document.getElementById("star").onclick=()=>set({s:mk(p.n).s?0:1});
+  document.getElementById("vis").onclick=()=>set({v:mk(p.n).v?0:1});
+  const mb=document.getElementById("menubtn");if(mb)mb.onclick=()=>showMenu(p,false);
+  if(FOODK.has(p.k))peekCachedMenu(p);
+  document.getElementById("note").onchange=e=>{marks[p.n]=Object.assign({},mk(p.n),{note:e.target.value});saveMarks();};
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
   document.getElementById("detail").classList.add("on");
 }
 
-/* ---------- menu ---------- */
-const FOODK = new Set(["cafe","bakery","italian","steak","seafood","indo","asian","indian","me",
-  "burger","sandwich","mex","beachclub","bar","breakfast","rest"]);
-const menuKey = n => "menu:" + n.slice(0,120).replace(/[\s/\\'"]/g,"_");
-const textOf = d => (d.content||[]).map(b=>b.type==="text"?b.text:"").filter(Boolean).join("\n").trim();
-const gsearch = p => "https://www.google.com/search?q=" + encodeURIComponent(p.n + " Bali menu");
-
-async function peekCachedMenu(p){
-  try{ const r = await window.storage.get(menuKey(p.n));
-    if(r && r.value){ const c = JSON.parse(r.value); paintMenu(p, c.txt, c.t); } }catch(e){}
-}
-function paintMenu(p, txt, when, loading, err){
-  const w = document.getElementById("menuwrap"); if(!w) return;
-  const age = when ? new Date(when).toLocaleDateString("ar-EG",{day:"numeric",month:"long"}) : "";
-  w.innerHTML = `<div class="menubox">
-    <h4>${loading?'<span class="spin"></span> جاري جلب المنيو…':"🍽️ المنيو"}</h4>
-    ${err?`<div class="txt" style="color:var(--clay)">${esc(err)}</div>`:""}
-    <div class="txt">${esc(txt||"")}</div>
-    ${loading?"":`<div class="meta">
-      ${txt?`<span>مُجمّع من الإنترنت${age?" · "+age:""} — أكّد الأسعار مع المكان</span>`:""}
-      <button id="menuref">${txt?"تحديث":"أعد المحاولة"}</button>
-      <a href="${gsearch(p)}" target="_blank" rel="noopener">ابحث في قوقل</a></div>`}
-  </div>`;
-  const r = document.getElementById("menuref"); if(r) r.onclick = ()=>showMenu(p, true);
-}
+/* ---------------- menu ---------------- */
+const FOODK=new Set(["cafe","bakery","italian","steak","seafood","indo","asian","indian","me","burger",
+ "sandwich","mex","beachclub","bar","breakfast","rest","matcha","juice","protein"]);
+const menuKey=n=>"menu:"+n.slice(0,120).replace(/[\s/\\'"]/g,"_");
+const textOf=d=>(d.content||[]).map(b=>b.type==="text"?b.text:"").filter(Boolean).join("\n").trim();
+const gsearch=p=>"https://www.google.com/search?q="+encodeURIComponent(p.n+" Bali menu");
+async function peekCachedMenu(p){try{const r=await window.storage.get(menuKey(p.n));
+ if(r&&r.value){const c=JSON.parse(r.value);paintMenu(p,c.txt,c.t);}}catch(e){}}
+function paintMenu(p,txt,when,loading,err){
+  const w=document.getElementById("menuwrap");if(!w)return;
+  const age=when?new Date(when).toLocaleDateString("ar-EG",{day:"numeric",month:"long"}):"";
+  w.innerHTML=`<div class="menubox"><h4>${loading?'<span class="spin"></span> جاري جلب المنيو…':"🍽️ المنيو"}</h4>
+   ${err?`<div class="txt" style="color:var(--clay)">${esc(err)}</div>`:""}
+   <div class="txt">${esc(txt||"")}</div>
+   ${loading?"":`<div class="meta">${txt?`<span>مُجمّع من الإنترنت${age?" · "+age:""}</span>`:""}
+    <button id="menuref">${txt?"تحديث":"أعد المحاولة"}</button>
+    <a href="${gsearch(p)}" target="_blank" rel="noopener">ابحث في قوقل</a></div>`}</div>`;
+  const r=document.getElementById("menuref");if(r)r.onclick=()=>showMenu(p,true);}
 async function rawCall(body){
-  const res = await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
-  let data=null, raw="";
-  try{ data = await res.json(); }
-  catch(e){ try{ raw = await res.text(); }catch(e2){} throw new Error("HTTP "+res.status+" "+raw.slice(0,120)); }
-  if(data && data.error) throw new Error((data.error.message||JSON.stringify(data.error)).slice(0,160));
-  if(!res.ok) throw new Error("HTTP "+res.status);
-  return data;
-}
-async function runMenu(q){
-  let msgs=[{role:"user",content:q}];
-  for(let i=0;i<4;i++){
-    const data = await rawCall({model:"claude-sonnet-4-6",max_tokens:1000,messages:msgs,
-      tools:[{type:"web_search_20250305",name:"web_search"}]});
-    const t = textOf(data);
-    if(data.stop_reason==="pause_turn"){ msgs=msgs.concat([{role:"assistant",content:data.content}]); continue; }
-    if(t) return t;
-    msgs=msgs.concat([{role:"assistant",content:data.content},{role:"user",content:"اكتب المنيو الآن بالعربية."}]);
-  }
-  return "";
-}
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+   headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  let data=null;try{data=await res.json();}catch(e){throw new Error("HTTP "+res.status);}
+  if(data&&data.error)throw new Error((data.error.message||"خطأ").slice(0,160));
+  if(!res.ok)throw new Error("HTTP "+res.status);return data;}
+async function runMenu(q){let msgs=[{role:"user",content:q}];
+  for(let i=0;i<4;i++){const d=await rawCall({model:"claude-sonnet-4-6",max_tokens:1000,messages:msgs,
+    tools:[{type:"web_search_20250305",name:"web_search"}]});
+   const t=textOf(d);
+   if(d.stop_reason==="pause_turn"){msgs=msgs.concat([{role:"assistant",content:d.content}]);continue;}
+   if(t)return t;
+   msgs=msgs.concat([{role:"assistant",content:d.content},{role:"user",content:"اكتب المنيو الآن بالعربية."}]);}
+  return "";}
 async function callAny(prompt){
-  const shapes=[
-    {model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]},
-    {model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[{type:"text",text:prompt}]}]}
-  ];
-  let last="";
-  for(const b of shapes){
-    try{ const d=await rawCall(b); const t=textOf(d); if(t) return {txt:t,err:""}; last="رد فاضي"; }
-    catch(e){ last=(e&&e.message)?e.message:String(e); }
-  }
-  return {txt:"",err:last};
-}
-async function showMenu(p, force){
-  if(!force){ try{ const c=await window.storage.get(menuKey(p.n));
-    if(c&&c.value){ const v=JSON.parse(c.value); paintMenu(p,v.txt,v.t); return; } }catch(e){} }
+  for(const b of [{model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]},
+   {model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[{type:"text",text:prompt}]}]}]){
+   try{const d=await rawCall(b);const t=textOf(d);if(t)return {txt:t,err:""};}catch(e){var last=e.message;}}
+  return {txt:"",err:typeof last!=="undefined"?last:"رد فاضي"};}
+async function showMenu(p,force){
+  if(!force){try{const c=await window.storage.get(menuKey(p.n));
+   if(c&&c.value){const v=JSON.parse(c.value);paintMenu(p,v.txt,v.t);return;}}catch(e){}}
   paintMenu(p,"",null,true);
-  const base = `مكان اسمه "${p.n}" في منطقة ${p.a} في بالي بإندونيسيا (${p.c}).
-اكتب المنيو بالعربية فقط وبدون مقدمة، ومختصر:
-• قسّم الأصناف لأقسام حسب المتاح
-• لكل صنف: الاسم بالعربية ثم الأصلي بين قوسين، ثم السعر بالروبية إن توفر
-• ضع ⚠️ أمام أي صنف فيه لحم خنزير أو كحول
-• اذكر أشهر ٣ أصناف يوصي بها الزوار`;
-  let txt="", err="";
-  try{ txt = await runMenu("ابحث في الإنترنت عن المنيو الحالي لـ " + base + "\n• آخر سطر: المصدر"); }
-  catch(e){ err=(e&&e.message)?e.message:String(e); }
-  if(!txt){
-    const r = await callAny(base + "\n(اعتمد على معلوماتك، واكتب في أول سطر: معلومات تقريبية غير مؤكدة)");
-    txt=r.txt; if(!txt) err=r.err||err;
-  }
-  if(!txt){ paintMenu(p,"",null,false,"تعذّر جلب المنيو"+(err?" — "+err:"")+". استخدم «ابحث في قوقل»."); return; }
-  const t=Date.now(); paintMenu(p,txt,t);
-  try{ await window.storage.set(menuKey(p.n), JSON.stringify({txt,t})); }catch(e){}
-}
+  const base=`مكان اسمه "${p.n}" في ${p.a} في بالي (${p.c}).
+اكتب المنيو بالعربية فقط وبدون مقدمة: قسّمه لأقسام، ولكل صنف الاسم بالعربية ثم الأصلي بين قوسين ثم السعر بالروبية إن توفر،
+وضع ⚠️ أمام أي صنف فيه لحم خنزير أو كحول، واذكر أشهر ٣ أصناف.`;
+  let txt="",err="";
+  try{txt=await runMenu("ابحث في الإنترنت عن المنيو الحالي لـ "+base);}catch(e){err=e.message;}
+  if(!txt){const r=await callAny(base+"\n(اعتمد على معلوماتك واكتب في أول سطر: معلومات تقريبية غير مؤكدة)");
+   txt=r.txt;if(!txt)err=r.err||err;}
+  if(!txt){paintMenu(p,"",null,false,"تعذّر جلب المنيو"+(err?" — "+err:"")+". استخدم «ابحث في قوقل».");return;}
+  const t=Date.now();paintMenu(p,txt,t);
+  try{await window.storage.set(menuKey(p.n),JSON.stringify({txt,t}));}catch(e){}}
 
-/* ---------- about + backup ---------- */
+/* ---------------- about / backup ---------------- */
 function openAbout(){
-  const marked = PLACES.filter(p=>mk(p.n).s||mk(p.n).v||mk(p.n).note).length;
-  document.getElementById("ppanel").innerHTML = `
-    <div class="grab"></div>
-    <div class="ptitle">عن جالان</div>
-    <div class="psub">${PLACES.length} محطة في ${AREAS.length} مناطق · ${PLACES.filter(p=>p.desc).length} منها بوصف وأطباق مميزة</div>
-    <div class="fgroup"><h3>من وين البيانات</h3>
-      <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--muted)">
-      الأماكن والإحداثيات من قوائمك المحفوظة في Google Maps.<br>
-      التقييمات والأسعار والأرقام وساعات العمل من Google Places.<br>
-      الأطباق المميزة والملاحظات مستخلصة من مراجعات الزوار.<br>
-      الأماكن الموسومة «مقترح» ليست من قوائمك — أضفتها لك بناءً على شهرتها وتقييمها.<br><br>
-      ⚠️ الأسعار وساعات العمل تتغيّر. أكّدها بالواتساب قبل ما تروح أو تحجز.</p>
-    </div>
-    <div class="fgroup"><h3>علاماتك (${marked} مكان)</h3>
-      <p style="margin:0 0 10px;font-size:13.5px;color:var(--muted)">
-      النجوم و«زرته» والملاحظات محفوظة على حسابك. انسخها نسخة احتياطية لو حبيت.</p>
-      <div class="frow"><button class="tbtn" id="expm">انسخ علاماتي</button>
-      <button class="tbtn" id="impm">استعادة من نسخة</button></div>
-    </div>
-    <p style="font-size:11.5px;color:var(--muted);text-align:center;margin:18px 0 0">
-      جالان — وين نروح اليوم؟</p>`;
-  document.getElementById("expm").onclick=()=>{
-    navigator.clipboard.writeText(JSON.stringify(marks)).then(()=>{
-      const b=document.getElementById("expm"); b.textContent="تم النسخ ✓";
-      setTimeout(()=>b.textContent="انسخ علاماتي",1600); }).catch(()=>{});
-  };
-  document.getElementById("impm").onclick=async()=>{
-    try{
-      const t = await navigator.clipboard.readText();
-      const o = JSON.parse(t);
-      if(o && typeof o === "object"){ marks = Object.assign({}, marks, o); await saveMarks();
-        const b=document.getElementById("impm"); b.textContent="تمت الاستعادة ✓"; render();
-        setTimeout(()=>b.textContent="استعادة من نسخة",1600); }
-    }catch(e){
-      const b=document.getElementById("impm"); b.textContent="ما فيه نسخة في الحافظة";
-      setTimeout(()=>b.textContent="استعادة من نسخة",1900);
-    }
-  };
+  const marked=PLACES.filter(p=>mk(p.n).s||mk(p.n).v||mk(p.n).note).length;
+  document.getElementById("ppanel").innerHTML=`<div class="grab"></div>
+   <div class="ptitle">عن جالان</div>
+   <div class="psub">${PLACES.length} محطة · ${PLACES.filter(p=>p.desc).length} بوصف · ${PLACES.filter(p=>p.oh).length} بساعات دوام</div>
+   <div class="fgroup"><h3>من وين البيانات</h3>
+    <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--muted)">
+    الأماكن من قوائمك في Google Maps · التقييمات والأسعار والأرقام والدوام من Google Places ·
+    الأطباق والملاحظات من مراجعات الزوار · الموسومة «مقترح» أضفناها لك.<br><br>
+    ⚠️ الأسعار والدوام يتغيّران. أكّدهما بالواتساب قبل الحجز. الأماكن اللي ما عندها دوام موثّق تظهر بدون حالة فتح.</p></div>
+   <div class="fgroup"><h3>علاماتك (${marked} مكان)</h3>
+    <div class="frow"><button class="tbtn" id="expm">انسخ علاماتي</button>
+    <button class="tbtn" id="impm">استعادة من نسخة</button></div></div>`;
+  document.getElementById("expm").onclick=()=>navigator.clipboard.writeText(JSON.stringify(marks))
+   .then(()=>{const b=document.getElementById("expm");b.textContent="تم النسخ ✓";setTimeout(()=>b.textContent="انسخ علاماتي",1600);}).catch(()=>{});
+  document.getElementById("impm").onclick=async()=>{try{const o=JSON.parse(await navigator.clipboard.readText());
+   marks=Object.assign({},marks,o);await saveMarks();render();
+   const b=document.getElementById("impm");b.textContent="تمت الاستعادة ✓";setTimeout(()=>b.textContent="استعادة من نسخة",1600);}
+   catch(e){const b=document.getElementById("impm");b.textContent="ما فيه نسخة صالحة";setTimeout(()=>b.textContent="استعادة من نسخة",1900);}};
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
-  document.getElementById("plan").classList.add("on");
-}
+  document.getElementById("plan").classList.add("on");}
 
-/* ---------- "near me" reference point ---------- */
-let meLabel = "";
-const areaCenter = a => {
-  const ps = PLACES.filter(p=>p.a===a && p.lat);
-  if(!ps.length) return null;
-  return [ps.reduce((s,p)=>s+p.lat,0)/ps.length, ps.reduce((s,p)=>s+p.lng,0)/ps.length];
-};
-function setRef(latlng, label){
-  me = latlng; meLabel = label;
-  setSortUI("near"); state.sort="near"; state.home=false;
-  close(); render();
-}
+/* ---------------- near-me reference ---------------- */
+const areaCenter=a=>{const ps=PLACES.filter(p=>p.a===a&&p.lat);if(!ps.length)return null;
+ return [ps.reduce((s,p)=>s+p.lat,0)/ps.length,ps.reduce((s,p)=>s+p.lng,0)/ps.length];};
+function setRef(ll,label){me=ll;meLabel=label;setSortUI("near");state.sort="near";state.home=false;close();render();}
 function openNear(err){
-  const hotels = PLACES.filter(p=>p.k==="hotel" && p.lat)
-    .sort((a,b)=>(b.r||0)-(a.r||0)).slice(0,12);
-  document.getElementById("npanel").innerHTML = `
-    <div class="grab"></div>
-    <div class="ptitle">من وين نحسب المسافة؟</div>
-    ${err?`<div class="nerr">${esc(err)}</div>`:
-      `<div class="psub">استخدم موقعك الحالي وأنت في بالي، أو اختر نقطة انطلاق.</div>`}
-    <button class="primary" id="usegps" style="margin-top:0">📍 استخدم موقعي الحالي</button>
-    <div class="fgroup" style="margin-top:18px"><h3>أو ابدأ من منطقة</h3>
-      <div class="fchips">${AREAS.map(a=>`<button class="fchip" data-area="${esc(a)}">${esc(a)}</button>`).join("")}</div>
-    </div>
-    ${hotels.length?`<div class="fgroup"><h3>أو من مكان إقامتك</h3><div class="nlist">
-      ${hotels.map(h=>`<button data-h="${esc(h.n)}"><span>🏨</span><span>${esc(h.n)}</span>
-        <span class="n">${esc(h.a)}</span></button>`).join("")}</div></div>`:""}`;
-  document.getElementById("usegps").onclick = askGps;
+  const hotels=PLACES.filter(p=>p.k==="hotel"&&p.lat).sort((a,b)=>(b.r||0)-(a.r||0)).slice(0,10);
+  document.getElementById("npanel").innerHTML=`<div class="grab"></div>
+   <div class="ptitle">من وين نحسب المسافة؟</div>
+   ${err?`<div class="nerr">${esc(err)}</div>`:`<div class="psub">موقعك الحالي وأنت في بالي، أو نقطة انطلاق.</div>`}
+   <button class="primary" id="usegps" style="margin-top:0">📍 استخدم موقعي الحالي</button>
+   <div class="fgroup" style="margin-top:18px"><h3>أو ابدأ من منطقة</h3><div class="fchips">
+    ${AREAS.map(a=>`<button class="fchip" data-area="${esc(a)}">${esc(a)}</button>`).join("")}</div></div>
+   ${hotels.length?`<div class="fgroup"><h3>أو من مكان إقامتك</h3><div class="nlist">
+    ${hotels.map(h=>`<button data-h="${esc(h.n)}"><span>🏨</span><span>${esc(h.n)}</span>
+     <span class="n">${esc(h.a)}</span></button>`).join("")}</div></div>`:""}`;
+  document.getElementById("usegps").onclick=()=>askGps();
   document.querySelectorAll("#npanel [data-area]").forEach(b=>b.onclick=()=>{
-    const c = areaCenter(b.dataset.area); if(c) setRef(c, b.dataset.area); });
+   const c=areaCenter(b.dataset.area);if(c)setRef(c,b.dataset.area);});
   document.querySelectorAll("#npanel [data-h]").forEach(b=>b.onclick=()=>{
-    const h = PLACES.find(p=>p.n===b.dataset.h); if(h) setRef([h.lat,h.lng], h.n); });
+   const h=PLACES.find(p=>p.n===b.dataset.h);if(h)setRef([h.lat,h.lng],h.n);});
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
-  document.getElementById("near").classList.add("on");
-}
-function askGps(){
-  if(!navigator.geolocation){ openNear("متصفحك ما يدعم تحديد الموقع. اختر منطقة من تحت."); return; }
-  const btn = document.getElementById("usegps");
-  if(btn) btn.textContent = "جاري تحديد موقعك…";
+  document.getElementById("near").classList.add("on");}
+function askGps(then){
+  if(!navigator.geolocation){openNear("متصفحك ما يدعم تحديد الموقع. اختر منطقة.");return;}
+  const b=document.getElementById("usegps");if(b)b.textContent="جاري تحديد موقعك…";
   navigator.geolocation.getCurrentPosition(
-    p=>{
-      const d = dist(p.coords.latitude, p.coords.longitude, -8.65, 115.19);
-      setRef([p.coords.latitude, p.coords.longitude], d>300 ? "موقعك الحالي" : "موقعك");
-    },
-    e=>{
-      const msg = e.code===1 ? "رفض الإذن. من إعدادات آيفون ← Safari ← الموقع، فعّل «اسأل» أو «سماح»، وأعد المحاولة."
-        : e.code===2 ? "ما قدر يحدد موقعك الحين. جرّب مرة ثانية أو اختر منطقة."
-        : "انتهت مهلة تحديد الموقع. اختر منطقة من تحت.";
-      openNear(msg);
-    },
-    {timeout:10000, enableHighAccuracy:false, maximumAge:60000});
-}
+   p=>{me=[p.coords.latitude,p.coords.longitude];meLabel="موقعك";
+     if(then){then();}else{setRef(me,"موقعك");}},
+   e=>{openNear(e.code===1?"رفض الإذن. إعدادات آيفون ← Safari ← الموقع، فعّل «اسأل» أو «سماح»."
+     :e.code===2?"ما قدر يحدد موقعك الحين. اختر منطقة.":"انتهت المهلة. اختر منطقة.");},
+   {timeout:10000,maximumAge:60000});}
 
-/* ---------- suggested day plans ---------- */
-const SLOTS = [
-  {t:"٧:٣٠",  lab:"فطور",  ok:p=>p.b && FOODK.has(p.k)},
-  {t:"١٠:٠٠", lab:"قهوة",  ok:p=>p.k==="cafe"||p.k==="bakery"},
-  {t:"١٢:٣٠", lab:"غداء",  ok:p=>p.l && FOODK.has(p.k)},
-  {t:"١٥:٣٠", lab:"نشاط",  ok:p=>p.act||p.k==="spa"||p.k==="gym"},
-  {t:"١٧:٣٠", lab:"غروب",  ok:p=>p.k==="beachclub"||p.k==="nature"||p.k==="bar"||p.k==="attraction"},
-  {t:"٢٠:٠٠", lab:"عشاء",  ok:p=>p.d && FOODK.has(p.k)},
-  {t:"٢٢:٠٠", lab:"حلا",   ok:p=>p.k==="bakery"}
-];
-let planArea = "", planIdx = {};
-
-function slotCands(i){
-  const S = SLOTS[i];
-  return PLACES.filter(p=>p.a===planArea && S.ok(p))
-    .sort((a,b)=>(mk(b.n).s?1:0)-(mk(a.n).s?1:0) || (b.r||0)-(a.r||0) || (b.rc||0)-(a.rc||0));
-}
-function buildPlan(){
-  const used = new Set(), out = [];
-  SLOTS.forEach((S,i)=>{
-    const c = slotCands(i).filter(p=>!used.has(p.n));
-    if(!c.length){ out.push({S,p:null,n:0}); return; }
-    const idx = ((planIdx[i]||0) % c.length + c.length) % c.length;
-    const p = c[idx]; used.add(p.n);
-    out.push({S,p,n:c.length});
-  });
-  return out;
-}
+/* ---------------- planner ---------------- */
+const SLOTS=[{t:"٧:٣٠",lab:"فطور",ok:p=>p.b&&FOODK.has(p.k)},
+ {t:"١٠:٠٠",lab:"قهوة",ok:p=>hasCat(p,"coffee")||hasCat(p,"matcha")||hasCat(p,"juice")},
+ {t:"١٢:٣٠",lab:"غداء",ok:p=>p.l&&FOODK.has(p.k)},
+ {t:"١٥:٣٠",lab:"نشاط",ok:p=>p.act||p.k==="spa"||hasCat(p,"gym")||hasCat(p,"recovery")},
+ {t:"١٧:٣٠",lab:"غروب",ok:p=>["beachclub","nature","bar","attraction"].includes(p.k)},
+ {t:"٢٠:٠٠",lab:"عشاء",ok:p=>p.d&&FOODK.has(p.k)},
+ {t:"٢٢:٠٠",lab:"حلا",ok:p=>hasCat(p,"bakery")}];
+let planArea="",planIdx={};
+function slotCands(i){const S=SLOTS[i];
+ return PLACES.filter(p=>p.a===planArea&&S.ok(p))
+  .sort((a,b)=>(mk(b.n).s?1:0)-(mk(a.n).s?1:0)||score(b)-score(a));}
+function buildPlan(){const used=new Set(),out=[];
+ SLOTS.forEach((S,i)=>{const c=slotCands(i).filter(p=>!used.has(p.n));
+  if(!c.length){out.push({S,p:null,n:0});return;}
+  const idx=((planIdx[i]||0)%c.length+c.length)%c.length;const p=c[idx];used.add(p.n);out.push({S,p,n:c.length});});
+ return out;}
 function openPlan(area){
-  planArea = area || planArea || (AREAS[0]||"");
-  const rows = buildPlan();
-  const areas = AREAS.filter(a=>PLACES.filter(p=>p.a===a).length>=6);
-  document.getElementById("ppanel").innerHTML = `
-    <div class="grab"></div>
-    <div class="ptitle">يوم في ${esc(planArea)}</div>
-    <div class="psub">مبني على أماكنك الأعلى تقييمًا في المنطقة — والمميّزة ★ تجي أول. بدّل أي محطة بـ ⟳.</div>
-    <div class="pareas">${areas.map(a=>
-      `<button class="chip" data-area="${esc(a)}" aria-pressed="${a===planArea}">${esc(a)}</button>`).join("")}</div>
-    ${rows.map((r,i)=>{
-      if(!r.p) return `<div class="slot"><div class="stime"><b>${r.S.t}</b><span>${r.S.lab}</span></div>
-        <div class="sbody pempty">ما فيه خيار مناسب في ${esc(planArea)}</div></div>`;
-      const m = mk(r.p.n);
-      return `<div class="slot">
-        <div class="stime"><b>${r.S.t}</b><span>${r.S.lab}</span></div>
-        <div class="sbody">
-          <span class="sname">${m.s?"★ ":""}${esc(r.p.n)}</span>
-          <span class="smeta">
-            <span class="tag" style="background:${tintBg(r.p.k)};color:${tintFg(r.p.k)}">${EMO[r.p.k]||"📍"} ${esc(r.p.c)}</span>
-            <span class="num">${r.p.r?r.p.r.toFixed(1):"—"}</span>
-          </span>
-        </div>
-        <div class="sact">
-          ${r.n>1?`<button data-swap="${i}" title="بدّل">⟳</button>`:""}
-          <button data-open="${esc(r.p.n)}">تفاصيل</button>
-        </div></div>`;
-    }).join("")}
-    <div class="frow" style="margin-top:14px">
-      <button class="tbtn" id="pcopy">انسخ الجدول</button>
-      <button class="tbtn" id="pshuffle" style="background:var(--jade);border-color:var(--jade);color:#fff">
-        جدول ثاني</button>
-    </div>`;
-  document.querySelectorAll("#ppanel [data-area]").forEach(b=>b.onclick=()=>{ planIdx={}; openPlan(b.dataset.area); });
-  document.querySelectorAll("#ppanel [data-swap]").forEach(b=>b.onclick=()=>{
-    const i=+b.dataset.swap; planIdx[i]=(planIdx[i]||0)+1; openPlan(planArea); });
-  document.querySelectorAll("#ppanel [data-open]").forEach(b=>b.onclick=()=>{
-    close(); openDetail(b.dataset.open); });
-  document.getElementById("pshuffle").onclick=()=>{
-    SLOTS.forEach((_,i)=>planIdx[i]=(planIdx[i]||0)+1); openPlan(planArea); };
+  planArea=area||planArea||AREAS[0];const rows=buildPlan();
+  const areas=AREAS.filter(a=>PLACES.filter(p=>p.a===a).length>=6);
+  document.getElementById("ppanel").innerHTML=`<div class="grab"></div>
+   <div class="ptitle">يوم في ${esc(planArea)}</div>
+   <div class="psub">مبني على أماكنك — المميّزة ★ أول، ثم الأنسب. بدّل أي محطة بـ ⟳.</div>
+   <div class="pareas">${areas.map(a=>`<button class="chip" data-area="${esc(a)}" aria-pressed="${a===planArea}">${esc(a)}</button>`).join("")}</div>
+   ${rows.map((r,i)=>{
+    if(!r.p)return `<div class="slot"><div class="stime"><b>${r.S.t}</b><span>${r.S.lab}</span></div>
+      <div class="sbody" style="color:var(--muted);font-size:13.5px">ما فيه خيار مناسب هنا</div></div>`;
+    const op=openState(r.p);
+    return `<div class="slot"><div class="stime"><b>${r.S.t}</b><span>${r.S.lab}</span></div>
+     <div class="sbody"><span class="sname">${mk(r.p.n).s?"★ ":""}${esc(r.p.n)}</span>
+      <span class="smeta"><span class="tag" style="background:${tintBg(r.p.k)};color:${tintFg(r.p.k)}">${EMO[r.p.k]||"📍"} ${esc(r.p.c)}</span>
+      <span class="num">${r.p.r?r.p.r.toFixed(1):"—"}</span>${op===0?' <span class="shut">مسكّر الحين</span>':""}</span></div>
+     <div class="sact">${r.n>1?`<button data-swap="${i}">⟳</button>`:""}<button data-open="${esc(r.p.n)}">تفاصيل</button></div></div>`;}).join("")}
+   <div class="frow" style="margin-top:14px"><button class="tbtn" id="pcopy">انسخ الجدول</button>
+    <button class="tbtn" id="pshuffle" style="background:var(--jade);border-color:var(--jade);color:#fff">جدول ثاني</button></div>`;
+  document.querySelectorAll("#ppanel [data-area]").forEach(b=>b.onclick=()=>{planIdx={};openPlan(b.dataset.area);});
+  document.querySelectorAll("#ppanel [data-swap]").forEach(b=>b.onclick=()=>{const i=+b.dataset.swap;
+   planIdx[i]=(planIdx[i]||0)+1;openPlan(planArea);});
+  document.querySelectorAll("#ppanel [data-open]").forEach(b=>b.onclick=()=>{close();openDetail(b.dataset.open);});
+  document.getElementById("pshuffle").onclick=()=>{SLOTS.forEach((_,i)=>planIdx[i]=(planIdx[i]||0)+1);openPlan(planArea);};
   document.getElementById("pcopy").onclick=()=>{
-    const txt = "يوم في " + planArea + "\n\n" + buildPlan()
-      .filter(r=>r.p).map(r=>`${r.S.t} · ${r.S.lab}: ${r.p.n}${r.p.r?" ("+r.p.r.toFixed(1)+")":""}`).join("\n")
-      + "\n\nجالان — وين نروح اليوم؟";
-    navigator.clipboard.writeText(txt).then(()=>{
-      const b=document.getElementById("pcopy"); b.textContent="تم النسخ ✓";
-      setTimeout(()=>{ b.textContent="انسخ الجدول"; },1600);
-    }).catch(()=>{});
-  };
+   const t="يوم في "+planArea+"\n\n"+buildPlan().filter(r=>r.p)
+    .map(r=>`${r.S.t} · ${r.S.lab}: ${r.p.n}${r.p.r?" ("+r.p.r.toFixed(1)+")":""}`).join("\n")+"\n\nجالان — وين نروح اليوم؟";
+   navigator.clipboard.writeText(t).then(()=>{const b=document.getElementById("pcopy");
+    b.textContent="تم النسخ ✓";setTimeout(()=>b.textContent="انسخ الجدول",1600);}).catch(()=>{});};
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
-  document.getElementById("plan").classList.add("on");
-}
+  document.getElementById("plan").classList.add("on");}
 
-/* ---------- filters ---------- */
-const filterPool = () => PLACES.filter(p=>{
-  if(state.sec){ const S=secOf(state.sec); if(!S||!S.keys.includes(p.k)) return false; }
-  return true;
-});
+/* ---------------- filters ---------------- */
+const filterPool=()=>PLACES.filter(p=>{if(state.sec){const S=secOf(state.sec);if(!S||!inSec(p,S))return false;}return true;});
 function openFilters(){
   const chip=(t,on,id,n)=>`<button class="fchip" data-id="${id}" aria-pressed="${on}">${t}${n!=null?` <b style="font-weight:500;opacity:.55">${n}</b>`:""}</button>`;
-  const pool = filterPool(), S = state.sec?secOf(state.sec):null;
-  const cats = [...new Set(pool.map(p=>p.c))].sort((x,y)=>pool.filter(p=>p.c===y).length-pool.filter(p=>p.c===x).length);
-  const meals = MEALS.filter(([k])=>pool.some(p=>p[k]));
-  const prices = ["$","$$","$$$","$$$$"].filter(v=>pool.some(p=>p.p===v));
-  const rates = [4,4.5,4.7].filter(v=>pool.some(p=>p.r>=v));
-  document.getElementById("fpanel").innerHTML = `
-    <div class="grab"></div>
-    <div class="fctx">فلاتر داخل: <b>${S?esc(S.label):"كل الأماكن"}</b>${state.area?" · "+esc(state.area):""}</div>
-    ${cats.length>1?`<div class="fgroup"><h3>التصنيف</h3><div class="fchips">
-      ${cats.map(c=>chip(esc(c), state.cats.has(c), "cat:"+c, pool.filter(p=>p.c===c).length)).join("")}</div></div>`:""}
-    ${meals.length?`<div class="fgroup"><h3>الوجبة</h3><div class="fchips">
-      ${meals.map(([k,t])=>chip(t, state.meal===k, "meal:"+k, pool.filter(p=>p[k]).length)).join("")}</div></div>`:""}
-    ${prices.length?`<div class="fgroup"><h3>السعر</h3><div class="fchips">
-      ${prices.map(v=>chip(v, state.price.has(v), "price:"+v, pool.filter(x=>x.p===v).length)).join("")}</div></div>`:""}
-    ${rates.length?`<div class="fgroup"><h3>أقل تقييم</h3><div class="fchips">
-      ${rates.map(v=>chip(v.toFixed(1)+" فأعلى", state.minR===v, "min:"+v, pool.filter(p=>p.r>=v).length)).join("")}</div></div>`:""}
-    <div class="fgroup"><h3>قوائمي</h3><div class="fchips">
-      ${chip("★ المميّزة", state.starred, "star:1")}
-      ${chip("اللي ما زرتها", state.unvisited, "unv:1")}
-      ${chip("📝 فيها وصف", state.hasDesc, "desc:1", pool.filter(p=>p.desc).length)}
-      ${chip("مقترحة لك", state.sug, "sug:1", pool.filter(p=>p.sug).length)}</div></div>
-    <div class="frow">
-      <button class="tbtn" id="clr">امسح الفلاتر</button>
-      <button class="tbtn" id="done" style="background:var(--jade);border-color:var(--jade);color:#fff">
-        عرض ${filtered().length} نتيجة</button></div>`;
+  const pool=filterPool(),S=state.sec?secOf(state.sec):null;
+  const subs=(S&&S.subs.length?S.subs:[...new Set(pool.map(p=>p.k))]).filter(k=>pool.some(p=>hasCat(p,k)));
+  const meals=MEALS.filter(([k])=>pool.some(p=>p[k]));
+  const prices=["$","$$","$$$","$$$$"].filter(v=>pool.some(p=>p.p===v));
+  const rates=[4,4.5,4.7].filter(v=>pool.some(p=>p.r>=v));
+  const feats=[["open","مفتوح الآن"],["nobooking","بدون حجز"],["family","للعائلة"],["quiet","هادئ"],
+   ["healthy","صحي"],["halal","حلال"],["arabic","عربي"],["noalcohol","بدون كحول"],["nopork","بدون خنزير"],
+   ["work","للعمل"],["view","إطلالة"],["budget","اقتصادي"],["premium","فاخر"]];
+  document.getElementById("fpanel").innerHTML=`<div class="grab"></div>
+   <div class="fctx">فلاتر داخل: <b>${S?esc(S.label):"كل الأماكن"}</b>${state.area?" · "+esc(state.area):""}</div>
+   ${subs.length>1?`<div class="fgroup"><h3>التصنيف</h3><div class="fchips">
+    ${subs.map(k=>chip((EMO[k]||"")+" "+(LBL[k]||k),state.cats.has(k),"cat:"+k,pool.filter(p=>hasCat(p,k)).length)).join("")}</div></div>`:""}
+   ${meals.length?`<div class="fgroup"><h3>الوجبة</h3><div class="fchips">
+    ${meals.map(([k,t,i])=>chip(i+" "+t,state.meal===k,"meal:"+k,pool.filter(p=>p[k]).length)).join("")}</div></div>`:""}
+   ${prices.length?`<div class="fgroup"><h3>السعر</h3><div class="fchips">
+    ${prices.map(v=>chip(v,state.price.has(v),"price:"+v,pool.filter(x=>x.p===v).length)).join("")}</div></div>`:""}
+   ${rates.length?`<div class="fgroup"><h3>أقل تقييم</h3><div class="fchips">
+    ${rates.map(v=>chip(v.toFixed(1)+" فأعلى",state.minR===v,"min:"+v,pool.filter(p=>p.r>=v).length)).join("")}</div></div>`:""}
+   ${me?`<div class="fgroup"><h3>المسافة</h3><div class="fchips">
+    ${[2,5,10,18].map(v=>chip("أقل من "+v+" كم",state.maxKm===v,"km:"+v)).join("")}</div></div>`:""}
+   <div class="fgroup"><h3>مواصفات</h3><div class="fchips">
+    ${feats.map(([v,l])=>chip(l,v==="open"?state.openNow:state.tagsOn.has(v),"tag:"+v)).join("")}</div></div>
+   <div class="fgroup"><h3>قوائمي</h3><div class="fchips">
+    ${chip("★ المميّزة",state.starred,"star:1")}${chip("اللي ما زرتها",state.unvisited,"unv:1")}
+    ${chip("مقترحة لك",state.sug,"sug:1",pool.filter(p=>p.sug).length)}</div></div>
+   <div class="frow"><button class="tbtn" id="clr">امسح الفلاتر</button>
+    <button class="tbtn" id="done" style="background:var(--jade);border-color:var(--jade);color:#fff">عرض ${filtered().length} نتيجة</button></div>`;
   document.querySelectorAll("#fpanel .fchip").forEach(b=>b.onclick=()=>{
-    const raw=b.dataset.id, i=raw.indexOf(":"), k=raw.slice(0,i), v=raw.slice(i+1);
-    if(k==="cat"){ state.cats.has(v)?state.cats.delete(v):state.cats.add(v); }
-    else if(k==="meal"){ state.meal = state.meal===v?"":v; }
-    else if(k==="price"){ state.price.has(v)?state.price.delete(v):state.price.add(v); }
-    else if(k==="min"){ state.minR = state.minR===+v?0:+v; }
-    else if(k==="star"){ state.starred=!state.starred; }
-    else if(k==="unv"){ state.unvisited=!state.unvisited; }
-    else if(k==="desc"){ state.hasDesc=!state.hasDesc; }
-    else if(k==="sug"){ state.sug=!state.sug; }
-    openFilters(); render();
-  });
-  document.getElementById("clr").onclick=()=>{
-    state.cats.clear(); state.price.clear(); state.meal=""; state.minR=0;
-    state.starred=false; state.unvisited=false; state.hasDesc=false; state.sug=false; state.act=false;
-    openFilters(); render(); };
-  document.getElementById("done").onclick=()=>close();
-  document.getElementById("filters").classList.add("on");
-  markFilterBtn();
-}
-function markFilterBtn(){
-  document.getElementById("filtBtn").dataset.on =
-    (state.cats.size||state.price.size||state.meal||state.minR||
-     state.starred||state.unvisited||state.hasDesc||state.sug||state.act)?"1":"";
-}
-function close(){
-  document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));
-  markFilterBtn();
-}
+    const raw=b.dataset.id,i=raw.indexOf(":"),k=raw.slice(0,i),v=raw.slice(i+1);
+    if(k==="cat")state.cats.has(v)?state.cats.delete(v):state.cats.add(v);
+    else if(k==="meal")state.meal=state.meal===v?"":v;
+    else if(k==="price")state.price.has(v)?state.price.delete(v):state.price.add(v);
+    else if(k==="min")state.minR=state.minR===+v?0:+v;
+    else if(k==="km")state.maxKm=state.maxKm===+v?0:+v;
+    else if(k==="tag"){if(v==="open")state.openNow=!state.openNow;
+      else state.tagsOn.has(v)?state.tagsOn.delete(v):state.tagsOn.add(v);}
+    else if(k==="star")state.starred=!state.starred;
+    else if(k==="unv")state.unvisited=!state.unvisited;
+    else if(k==="sug")state.sug=!state.sug;
+    openFilters();render();});
+  document.getElementById("clr").onclick=()=>{state.cats.clear();state.price.clear();state.tagsOn.clear();
+   state.meal="";state.minR=0;state.maxKm=0;state.openNow=false;state.starred=false;state.unvisited=false;
+   state.sug=false;openFilters();render();};
+  document.getElementById("done").onclick=close;
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+  document.getElementById("filters").classList.add("on");markFilterBtn();}
+function markFilterBtn(){document.getElementById("filtBtn").dataset.on=
+ (state.cats.size||state.price.size||state.tagsOn.size||state.meal||state.minR||state.maxKm||
+  state.openNow||state.starred||state.unvisited||state.sug)?"1":"";}
+function close(){document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));markFilterBtn();}
 document.querySelectorAll("[data-close]").forEach(e=>e.onclick=close);
 
-/* ---------- map ---------- */
-let L_map=null, layer=null;
+/* ---------------- map ---------------- */
+let L_map=null,layer=null;
 function drawMap(rows){
-  const el = document.getElementById("map");
-  if(!L_map){
-    L_map = L.map(el,{zoomControl:false}).setView([-8.67,115.16],10);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(L_map);
-    L.control.zoom({position:"bottomleft"}).addTo(L_map);
-  }
-  if(layer) L_map.removeLayer(layer);
-  const pts = rows.filter(p=>p.lat);
-  layer = L.layerGroup(pts.map(p=>{
-    const m = L.circleMarker([p.lat,p.lng],{radius:6,color:"#fff",weight:1.5,fillColor:tintFg(p.k),fillOpacity:.95});
-    m.bindPopup(`<div class="pop"><b>${esc(p.n)}</b>${EMO[p.k]||"📍"} ${esc(p.c)} · ${p.r?p.r.toFixed(1)+" ★ · ":""}${esc(p.a)}<br>
-      <a href="${p.u}" target="_blank" rel="noopener">افتح في الخرائط</a></div>`);
-    return m;
-  })).addTo(L_map);
-  if(pts.length) L_map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(.15));
-  setTimeout(()=>L_map.invalidateSize(),60);
-}
+  const el=document.getElementById("map");
+  if(!L_map){L_map=L.map(el,{zoomControl:false}).setView([-8.67,115.16],10);
+   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(L_map);
+   L.control.zoom({position:"bottomleft"}).addTo(L_map);}
+  if(layer)L_map.removeLayer(layer);
+  const pts=rows.filter(p=>p.lat);
+  layer=L.layerGroup(pts.map(p=>{const m=L.circleMarker([p.lat,p.lng],
+    {radius:6,color:"#fff",weight:1.5,fillColor:tintFg(p.k),fillOpacity:.95});
+   m.bindPopup(`<div class="pop"><b>${esc(p.n)}</b>${EMO[p.k]||"📍"} ${esc(p.c)} · ${p.r?p.r.toFixed(1)+" ★ · ":""}${esc(p.a)}<br>
+    <a href="${p.u}" target="_blank" rel="noopener">افتح في الخرائط</a></div>`);return m;})).addTo(L_map);
+  if(pts.length)L_map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(.15));
+  setTimeout(()=>L_map.invalidateSize(),60);}
 
-/* ---------- wiring ---------- */
-document.getElementById("q").oninput = e=>{state.q=e.target.value; if(state.q) state.home=false; render();};
-function setSortUI(k){
-  document.querySelectorAll("#sortSeg button").forEach(x=>x.setAttribute("aria-pressed", x.dataset.s===k));
-}
-function setSort(k){
-  setSortUI(k); state.sort = k;
-  if(k==="near" && !me){ openNear(); }
-}
+/* ---------------- wiring ---------------- */
+function setSortUI(k){document.querySelectorAll("#sortSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.s===k));}
+document.getElementById("q").oninput=e=>{state.q=e.target.value;if(state.q)state.home=false;render();};
 document.querySelectorAll("#sortSeg button").forEach(b=>b.onclick=()=>{
-  const k = b.dataset.s;
-  setSortUI(k); state.sort = k;
-  if(k==="near"){ openNear(); return; }
-  render();
-});
-document.getElementById("filtBtn").onclick = openFilters;
-document.getElementById("mapBtn").onclick = e=>{
-  state.map = !state.map; if(state.map) state.home=false;
-  const b = e.currentTarget;
-  b.dataset.on = state.map?"1":"";
-  b.textContent = state.map?"قائمة":"خريطة";
-  document.getElementById("map").style.display = state.map?"block":"none";
-  document.getElementById("list").style.display = state.map?"none":"block";
-  render();
-};
-
-let lastY = 0;
-addEventListener("scroll", ()=>{
-  const y = window.scrollY, h = document.getElementById("hdr");
-  h.classList.toggle("stuck", y > 4);
-  if(y > 140 && y > lastY + 6) h.classList.add("hide");
-  else if(y < lastY - 6 || y < 80) h.classList.remove("hide");
-  lastY = y;
-}, {passive:true});
-
+ const k=b.dataset.s;setSortUI(k);state.sort=k;if(k==="near"&&!me){openNear();return;}render();});
+document.getElementById("filtBtn").onclick=openFilters;
+document.getElementById("mapBtn").onclick=e=>{state.map=!state.map;if(state.map)state.home=false;
+ const b=e.currentTarget;b.dataset.on=state.map?"1":"";b.textContent=state.map?"قائمة":"خريطة";
+ document.getElementById("map").style.display=state.map?"block":"none";
+ document.getElementById("list").style.display=state.map?"none":"block";render();};
+addEventListener("scroll",()=>{document.getElementById("hdr").classList.toggle("stuck",window.scrollY>4);},{passive:true});
 loadMarks().then(render);
