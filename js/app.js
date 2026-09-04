@@ -28,12 +28,6 @@ if (!window.storage) {
 }
 
 
-const HUE={padel:150,tennis:140,box:0,boxing:0,muaythai:8,pilates:320,crossfit:20,hyrox:35,yoga:170,
- surf:200,recovery:190,adv:100,cult:290,fam:50,cafe:28,coffee:26,matcha:120,juice:60,protein:340,
- bakery:44,breakfast:16,italian:352,steak:6,burger:22,sandwich:58,mex:330,seafood:196,indo:128,
- asian:272,indian:38,me:12,beachclub:182,bar:256,hotel:212,spa:306,gym:158,shop:230,nature:142,
- attraction:202,rest:88,other:210};
-const SAT={shop:12,other:8};
 const EMO={cafe:"☕",coffee:"☕",matcha:"🍵",juice:"🥤",protein:"💪",bakery:"🍰",breakfast:"🍳",
  italian:"🍝",steak:"🥩",burger:"🍔",sandwich:"🥪",mex:"🌮",seafood:"🦐",indo:"🍜",asian:"🍣",
  indian:"🍛",me:"🥙",beachclub:"🏖️",bar:"🍸",hotel:"🏨",spa:"💆",gym:"🏋️",shop:"🛍️",nature:"🌴",
@@ -47,9 +41,6 @@ const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي"
  cult:"ثقافة وعروض",fam:"عائلي",gym:"جيم",padel:"بادل",tennis:"تنس",pilates:"بيلاتس",
  crossfit:"كروس فت",hyrox:"هايروكس",boxing:"ملاكمة",muaythai:"موي تاي",yoga:"يوقا",
  surf:"سيرف",recovery:"استشفاء وساونا"};
-const tintBg=k=>`hsl(${HUE[k]??210} ${SAT[k]??58}% 93%)`;
-const tintFg=k=>`hsl(${HUE[k]??210} ${(SAT[k]??58)+2}% 30%)`;
-
 const SECTIONS=[
  {id:"food",label:"أكل",ic:"🍽️",keys:["italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","rest","cafe"],
   subs:["rest","italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","cafe"]},
@@ -62,6 +53,18 @@ const SECTIONS=[
  {id:"spa",label:"سبا وجمال",ic:"💆",keys:["spa","recovery"],subs:[]},
  {id:"shop",label:"تسوق",ic:"🛍️",keys:["shop","other"],subs:[]}
 ];
+// Visual identity: one accent color per Home section (design tokens in css/styles.css,
+// mirrored here since section→color is a lookup the renderer needs, not a CSS rule).
+// A kind used by more than one section (e.g. "cafe" in both food and drinks) takes the
+// color of whichever section lists it first below — sections without a brand color in
+// the spec (stay/spa/shop) get the neutral secondary-text tone instead of inventing one.
+const SECTION_HEX={food:"#087F5B",drinks:"#F97316",sports:"#2563EB",beach:"#0891B2",
+ visit:"#EAB308",stay:"#4B5563",spa:"#4B5563",shop:"#4B5563"};
+const KIND_SECTION={};
+SECTIONS.forEach(S=>S.keys.forEach(k=>{if(!(k in KIND_SECTION))KIND_SECTION[k]=S.id;}));
+const hexToRgb=h=>{const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];};
+const tintBg=k=>{const[r,g,b]=hexToRgb(SECTION_HEX[KIND_SECTION[k]]||"#4B5563");return`rgba(${r},${g},${b},.1)`;};
+const tintFg=k=>SECTION_HEX[KIND_SECTION[k]]||"#4B5563";
 const TABS=["food","drinks","sports"];
 const MEALS=[["b","فطور","🍳"],["br","برنش","🥐"],["l","غداء","🍽️"],["d","عشاء","🌙"]];
 const secOf=id=>SECTIONS.find(s=>s.id===id);
@@ -491,39 +494,103 @@ function openDetail(name){
    <div class="acts"><a href="${photos}" target="_blank" rel="noopener">شوف الصور</a>
     ${p.ph?`<a href="https://wa.me/${p.ph.replace(/[^0-9]/g,"")}" target="_blank" rel="noopener">واتساب</a>
     <a href="tel:${p.ph}">اتصال</a>`:""}
-    ${FOODK.has(p.k)?`<button id="menubtn">المنيو بالعربي</button>`:""}
     <button id="star" class="${m.s?"on":""}">${m.s?"★ مميّز":"☆ ميّزه"}</button>
     <button id="vis" class="${m.v?"on":""}">${m.v?"✓ زرته":"سجّل زيارة"}</button></div>
-   <div id="menuwrap"></div>
+   ${FOODK.has(p.k)?`<div class="menusec"><h4>🍽️ المنيو</h4>
+    <div class="menubtns">
+     <button id="menutxt" class="mprimary">ترجمة المنيو</button>
+     ${p.menuUrl?`<a class="mlink" href="${esc(p.menuUrl)}" target="_blank" rel="noopener">فتح المنيو الأصلي ↗</a>`:""}
+     <button id="menuimgbtn">📷 ترجمة من صورة</button>
+    </div>
+    <input type="file" accept="image/*" capture="environment" id="menuimg" class="menuimg-input">
+    <div id="menuwrap"></div>
+   </div>`:""}
    <textarea id="note" placeholder="ملاحظاتك عن المكان…">${esc(m.note||"")}</textarea>`;
   const set=async patch=>{marks[p.n]=Object.assign({},mk(p.n),patch);await saveMarks();openDetail(p.n);render();};
   document.getElementById("star").onclick=()=>set({s:mk(p.n).s?0:1});
   document.getElementById("vis").onclick=()=>set({v:mk(p.n).v?0:1});
-  const mb=document.getElementById("menubtn");if(mb)mb.onclick=()=>showMenu(p,false);
-  if(FOODK.has(p.k))peekCachedMenu(p);
+  if(FOODK.has(p.k)){
+    document.getElementById("menutxt").onclick=()=>showMenu(p,false);
+    document.getElementById("menuimgbtn").onclick=()=>triggerImagePick(p);
+    peekCachedMenu(p);
+  }
   document.getElementById("note").onchange=e=>{marks[p.n]=Object.assign({},mk(p.n),{note:e.target.value});saveMarks();};
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
   document.getElementById("detail").classList.add("on");
 }
 
 /* ---------------- menu ---------------- */
+// Menu system: 1) internet Arabic lookup (existing rawCall/Anthropic path — needs a
+// backend proxy with a real API key to actually succeed outside a dev sandbox; already
+// degrades gracefully when it can't reach one), 2) a direct menuUrl link when the data
+// has one, 3) photo OCR (Tesseract.js, runs fully client-side, no key needed) followed
+// by the same Arabic-translation call. Whichever step fails, the user still keeps
+// whatever the earlier steps produced — see paintMenu's err branch.
 const FOODK=new Set(["cafe","bakery","italian","steak","seafood","indo","asian","indian","me","burger",
  "sandwich","mex","beachclub","bar","breakfast","rest","matcha","juice","protein"]);
 const menuKey=n=>"menu:"+n.slice(0,120).replace(/[\s/\\'"]/g,"_");
 const textOf=d=>(d.content||[]).map(b=>b.type==="text"?b.text:"").filter(Boolean).join("\n").trim();
 const gsearch=p=>"https://www.google.com/search?q="+encodeURIComponent(p.n+" Bali menu");
-async function peekCachedMenu(p){try{const r=await window.storage.get(menuKey(p.n));
- if(r&&r.value){const c=JSON.parse(r.value);paintMenu(p,c.txt,c.t);}}catch(e){}}
-function paintMenu(p,txt,when,loading,err){
+let menuView="ar"; // "ar" | "orig" — which side of the toggle is showing for the open place
+
+async function getMenuCache(p){try{const r=await window.storage.get(menuKey(p.n));
+ return r&&r.value?JSON.parse(r.value):null;}catch(e){return null;}}
+async function setMenuCache(p,cache){try{await window.storage.set(menuKey(p.n),JSON.stringify(cache));}catch(e){}}
+
+function dishListHtml(dishes){
+  let out="",lastSec=null;
+  dishes.forEach(d=>{
+    if(d.sec&&d.sec!==lastSec){out+=`<div class="dishsec">${esc(d.sec)}</div>`;lastSec=d.sec;}
+    out+=`<div class="dish${d.unclear?" unclear":""}"><div class="dmain">
+     <div class="dname2">${esc(d.unclear?"غير واضح":(d.name_ar||d.name_en||""))}</div>
+     ${!d.unclear&&d.name_ar&&d.name_en?`<div class="dorig">${esc(d.name_en)}</div>`:""}
+     ${!d.unclear&&d.desc_ar?`<div class="ddesc2">${esc(d.desc_ar)}</div>`:""}
+     ${d.unclear&&d.name_en?`<div class="dorig">${esc(d.name_en)}</div>`:""}
+     </div><div class="dprice">${d.price?esc(d.price):""}</div></div>`;
+  });
+  return out;
+}
+function paintMenu(p,state){
   const w=document.getElementById("menuwrap");if(!w)return;
-  const age=when?new Date(when).toLocaleDateString("ar-EG",{day:"numeric",month:"long"}):"";
-  w.innerHTML=`<div class="menubox"><h4>${loading?'<span class="spin"></span> جاري جلب المنيو…':"🍽️ المنيو"}</h4>
-   ${err?`<div class="txt" style="color:var(--clay)">${esc(err)}</div>`:""}
-   <div class="txt">${esc(txt||"")}</div>
-   ${loading?"":`<div class="meta">${txt?`<span>مُجمّع من الإنترنت${age?" · "+age:""}</span>`:""}
-    <button id="menuref">${txt?"تحديث":"أعد المحاولة"}</button>
-    <a href="${gsearch(p)}" target="_blank" rel="noopener">ابحث في قوقل</a></div>`}</div>`;
-  const r=document.getElementById("menuref");if(r)r.onclick=()=>showMenu(p,true);}
+  const c=state.cache;
+  let body="";
+  if(state.loading){
+    body=`<div class="menuempty"><span class="spin"></span> ${esc(state.loading)}</div>`;
+  }else if(state.err){
+    body=`<div class="menuerr">${esc(state.err)}
+     <div class="merow">
+      <button id="menuretry">إعادة المحاولة</button>
+      <button id="menuupload2">رفع صورة أخرى</button>
+      <a href="${gsearch(p)}" target="_blank" rel="noopener">ابحث في قوقل</a>
+     </div></div>`;
+    if(c&&c.rawOrig)body+=`<div class="menucap" style="margin-top:12px">النص الأصلي المستخرج من الصورة:</div><div class="txt">${esc(c.rawOrig)}</div>`;
+  }else if(c&&(c.dishes||c.rawAr)){
+    const hasOrig=!!c.rawOrig;
+    const age=c.t?new Date(c.t).toLocaleDateString("ar-EG",{day:"numeric",month:"long"}):"";
+    if(hasOrig)body+=`<div class="menutoggle"><button data-v="ar" aria-pressed="${menuView==="ar"}">العربية</button>
+     <button data-v="orig" aria-pressed="${menuView==="orig"}">الأصلي</button></div>`;
+    if(menuView==="orig"&&hasOrig)body+=`<div class="txt">${esc(c.rawOrig)}</div>`;
+    else if(c.dishes)body+=dishListHtml(c.dishes);
+    else body+=`<div class="txt">${esc(c.rawAr||"")}</div>`;
+    body+=`<div class="meta"><span>${c.source==="ocr"?"مترجم من صورة":"مُجمّع من الإنترنت"}${age?" · "+age:""} — أكّد الأسعار مع المكان</span>
+     <button id="menuref">${c.source==="ocr"?"📷 صورة جديدة":"تحديث"}</button></div>`;
+  }else{
+    body=`<div class="menuempty">المنيو غير متوفر حاليًا<br>📷 أضف صورة المنيو وترجمتها</div>`;
+  }
+  w.innerHTML=body;
+  w.querySelectorAll(".menutoggle button").forEach(b=>b.onclick=()=>{menuView=b.dataset.v;paintMenu(p,state);});
+  const rf=document.getElementById("menuref");if(rf)rf.onclick=()=>c.source==="ocr"?triggerImagePick(p):showMenu(p,true);
+  const rt=document.getElementById("menuretry");if(rt)rt.onclick=()=>retryFromCache(p);
+  const up2=document.getElementById("menuupload2");if(up2)up2.onclick=()=>triggerImagePick(p);
+}
+async function peekCachedMenu(p){
+  const c=await getMenuCache(p);
+  if(c&&(c.dishes||c.rawAr||c.rawOrig)){
+    menuView=(c.rawOrig&&!c.dishes&&!c.rawAr)?"orig":"ar";
+    paintMenu(p,{cache:c});
+  }
+}
+
 async function rawCall(body){
   const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
    headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -539,14 +606,15 @@ async function runMenu(q){let msgs=[{role:"user",content:q}];
    msgs=msgs.concat([{role:"assistant",content:d.content},{role:"user",content:"اكتب المنيو الآن بالعربية."}]);}
   return "";}
 async function callAny(prompt){
-  for(const b of [{model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]},
-   {model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[{type:"text",text:prompt}]}]}]){
+  for(const b of [{model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]},
+   {model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:[{type:"text",text:prompt}]}]}]){
    try{const d=await rawCall(b);const t=textOf(d);if(t)return {txt:t,err:""};}catch(e){var last=e.message;}}
   return {txt:"",err:typeof last!=="undefined"?last:"رد فاضي"};}
+
+// State 1: internet-based Arabic lookup (unchanged behavior from the source app).
 async function showMenu(p,force){
-  if(!force){try{const c=await window.storage.get(menuKey(p.n));
-   if(c&&c.value){const v=JSON.parse(c.value);paintMenu(p,v.txt,v.t);return;}}catch(e){}}
-  paintMenu(p,"",null,true);
+  if(!force){const c=await getMenuCache(p);if(c&&(c.dishes||c.rawAr)){menuView="ar";paintMenu(p,{cache:c});return;}}
+  paintMenu(p,{loading:"جاري جلب المنيو…"});
   const base=`مكان اسمه "${p.n}" في ${p.a} في بالي (${p.c}).
 اكتب المنيو بالعربية فقط وبدون مقدمة: قسّمه لأقسام، ولكل صنف الاسم بالعربية ثم الأصلي بين قوسين ثم السعر بالروبية إن توفر،
 وضع ⚠️ أمام أي صنف فيه لحم خنزير أو كحول، واذكر أشهر ٣ أصناف.`;
@@ -554,9 +622,83 @@ async function showMenu(p,force){
   try{txt=await runMenu("ابحث في الإنترنت عن المنيو الحالي لـ "+base);}catch(e){err=e.message;}
   if(!txt){const r=await callAny(base+"\n(اعتمد على معلوماتك واكتب في أول سطر: معلومات تقريبية غير مؤكدة)");
    txt=r.txt;if(!txt)err=r.err||err;}
-  if(!txt){paintMenu(p,"",null,false,"تعذّر جلب المنيو"+(err?" — "+err:"")+". استخدم «ابحث في قوقل».");return;}
-  const t=Date.now();paintMenu(p,txt,t);
-  try{await window.storage.set(menuKey(p.n),JSON.stringify({txt,t}));}catch(e){}}
+  if(!txt){paintMenu(p,{err:"تعذّر جلب المنيو"+(err?" — "+err:"")+"."});return;}
+  const cache={source:"web",dishes:null,rawAr:txt,rawOrig:null,t:Date.now()};
+  await setMenuCache(p,cache);menuView="ar";paintMenu(p,{cache});
+}
+
+// State 4: photo OCR + Arabic translation. Tesseract.js runs entirely in the browser
+// (no API key); only the translation step needs the same backend-dependent call as
+// showMenu() above. Never invents dishes/prices — see the prompt in translateMenuText.
+let tesseractLoad=null;
+function ensureTesseract(){
+  if(window.Tesseract)return Promise.resolve();
+  if(tesseractLoad)return tesseractLoad;
+  tesseractLoad=new Promise((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js";
+    s.onload=resolve;s.onerror=()=>reject(new Error("تعذّر تحميل أداة قراءة الصور — تحقق من الاتصال بالإنترنت."));
+    document.head.appendChild(s);
+  });
+  return tesseractLoad;
+}
+function triggerImagePick(p){
+  const inp=document.getElementById("menuimg");if(!inp)return;
+  inp.value="";inp.onchange=()=>{const f=inp.files&&inp.files[0];if(f)startImageMenu(p,f);};inp.click();
+}
+async function translateMenuText(text,p){
+  const prompt=`النص التالي مستخرج بتقنية OCR من صورة منيو مطعم اسمه "${p.n}" في بالي، وقد يحتوي أخطاء OCR بسيطة.
+حوّله إلى مصفوفة JSON فقط (بدون أي نص أو شرح قبلها أو بعدها، وبدون markdown) بهذا الشكل بالضبط:
+[{"sec":"اسم القسم كما في المنيو إن وجد وإلا null","name_en":"اسم الطبق كما ورد بالأصل","name_ar":"الاسم بالعربية: النطق الشائع للطبق المعروف، وإلا ترجمة معناه","desc_ar":"وصف قصير بالعربية إن أمكن استنتاجه، وإلا null","price":"السعر والعملة كما وردا بالضبط بدون أي تغيير، وإلا null","unclear":false}]
+قواعد صارمة يجب اتباعها:
+- لا تخترع أطباقًا أو أسعارًا أو أوصافًا أو مكونات غير موجودة في النص.
+- إذا كان مقطع من النص غير مقروء أو غير مفهوم، أضف عنصرًا له "unclear":true و"name_en" يحتوي المقطع كما ظهر (أو "نص غير واضح" إن لم يظهر شيء إطلاقًا) — لا تخترع اسمًا بديلاً له.
+- السعر يبقى كما كُتب بالضبط، رقمًا وعملة، بدون أي تحويل أو تقريب.
+- استخدم النطق العربي الشائع لأسماء الأطباق والعلامات المعروفة (مثل: Nasi Goreng → ناسي غورينغ) بدل ترجمة حرفية غريبة، مع وصف قصير عند الإمكان.
+- أخرج JSON صالح فقط.
+النص المستخرج من الصورة:
+"""${text.slice(0,4000)}"""`;
+  const r=await callAny(prompt);
+  if(!r.txt)throw new Error(r.err||"لا يوجد رد من خدمة الترجمة");
+  const cleaned=r.txt.trim().replace(/^```json\s*/i,"").replace(/^```\s*/,"").replace(/```\s*$/,"");
+  try{const dishes=JSON.parse(cleaned);if(!Array.isArray(dishes)||!dishes.length)throw 0;return{dishes,rawAr:null};}
+  catch(e){return{dishes:null,rawAr:r.txt};}
+}
+async function startImageMenu(p,file){
+  menuView="orig";
+  paintMenu(p,{loading:"📷 جاري قراءة النص من الصورة…"});
+  try{await ensureTesseract();}
+  catch(e){paintMenu(p,{err:(e&&e.message)||"تعذّر تحميل أداة قراءة الصور. تحقّق من اتصالك بالإنترنت."});return;}
+  let text="";
+  try{
+    const res=await Tesseract.recognize(file,"eng");
+    text=((res&&res.data&&res.data.text)||"").trim();
+  }catch(e){paintMenu(p,{err:"تعذّر قراءة النص من هذه الصورة. جرّب صورة أوضح."});return;}
+  if(text.length<3){paintMenu(p,{err:"ما قدرنا نميّز نصًا واضحًا في هذه الصورة."});return;}
+  paintMenu(p,{loading:"📝 جاري ترجمة المنيو…"});
+  try{
+    const{dishes,rawAr}=await translateMenuText(text,p);
+    const cache={source:"ocr",dishes,rawAr,rawOrig:text,t:Date.now()};
+    await setMenuCache(p,cache);menuView="ar";paintMenu(p,{cache});
+  }catch(e){
+    const cache={source:"ocr",dishes:null,rawAr:null,rawOrig:text,t:Date.now()};
+    await setMenuCache(p,cache);menuView="orig";
+    paintMenu(p,{err:"تعذّر ترجمة هذه الصورة بالكامل.",cache});
+  }
+}
+async function retryFromCache(p){
+  const c=await getMenuCache(p);
+  if(c&&c.rawOrig&&!c.dishes&&!c.rawAr){
+    paintMenu(p,{loading:"📝 جاري إعادة الترجمة…"});
+    try{
+      const{dishes,rawAr}=await translateMenuText(c.rawOrig,p);
+      const cache={source:"ocr",dishes,rawAr,rawOrig:c.rawOrig,t:Date.now()};
+      await setMenuCache(p,cache);menuView="ar";paintMenu(p,{cache});
+    }catch(e){paintMenu(p,{err:"تعذّر ترجمة هذه الصورة بالكامل.",cache:c});}
+    return;
+  }
+  showMenu(p,true);
+}
 
 /* ---------------- about / backup ---------------- */
 function openAbout(){

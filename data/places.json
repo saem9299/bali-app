@@ -27,7 +27,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Saint Tropez Store",
@@ -53,7 +54,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "NEON ROSE MOTEL",
@@ -82,7 +84,8 @@
       "booking",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Nataoka Seminyak | Linen Clothes",
@@ -108,7 +111,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Zahra Spa Nusa Dua",
@@ -137,7 +141,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Ivy Cafe",
@@ -171,7 +176,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "NUSA Ubud",
@@ -202,7 +208,8 @@
       "noalcohol",
       "premium"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "The Jungle Club Ubud by Wonderspace",
@@ -232,7 +239,8 @@
       "minspend",
       "premium"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Natti's Indian Specialty Restaurant Ubud",
@@ -260,7 +268,8 @@
     "tags": [
       "booking"
     ],
-    "cu": "هندي"
+    "cu": "هندي",
+    "menuUrl": ""
   },
   {
     "n": "CHUPACABRAS - South American | Prime Meats",
@@ -289,7 +298,8 @@
       "booking",
       "premium"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Chai'Ba Authentic Indian Cuisine & Bar",
@@ -318,7 +328,8 @@
       "booking",
       "premium"
     ],
-    "cu": "هندي"
+    "cu": "هندي",
+    "menuUrl": ""
   },
   {
     "n": "Al Qasr",
@@ -348,7 +359,8 @@
       "booking",
       "premium"
     ],
-    "cu": "شرق أوسطي"
+    "cu": "شرق أوسطي",
+    "menuUrl": ""
   },
   {
     "n": "PARÁ Treats Seminyak",
@@ -377,7 +389,8 @@
       "protein"
     ],
     "tags": [],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Noema Resort Pererenan",
@@ -408,7 +421,8 @@
       "healthy",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Ganesha Ek Sanskriti Kuta",
@@ -439,7 +453,8 @@
       "premium",
       "view"
     ],
-    "cu": "هندي"
+    "cu": "هندي",
+    "menuUrl": ""
   },
   {
     "n": "The Akasha Canggu - Luxury Villas and Hotel",
@@ -468,7 +483,8 @@
       "booking",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Flirt Uluwatu",
@@ -497,7 +513,8 @@
       "booking",
       "premium"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "PARÁ Treats Canggu",
@@ -525,7 +542,8 @@
       "protein"
     ],
     "tags": [],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Momma Cookies",
@@ -554,7 +572,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Neighbour's Table",
@@ -584,7 +603,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "BALI EDITION CANGGU",
@@ -610,7 +630,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Bajalo Cottage Canggu",
@@ -639,7 +660,8 @@
       "booking",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Threshold Gym",
@@ -666,7 +688,8 @@
       "hyrox"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Holywings Wellness Club",
@@ -696,7 +719,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Sisterfields",
@@ -726,7 +750,8 @@
       "booking",
       "pork"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Livingstone",
@@ -757,7 +782,8 @@
       "booking",
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Tis Cafe",
@@ -786,7 +812,8 @@
       "booking",
       "view"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "SUKA ULUWATU",
@@ -814,7 +841,8 @@
     "tags": [
       "booking"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Boy'N'Cow",
@@ -843,7 +871,8 @@
       "booking",
       "premium"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Gigi Susu",
@@ -872,7 +901,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Donna",
@@ -902,7 +932,8 @@
       "booking",
       "premium"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "nüde cafe Berawa",
@@ -932,7 +963,8 @@
       "booking",
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Bread Yard",
@@ -961,7 +993,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Livingstone Holyground",
@@ -990,7 +1023,8 @@
       "budget",
       "family"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Barbacoa",
@@ -1020,7 +1054,8 @@
       "pork",
       "premium"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Artisan - Uluwatu",
@@ -1048,7 +1083,8 @@
       "juice"
     ],
     "tags": [],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "OBSIDIAN GYM BALI",
@@ -1077,7 +1113,8 @@
     "tags": [
       "healthy"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Villa Capri Beachwalk Bali",
@@ -1103,7 +1140,8 @@
       "italian"
     ],
     "tags": [],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Papi Sapi Bali - Neighbourhood Grill",
@@ -1133,7 +1171,8 @@
       "pork",
       "premium"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Koli Koli Bali",
@@ -1164,7 +1203,8 @@
       "premium",
       "view"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "TWO FACE Canggu",
@@ -1193,7 +1233,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Blacklist Coffee Roasters",
@@ -1222,7 +1263,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Sababa",
@@ -1253,7 +1295,8 @@
       "halal",
       "premium"
     ],
-    "cu": "شرق أوسطي"
+    "cu": "شرق أوسطي",
+    "menuUrl": ""
   },
   {
     "n": "Titik Dua",
@@ -1282,7 +1325,8 @@
       "booking",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Sa'Mesa Canggu",
@@ -1311,7 +1355,8 @@
       "booking",
       "premium"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Bar Riva",
@@ -1346,7 +1391,8 @@
       "premium",
       "view"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "Satoshi",
@@ -1375,7 +1421,8 @@
       "booking",
       "premium"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Sandwichopedia",
@@ -1408,7 +1455,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "ساندويتش"
+    "cu": "ساندويتش",
+    "menuUrl": ""
   },
   {
     "n": "Burger Head Bali - Canggu",
@@ -1436,7 +1484,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "برجر"
+    "cu": "برجر",
+    "menuUrl": ""
   },
   {
     "n": "Sunrise Hill Camp",
@@ -1464,7 +1513,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Sinamon Bali Ubud",
@@ -1492,7 +1542,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "meimei",
@@ -1524,7 +1575,8 @@
       "pork",
       "premium"
     ],
-    "cu": "آسيوي"
+    "cu": "آسيوي",
+    "menuUrl": ""
   },
   {
     "n": "Dang! Cookies - Batu Mejan",
@@ -1553,7 +1605,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "BYND Fitness Club Bali - Gym",
@@ -1582,7 +1635,8 @@
     "tags": [
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "IRON RENT - motorcycle rental",
@@ -1614,7 +1668,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Foci Bakery",
@@ -1644,7 +1699,8 @@
       "budget",
       "pork"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "ShakeUP! Protein Bar - Canggu Shortcut",
@@ -1675,7 +1731,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "FLOWERBOY",
@@ -1703,7 +1760,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "The Jangkar Canggu Guesthouse",
@@ -1732,7 +1790,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Dulu Coffee Seminyak",
@@ -1766,7 +1825,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Canggu Bagus Suites",
@@ -1795,7 +1855,8 @@
       "booking",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Waterbom Bali",
@@ -1828,7 +1889,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "El Kabron",
@@ -1857,7 +1919,8 @@
       "booking",
       "view"
     ],
-    "cu": "بحري"
+    "cu": "بحري",
+    "menuUrl": ""
   },
   {
     "n": "Montana Del Cafe",
@@ -1887,7 +1950,8 @@
       "healthy",
       "view"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "White Rock Beach Club",
@@ -1919,7 +1983,8 @@
       "prayer",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Tukies Coconut Shop",
@@ -1945,7 +2010,8 @@
       "bakery"
     ],
     "tags": [],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "La Baracca",
@@ -1975,7 +2041,8 @@
       "family",
       "premium"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "WOODS PERERENAN",
@@ -2007,7 +2074,8 @@
     "tags": [
       "booking"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "Amici Bali",
@@ -2036,7 +2104,8 @@
       "booking",
       "premium"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Aston Canggu Beach Resort",
@@ -2065,7 +2134,8 @@
       "booking",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Revolver Canggu",
@@ -2093,7 +2163,8 @@
       "protein"
     ],
     "tags": [],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "chela",
@@ -2124,7 +2195,8 @@
       "booking",
       "quiet"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "YUKI Uluwatu",
@@ -2154,7 +2226,8 @@
       "healthy",
       "premium"
     ],
-    "cu": "آسيوي"
+    "cu": "آسيوي",
+    "menuUrl": ""
   },
   {
     "n": "Bambu Fitness Bali",
@@ -2182,7 +2255,8 @@
       "recovery"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Ubud Coffee Roastery - Ubud",
@@ -2216,7 +2290,8 @@
       "budget",
       "work"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "BELLA. Canggu",
@@ -2245,7 +2320,8 @@
       "booking",
       "premium"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "CINNAMOR Pererenan",
@@ -2275,7 +2351,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "MAJA Spa",
@@ -2304,7 +2381,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "MIEL SPECIALTY COFFEE CANGGU",
@@ -2333,7 +2411,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Luminor Hotel Legian Seminyak Bali",
@@ -2362,7 +2441,8 @@
       "booking",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Fold Canggu",
@@ -2391,7 +2471,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Tanah Uluwatu | Bakery & Grill",
@@ -2421,7 +2502,8 @@
       "steak"
     ],
     "tags": [],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Riviera Bistro | Berawa",
@@ -2450,7 +2532,8 @@
       "booking",
       "premium"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Ulaman Eco Luxury Resort - Adults Only",
@@ -2478,7 +2561,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Uma Cucina",
@@ -2508,7 +2592,8 @@
       "premium",
       "quiet"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Amèline Beauty & Spa",
@@ -2537,7 +2622,8 @@
       "booking",
       "premium"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Danau Beratan",
@@ -2563,7 +2649,8 @@
       "nature"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Expat. Roasters Seminyak Petitenget",
@@ -2596,7 +2683,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "GOLDUST SPA",
@@ -2624,7 +2712,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "The Plantation Grill - Seminyak",
@@ -2653,7 +2742,8 @@
       "booking",
       "premium"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Further Hotel",
@@ -2681,7 +2771,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Omni",
@@ -2718,7 +2809,8 @@
       "healthy",
       "work"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "RAW gym bali",
@@ -2750,7 +2842,8 @@
       "muaythai"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Artisan - Pererenan",
@@ -2783,7 +2876,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Deli Canggu",
@@ -2811,7 +2905,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "ساندويتش"
+    "cu": "ساندويتش",
+    "menuUrl": ""
   },
   {
     "n": "Osteria Luna",
@@ -2840,7 +2935,8 @@
       "booking",
       "premium"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Terra: Healthy Restaurant Canggu",
@@ -2871,7 +2967,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Aged + Butchered Canggu - Bali",
@@ -2900,7 +2997,8 @@
       "booking",
       "premium"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Mission Flow Studio",
@@ -2929,7 +3027,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "MUNAY CONCEPT STORE CANGGU",
@@ -2959,7 +3058,8 @@
       "healthy",
       "view"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Alas Harum Bali",
@@ -2985,7 +3085,8 @@
       "attraction"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "La Brisa Bali | Beach Club",
@@ -3016,7 +3117,8 @@
       "premium",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Single Fin Bali",
@@ -3046,7 +3148,8 @@
       "minspend",
       "view"
     ],
-    "cu": "فطور وبرنش"
+    "cu": "فطور وبرنش",
+    "menuUrl": ""
   },
   {
     "n": "Milk & Madu Ubud",
@@ -3074,7 +3177,8 @@
     "tags": [
       "family"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "The Forge",
@@ -3103,7 +3207,8 @@
       "alcohol",
       "family"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "Melasti Beach",
@@ -3129,7 +3234,8 @@
       "nature"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Sensorium Bali",
@@ -3159,7 +3265,8 @@
       "budget",
       "pork"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Milk & Madu Beach Road",
@@ -3189,7 +3296,8 @@
     "tags": [
       "family"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Sardine Restaurant",
@@ -3218,7 +3326,8 @@
       "booking",
       "premium"
     ],
-    "cu": "بحري"
+    "cu": "بحري",
+    "menuUrl": ""
   },
   {
     "n": "Citadines Berawa Beach Bali",
@@ -3246,7 +3355,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Ulekan Berawa",
@@ -3276,7 +3386,8 @@
       "pork",
       "premium"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "Karang Boma Cliff",
@@ -3304,7 +3415,8 @@
     "tags": [
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Suluban Beach",
@@ -3330,7 +3442,8 @@
       "nature"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "L'Osteria Pizza e Cucina Canggu",
@@ -3358,7 +3471,8 @@
     "tags": [
       "booking"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "YUKI Canggu",
@@ -3388,7 +3502,8 @@
       "premium",
       "view"
     ],
-    "cu": "آسيوي"
+    "cu": "آسيوي",
+    "menuUrl": ""
   },
   {
     "n": "Teja Uluwatu",
@@ -3418,7 +3533,8 @@
       "premium",
       "view"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "BB52 Burgers Uluwatu",
@@ -3447,7 +3563,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "برجر"
+    "cu": "برجر",
+    "menuUrl": ""
   },
   {
     "n": "Nusantara by Locavore Group",
@@ -3479,7 +3596,8 @@
       "noalcohol",
       "premium"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "Kaum Bali",
@@ -3509,7 +3627,8 @@
       "pork",
       "premium"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "MIYO",
@@ -3538,7 +3657,8 @@
     "tags": [
       "healthy"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Sol Rooftop Bali",
@@ -3569,7 +3689,8 @@
       "premium",
       "view"
     ],
-    "cu": "فطور وبرنش"
+    "cu": "فطور وبرنش",
+    "menuUrl": ""
   },
   {
     "n": "STOCKxSNEAKERS.ID",
@@ -3599,7 +3720,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Mosto | Berawa",
@@ -3629,7 +3751,8 @@
       "booking",
       "premium"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "The Komu",
@@ -3657,7 +3780,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Copenhagen BAKERY Pererenan",
@@ -3685,7 +3809,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Protein Island",
@@ -3716,7 +3841,8 @@
       "healthy",
       "view"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Cream & Crumble Canggu",
@@ -3742,7 +3868,8 @@
       "bakery"
     ],
     "tags": [],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Alfamart Batur View Kintamani",
@@ -3774,7 +3901,8 @@
     "tags": [
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Cretya Ubud",
@@ -3805,7 +3933,8 @@
       "premium",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Penny Lane",
@@ -3832,7 +3961,8 @@
       "juice"
     ],
     "tags": [],
-    "cu": "فطور وبرنش"
+    "cu": "فطور وبرنش",
+    "menuUrl": ""
   },
   {
     "n": "Sundays Beach Club",
@@ -3862,7 +3992,8 @@
       "premium",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Luna Beach Club",
@@ -3892,7 +4023,8 @@
       "family",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "L'Osteria Pizza e Cucina Ubud",
@@ -3920,7 +4052,8 @@
     "tags": [
       "booking"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Abunawas Restaurant",
@@ -3950,7 +4083,8 @@
       "booking",
       "premium"
     ],
-    "cu": "شرق أوسطي"
+    "cu": "شرق أوسطي",
+    "menuUrl": ""
   },
   {
     "n": "The Avocado Factory",
@@ -3980,7 +4114,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Merah Putih | Indonesian Restaurant",
@@ -4010,7 +4145,8 @@
       "pork",
       "premium"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "Da Maria",
@@ -4039,7 +4175,8 @@
       "booking",
       "premium"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Nyang Nyang Beach",
@@ -4065,7 +4202,8 @@
       "nature"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Warung Local",
@@ -4094,7 +4232,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "Shelter Restaurant",
@@ -4124,7 +4263,8 @@
       "premium",
       "quiet"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "RÜSTERS",
@@ -4154,7 +4294,8 @@
       "pork",
       "view"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Spring Spa Canggu",
@@ -4182,7 +4323,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Kim Soo",
@@ -4209,7 +4351,8 @@
       "coffee"
     ],
     "tags": [],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Coffee Cartel Seminyak",
@@ -4243,7 +4386,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "BAKED. Pererenan",
@@ -4275,7 +4419,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "SKOOL Kitchen",
@@ -4305,7 +4450,8 @@
       "premium",
       "view"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "Rockfish Uluwatu",
@@ -4335,7 +4481,8 @@
       "premium",
       "view"
     ],
-    "cu": "بحري"
+    "cu": "بحري",
+    "menuUrl": ""
   },
   {
     "n": "Titik Temu Coffee - Ubud Palace",
@@ -4364,7 +4511,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Kunyit Restaurant at The Anvaya Beach Resort Bali",
@@ -4393,7 +4541,8 @@
       "booking",
       "premium"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "Akasa Jumeirah Bali",
@@ -4423,7 +4572,8 @@
       "premium",
       "view"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "ACME Canggu",
@@ -4455,7 +4605,8 @@
       "budget",
       "work"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Bali Hijack Sandals Bali",
@@ -4481,7 +4632,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "KLEO Seminyak - JDV by Hyatt",
@@ -4509,7 +4661,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Tegallalang Rice Terrace",
@@ -4537,7 +4690,8 @@
     "tags": [
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Rock Bar",
@@ -4569,7 +4723,8 @@
       "premium",
       "view"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "Dreamland Beach",
@@ -4597,7 +4752,8 @@
     "tags": [
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Al Jazeerah Signature",
@@ -4628,7 +4784,8 @@
       "halal",
       "premium"
     ],
-    "cu": "شرق أوسطي"
+    "cu": "شرق أوسطي",
+    "menuUrl": ""
   },
   {
     "n": "Palmilla Bali Beach Club",
@@ -4659,7 +4816,8 @@
       "minspend",
       "premium"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "32do Bali",
@@ -4689,7 +4847,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Copenhagen CAFE Canggu",
@@ -4720,7 +4879,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "فطور وبرنش"
+    "cu": "فطور وبرنش",
+    "menuUrl": ""
   },
   {
     "n": "MASONRY. Restaurant Canggu",
@@ -4749,7 +4909,8 @@
       "booking",
       "premium"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "Sunshine88",
@@ -4779,7 +4940,8 @@
       "booking",
       "premium"
     ],
-    "cu": "بحري"
+    "cu": "بحري",
+    "menuUrl": ""
   },
   {
     "n": "Touché Cafe & Restaurant",
@@ -4812,7 +4974,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "itsumō Headquarter",
@@ -4838,7 +5001,8 @@
       "bakery"
     ],
     "tags": [],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "Saltwood Bingin",
@@ -4868,7 +5032,8 @@
       "premium",
       "view"
     ],
-    "cu": "ستيك"
+    "cu": "ستيك",
+    "menuUrl": ""
   },
   {
     "n": "SPA & Concept Store",
@@ -4896,7 +5061,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Malini Uluwatu - SEAFOOD & SUNSET",
@@ -4926,7 +5092,8 @@
       "premium",
       "view"
     ],
-    "cu": "بحري"
+    "cu": "بحري",
+    "menuUrl": ""
   },
   {
     "n": "The Lawn Canggu Beach Club",
@@ -4958,7 +5125,8 @@
       "quiet",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Luigi's Hot Pizza Canggu",
@@ -4986,7 +5154,8 @@
     "tags": [
       "pork"
     ],
-    "cu": "إيطالي"
+    "cu": "إيطالي",
+    "menuUrl": ""
   },
   {
     "n": "Sand Bar",
@@ -5015,7 +5184,8 @@
       "alcohol",
       "view"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "ST. ALi - Bali",
@@ -5049,7 +5219,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Spring Spa Seminyak",
@@ -5077,7 +5248,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Indomaret Geopark Kintamani",
@@ -5105,7 +5277,8 @@
     "tags": [
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Echo Beach Sunset Point",
@@ -5141,7 +5314,8 @@
       "quiet",
       "view"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "Savaya Bali",
@@ -5171,7 +5345,8 @@
       "premium",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Crate Cafe",
@@ -5200,7 +5375,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Lola’s Cantina Mexicana - Canggu",
@@ -5229,7 +5405,8 @@
       "booking",
       "pork"
     ],
-    "cu": "مكسيكي"
+    "cu": "مكسيكي",
+    "menuUrl": ""
   },
   {
     "n": "Kebab Culture | Original Doner Shop",
@@ -5257,7 +5434,8 @@
     "tags": [
       "premium"
     ],
-    "cu": "برجر"
+    "cu": "برجر",
+    "menuUrl": ""
   },
   {
     "n": "Hideaway Villas Bali - Ubud",
@@ -5285,7 +5463,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "KARUNG JANTAN (Ayani) X GURLBUCKET (Ayani)",
@@ -5315,7 +5494,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Le cliff restaurant",
@@ -5345,7 +5525,8 @@
       "budget",
       "view"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "SUNSET BEACH BALI | Seminyak Beach",
@@ -5380,7 +5561,8 @@
       "minspend",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "From Clothing Store",
@@ -5406,7 +5588,8 @@
       "shop"
     ],
     "tags": [],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Shady Shack",
@@ -5438,7 +5621,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Old Man's",
@@ -5467,7 +5651,8 @@
     "tags": [
       "alcohol"
     ],
-    "cu": "بار"
+    "cu": "بار",
+    "menuUrl": ""
   },
   {
     "n": "FINNS Beach Club",
@@ -5496,7 +5681,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Atlas Beach Club",
@@ -5527,7 +5713,8 @@
       "family",
       "minspend"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "MILU By Nook",
@@ -5557,7 +5744,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "Warung Bu Mi",
@@ -5586,7 +5774,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "HOME by Chef Wayan",
@@ -5615,7 +5804,8 @@
     "tags": [
       "booking"
     ],
-    "cu": "إندونيسي"
+    "cu": "إندونيسي",
+    "menuUrl": ""
   },
   {
     "n": "Secret Spot Canggu",
@@ -5647,7 +5837,8 @@
       "healthy",
       "quiet"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Bokashi Pererenan",
@@ -5677,7 +5868,8 @@
       "booking",
       "premium"
     ],
-    "cu": "مطعم"
+    "cu": "مطعم",
+    "menuUrl": ""
   },
   {
     "n": "Neighbourhood Food Seseh",
@@ -5709,7 +5901,8 @@
       "view",
       "work"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "Nakal Bakery by Duna",
@@ -5739,7 +5932,8 @@
     "tags": [
       "budget"
     ],
-    "cu": "حلا ومخبوزات"
+    "cu": "حلا ومخبوزات",
+    "menuUrl": ""
   },
   {
     "n": "KYND COMMUNITY CANGGU",
@@ -5772,7 +5966,8 @@
       "budget",
       "healthy"
     ],
-    "cu": "كافيه"
+    "cu": "كافيه",
+    "menuUrl": ""
   },
   {
     "n": "BB Padel",
@@ -5807,7 +6002,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Tamora Padel Club",
@@ -5842,7 +6038,8 @@
       "booking",
       "healthy"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Liga.Tennis & Padel Umalas",
@@ -5878,7 +6075,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Liga.Tennis Padel Seminyak",
@@ -5912,7 +6110,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "The Padel Society",
@@ -5947,7 +6146,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Island Padel Uluwatu",
@@ -5981,7 +6181,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Tugu Tennis Court",
@@ -6016,7 +6217,8 @@
       "booking",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Canggu Muay Thai",
@@ -6052,7 +6254,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "More Personal Trainer Boxing and Muaythai",
@@ -6087,7 +6290,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "ISBC ULUWATU",
@@ -6123,7 +6327,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Dian Surf School Canggu Bali",
@@ -6156,7 +6361,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Mount Batur Sunrise Trekking",
@@ -6185,7 +6391,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Rafting Ubud Bali Ayung River",
@@ -6219,7 +6426,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "ATV Ubud Bali",
@@ -6252,7 +6460,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Paon Bali Cooking Class",
@@ -6282,7 +6491,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Kecak Uluwatu",
@@ -6312,7 +6522,8 @@
       "booking",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Nusa Penida Fast Boat Ticket",
@@ -6341,7 +6552,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Taman Safari",
@@ -6371,7 +6583,8 @@
       "booking",
       "family"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Tegenungan Waterfall",
@@ -6400,7 +6613,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Sekumpul Waterfall",
@@ -6429,7 +6643,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Pulse Pilates Studio Bali",
@@ -6463,7 +6678,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "The Art Of Body / Studio Pilates",
@@ -6498,7 +6714,8 @@
       "booking",
       "healthy"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Malu Pilates Uluwatu",
@@ -6533,7 +6750,8 @@
       "booking",
       "quiet"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Pilates Ubud",
@@ -6567,7 +6785,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "CrossFit Canggu",
@@ -6604,7 +6823,8 @@
       "healthy",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Uluwatu Collective",
@@ -6638,7 +6858,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "POWER + REVIVE STUDIO",
@@ -6674,7 +6895,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "ADDA YOGA CANGGU",
@@ -6709,7 +6931,8 @@
       "booking",
       "view"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "The Yoga Barn",
@@ -6743,7 +6966,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "La Tribu Bali",
@@ -6778,7 +7002,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Uye Surf School Uluwatu",
@@ -6812,7 +7037,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "The Ark Boutique Recovery Spa",
@@ -6846,7 +7072,8 @@
     "tags": [
       "booking"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Matcha Cafe Bali",
@@ -6881,7 +7108,8 @@
       "booking",
       "healthy"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Bali Tropical Juice Bar",
@@ -6916,7 +7144,8 @@
       "booking",
       "work"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Cocoloka | Superfoods & Protein Cafe Ubud",
@@ -6951,7 +7180,8 @@
       "booking",
       "healthy"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   },
   {
     "n": "Bali Supplement21 Uluwatu",
@@ -6986,6 +7216,7 @@
       "booking",
       "healthy"
     ],
-    "cu": ""
+    "cu": "",
+    "menuUrl": ""
   }
 ]
