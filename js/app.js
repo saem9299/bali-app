@@ -672,6 +672,13 @@ async function peekCachedMenu(p){
 // chain, an overall timeout on the whole attempt, image downscaling before
 // OCR, and staged progress text so the UI never sits static.
 const MENU_CALL_TIMEOUT=20000, MENU_TOTAL_TIMEOUT=28000;
+// The browser never calls api.anthropic.com directly — that API requires a
+// secret key JALAN's static GitHub Pages hosting can't hold, and doesn't send
+// CORS headers for arbitrary browser origins anyway. All menu-AI calls go
+// through a small Cloudflare Worker (see worker/) that holds the real key as
+// a server-side secret and only accepts requests from this app's own origin.
+// Update this URL once the Worker is deployed (see worker/README.md).
+const AI_API_URL="https://jalan-menu-ai.YOUR-SUBDOMAIN.workers.dev/v1/messages";
 function withTimeout(promise,ms){
   return new Promise((resolve,reject)=>{
     const t=setTimeout(()=>reject(new Error("TIMEOUT")),ms);
@@ -683,7 +690,7 @@ async function rawCall(body){
   const t=setTimeout(()=>ctrl.abort(),MENU_CALL_TIMEOUT);
   let res;
   try{
-    res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+    res=await fetch(AI_API_URL,{method:"POST",
      headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal:ctrl.signal});
   }catch(e){throw new Error(e&&e.name==="AbortError"?"TIMEOUT":"NETWORK");}
   finally{clearTimeout(t);}
