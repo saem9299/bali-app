@@ -829,3 +829,97 @@ with real ratings/area/distance and a genuine why-reason; hero measures
 134px tall; opening a pick and closing it via the existing ✕ works
 unchanged; "شوف الكل" opens the full 303-place list; clicking a section
 card still enters that section normally; zero JS errors.
+
+## Data enrichment architecture (TomTom & future external sources)
+
+**There is no TomTom (or any) runtime integration in this app.** No API
+calls to TomTom, no SDK, no key, anywhere in `js/app.js` or `index.html`.
+TomTom was used exactly once, out-of-band, as a research aid in a chat
+session with a temporary MCP connector: real coordinates for existing
+places were looked up manually and the resulting numbers were typed into
+`data/places.json` as plain static data — the same as typing in any other
+researched fact. The connector session ended; nothing about the shipped
+app depends on it existing. `data/places.json` — bundled at build time
+into `data/places.generated.js` and committed — remains the single
+source of truth the app reads at runtime, on GitHub Pages, with no
+network dependency on any place-data provider.
+
+**Data flow, for any future external research pass (TomTom or otherwise):**
+
+```
+External source (manual research / a connector session)
+        ↓  normalize, validate, dedupe (see tools/enrich-places.mjs)
+data/places.json   ← single source of truth
+        ↓  node tools/build-data.mjs
+data/places.generated.js   ← committed, bundled, no build step at runtime
+        ↓
+JALAN app (index.html + js/app.js)  ← reads PLACES, zero external calls
+        ↓
+GitHub Pages
+```
+
+**Field ownership.** Every place object splits into two kinds of field,
+and only one kind is safe to overwrite from an external source:
+
+| Factual (external sources may fill/update) | JALAN editorial (never touched by enrichment) |
+|---|---|
+| `lat`, `lng` | `desc` (includes whyGo/what-to-buy text) |
+| `ph` (phone) | `cats`, `tags` |
+| `r`, `rc` (rating, review count) | `res` (booking-required flag) |
+| `oh` (opening hours) | `sug` (JALAN-recommended flag) |
+| `u` (maps link) | user data: favorites/visited/notes (stored separately, browser-side) |
+
+`src` (provider name, e.g. `"tomtom"`) and `verAt` (ISO date last
+verified) are set on a place only when an external source actually fills
+one of the factual fields above — they record where a fact came from and
+when, without claiming anything about places nobody has re-verified.
+63 places currently carry `src:"tomtom"` — exactly the ones whose
+coordinates were filled during that research session; every other place
+is untouched and carries no `src` field (nothing was added "just to have
+the field").
+
+**`tools/enrich-places.mjs`** — a dev-only, manual CLI, never run by the
+app, the build, or a user:
+
+```
+node tools/enrich-places.mjs path/to/candidates.json
+```
+
+`candidates.json` is a plain array you prepare yourself from whatever
+research you did (no API key needed by the script — it doesn't call
+anything, it only merges data you already have). For each candidate it:
+1. **Matches** against existing places by normalized exact name, then
+   phone, then coordinate proximity (<80m) — never assumes a different
+   spelling means a different place.
+2. **Fills only empty factual fields** from the whitelist above — it
+   never overwrites a field that already has a value, so a later,
+   thinner source can't clobber better existing data, and it never
+   touches editorial fields at all (they aren't in the whitelist).
+3. **Rejects coordinates outside Bali's bounding box.**
+4. **Never auto-creates a new place.** Anything that doesn't match an
+   existing place is written to `tools/enrich-review.json` for a human
+   to look at and add manually through the normal editing flow — no
+   unreviewed external result becomes a JALAN place on its own.
+
+After running it, regenerate the bundle as usual: `node tools/build-data.mjs`.
+
+**Final QA (answering the standing checklist):**
+1. TomTom dependencies inside the app: **NO** — none, verified by
+   grepping the entire repo.
+2. Does the app need TomTom to run: **NO** — fully static, works
+   offline once cached (see PWA section above).
+3. API key in the project: **NO** — none exists, none is needed by
+   `tools/enrich-places.mjs` either (it merges pre-fetched data, it
+   doesn't fetch).
+4. Is `data/places.json` the app's primary data source: **YES** —
+   the only one; it's compiled into `data/places.generated.js` and
+   that's the only data file `index.html` loads.
+5. JALAN editorial data preserved: **YES** — verified by diffing every
+   TomTom-research commit; only `lat`/`lng` changed, confirmed via
+   `git diff` against those commits.
+6. Duplicate protection: exact-name/phone/coordinate matching enforced
+   by `tools/enrich-places.mjs` for any future merge; the manual
+   TomTom pass this session was cross-checked against all 303 places
+   by name before anything was written.
+7. Data model ready for future external sources: **YES** — `src`/
+   `verAt` plus the factual/editorial split above.
