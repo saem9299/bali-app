@@ -9331,5 +9331,73 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1
+ },
+ {
+  "n": "The Grumpy Butcher",
+  "o": "",
+  "a": "Kerobokan",
+  "c": "ستيك ومشاوي",
+  "k": "steak",
+  "r": null,
+  "rc": null,
+  "p": null,
+  "lat": null,
+  "lng": null,
+  "u": "https://www.google.com/maps/search/?api=1&query=The%20Grumpy%20Butcher%20Bali",
+  "t": "",
+  "b": 0,
+  "l": 0,
+  "d": 1,
+  "br": 0,
+  "ph": "+6281802227777",
+  "desc": "سموك هاوس أمريكي الطابع في بتيتنجيت/كيروبوكان (قرب تشانجو)، مشهور ببريسكت مدخّن ١٢ ساعة بحطب القهوة، نقانق منزلية، ريش مشوية، ووجبة Wagyu Tomahawk. ١٢ظ–١١م يوميًا.",
+  "res": 1,
+  "oh": [
+   720,
+   1380
+  ],
+  "cats": [
+   "steak"
+  ],
+  "tags": [
+   "premium"
+  ],
+  "cu": "",
+  "menuUrl": "https://thegrumpybutcher.com/our-food/",
+  "sug": 1
+ },
+ {
+  "n": "Shawarma Beirut Canggu",
+  "o": "",
+  "a": "Canggu",
+  "c": "شرق أوسطي وعربي",
+  "k": "me",
+  "r": null,
+  "rc": null,
+  "p": null,
+  "lat": null,
+  "lng": null,
+  "u": "https://www.google.com/maps/search/?api=1&query=Shawarma%20Beirut%20Canggu%20Bali",
+  "t": "",
+  "b": 0,
+  "l": 1,
+  "d": 1,
+  "br": 0,
+  "ph": "",
+  "desc": "مطعم شاورما لبناني في شارع سوباك تشانجو، شاورما طازجة ولحوم مشوية وحمّص بنكهات لبنانية أصيلة. الدوام: السبت–الأربعاء ١٢ظ–٢ص، الخميس–الجمعة ١٢ظ–٣ص.",
+  "res": 0,
+  "oh": [
+   720,
+   120
+  ],
+  "cats": [
+   "me"
+  ],
+  "tags": [
+   "arabic"
+  ],
+  "cu": "",
+  "menuUrl": "",
+  "sug": 1
  }
 ]
