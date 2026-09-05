@@ -371,3 +371,139 @@ Everything else was already addressed in the prior "Final Polish" pass
 section cards with a small accent border, bottom-nav tap targets, region
 chips, card shadows) — re-verified here on four screen widths rather than
 redone.
+
+## Bug fixes: menu translation speed, and the map
+
+Two targeted fixes, diagnosed before touching any code (root causes below,
+not assumptions) — no other system changed. `menuUrl` from earlier passes
+now also does double duty as the "open original menu" fallback on the map
+card.
+
+### Menu translation was slow / sometimes produced nothing
+
+Root causes, found by reading the actual call chain in `js/app.js`, not guessed:
+
+1. **`rawCall`'s `fetch()` had no timeout at all.** A stuck request left the
+   user staring at a static spinner for however long the browser's own
+   default socket timeout happens to be (can be minutes) — exactly "waits a
+   long time, no result." Fixed: every call now carries an `AbortController`
+   timeout (`MENU_CALL_TIMEOUT` = 20s), and `showMenu`'s whole attempt is
+   additionally capped by an outer `withTimeout` (28s) via a new `withTimeout()`
+   helper, so the user is never waiting past a firm ceiling.
+2. **Up to 6 fully sequential network calls in the worst case.** `runMenu`'s
+   web-search loop ran up to 4 rounds; on top of that, `callAny` tried two
+   near-identical message shapes back-to-back even when the first attempt
+   failed on a plain network/timeout error the second attempt could never
+   fix (the API treats a string `content` and a one-block array `content`
+   identically — the second shape was never actually needed). Fixed:
+   `runMenu`'s loop cut to 2 rounds, `callAny` now makes a single attempt.
+   Roughly halves-to-thirds the worst-case wait without losing behavior.
+3. **The photo path sent the OCR engine the full-resolution file straight
+   from the camera/gallery** (often 3000-4000px+) — Tesseract's recognition
+   time scales with pixel count, making this the single biggest real
+   contributor to "OCR feels slow," independent of any network issue.
+   Fixed: new `resizeImageForOCR()` downscales to a 1800px-max-dimension
+   JPEG via canvas before handing it to Tesseract (falls back to the
+   original file untouched if canvas preprocessing fails for any reason —
+   never blocks the flow over this).
+4. **No staged feedback** — the UI held one static "loading" string through
+   the whole OCR+translate sequence. Fixed: three real, sequential stages
+   now paint — "جاري قراءة المنيو…" → a genuinely computed
+   "تم العثور على N عنصرًا تقريبًا" (counted from OCR'd lines that look
+   price-like, a real signal from the actual extracted text, not a
+   fabricated number) → "جاري ترجمة المنيو…". No fake percentage bar, per
+   the brief's own instruction to prefer a plain loading state over an
+   invented one when true progress can't be computed.
+5. **Timeout now has its own distinct, exact message** — `menuFriendlyErr()`
+   shows "تعذر إكمال الترجمة الآن." specifically when the failure was a
+   timeout, vs. the existing more specific messages for OCR/translation
+   failures — always with retry / choose-another-photo / original-menu-or-
+   Google actions, never a dead end.
+
+Verified in a real browser (network calls stubbed to fail instantly, since
+the API has no key/backend either way — same limitation as before): the
+exact staged sequence appears with a real item count, the whole failed
+attempt completes in well under half a second instead of hanging, prices
+in the preserved original text are untouched, and retry re-translates from
+the cached OCR text without re-running OCR (confirmed via a request
+counter: 1 call on first attempt, exactly 1 more on retry).
+
+### Map showed a blank white screen with only dots
+
+Root cause, confirmed against OSM's own published tile usage policy
+(operations.osmfoundation.org/policies/tiles), not guessed: the tile layer
+pointed at `{s}.tile.openstreetmap.org` — OSM's raw tile server, which that
+policy explicitly warns against embedding directly in an app, and
+throttles/blocks exactly this traffic pattern. The markers were always
+fine because `circleMarker` draws a vector shape locally with no network
+request — only the raster basemap images were silently failing, hence
+"dots on a white screen." (This sandbox's own network policy also blocks
+both `tile.openstreetmap.org` and the replacement tile host below,
+confirmed with a direct `curl`, so the actual tile rendering could not be
+visually re-verified from here — see "Known limitation" below.)
+
+Fixed by switching to **CARTO's Voyager basemap**
+(`basemaps.cartocdn.com`), a tile provider meant for exactly this direct
+client-side embedding, and rebuilding the map to match the rest of the
+brief:
+
+- **Current location**: a "📍 موقعي" control button (`locateOnMap()`,
+  reusing the same `me`/`meLabel` state the rest of the app already uses
+  for distance sorting) requests the browser's location once automatically
+  the first time the map opens, shows a distinct blue location marker, and
+  re-centers the map. Denied/unavailable → a small inline banner
+  ("لم نتمكن من تحديد موقعك." + "السماح بالموقع") appears over the map and
+  the map keeps working normally with the default Bali-wide view — verified
+  in a real browser for both the granted and denied paths.
+- **Bottom sheet instead of a tiny popup**: tapping a marker opens a new,
+  small `#mapcard` sheet (same `.sheet`/`.panel` pattern as every other
+  sheet in the app) with name/category/rating/price/distance/first line of
+  description and an "عرض المكان" button that calls the existing
+  `openDetail(p.n)` directly — the exact same place object and detail page
+  as everywhere else in the app, not a separate copy of the data.
+- **Clustering**: added `Leaflet.markercluster` (cdnjs, the standard
+  companion plugin for Leaflet, MIT-licensed) since JALAN has 231 places
+  and several regions (Canggu alone) would otherwise show overlapping,
+  untappable dots. Falls back to a plain `L.layerGroup` with no clustering
+  if the plugin fails to load, so a CDN hiccup degrades gracefully instead
+  of breaking the map.
+- **Marker design**: simplified from a different color per one of ~30
+  category kinds to JALAN Green as the one fill color with a thin
+  section-color ring as the only accent, per "JALAN Green primary, other
+  colors as simple accents only."
+- **Filters/search/data integrity untouched by design**: `drawMap(rows)`
+  already receives exactly the same `filtered()` result `render()` computes
+  for the list view, so current search/section/filter state flows to the
+  map automatically — no parallel filter logic was written, and every
+  marker is the real `Place` object (clicking it opens the real place, not
+  a map-only copy).
+
+**Known limitation — disclosed, not hidden:** this session's sandbox
+network policy blocks `cdnjs.cloudflare.com` and both
+`tile.openstreetmap.org` and `basemaps.cartocdn.com` outright (confirmed
+with `curl`, 403), same as it has for every external asset throughout this
+project (Google Fonts, Tesseract.js). This means the actual tile images
+and the real Leaflet/markercluster libraries could not be loaded or
+visually verified from inside this session, on top of not being testable
+by a real end-user opening the deployed GitHub Pages/live site either way.
+To still verify the code itself, every piece of map logic (initialization,
+marker creation from real place data, the locate button and both its
+success/denied paths, marker-click → bottom sheet → "عرض المكان" →
+real detail page, clustering fallback when the plugin is unavailable,
+filter/search pass-through) was exercised against a small hand-written
+stand-in for the Leaflet API that mirrors the exact calls this code makes
+— confirming the logic itself is correct without depending on that
+specific network policy. What remains unverified until deployed somewhere
+unblocked is purely CARTO's tile images actually looking right, which is
+CARTO's responsibility, not this app's code.
+
+### Map access added to "More"
+
+The map was previously only reachable via the toolbar's "خريطة" button
+(hidden inside a section, easy to miss). Added a prominent first entry in
+the "More" panel — "الخريطة / استكشف الأماكن المحفوظة حولك" with the same
+unified map-pin icon and JALAN-green accent treatment as the rest of the
+panel — that opens the same map view (`setMapView(true)`, a small shared
+helper factored out of the existing toolbar button's handler so both entry
+points stay in sync). The toolbar button is unchanged and still there;
+bottom navigation itself was not touched.

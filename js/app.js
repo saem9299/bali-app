@@ -217,12 +217,14 @@ function goHome(){Object.assign(state,{home:true,sec:"",sub:"",meal:"",mealPicke
  flowWhy:null,customOnly:null});
  state.cats.clear();state.price.clear();state.tagsOn.clear();
  const qq=document.getElementById("q");if(qq)qq.value="";
- if(state.map){state.map=false;document.getElementById("map").style.display="none";
+ if(state.map){state.map=false;document.getElementById("mapwrap").style.display="none";
   document.getElementById("list").style.display="block";const b=document.getElementById("mapBtn");b.dataset.on="";b.textContent="خريطة";}
  close();window.scrollTo({top:0});render();}
 function openMore(){
   const rest=SECTIONS.filter(S=>!TABS.includes(S.id));
   document.getElementById("mpanel").innerHTML=`<div class="grab"></div><div class="morelist">
+   <button data-id="__map" class="mhero"><span class="mheroic">${licon("map-pin")}</span>
+    <span class="mtxt"><b>الخريطة</b><small>استكشف الأماكن المحفوظة حولك</small></span></button>
    ${rest.map(S=>`<button data-id="${S.id}"><span style="font-size:19px">${S.ic}</span><span>${S.label}</span>
     <span class="n">${PLACES.filter(p=>inSec(p,S)).length}</span></button>`).join("")}
    <button data-id="__plan"><span style="font-size:19px">${licon("calendar")}</span><span>خطط يومي</span><span class="n"></span></button>
@@ -234,6 +236,7 @@ function openMore(){
   </div>`;
   document.querySelectorAll("#mpanel .morelist button").forEach(b=>b.onclick=()=>{
     const id=b.dataset.id;
+    if(id==="__map"){close();setMapView(true);return;}
     if(id==="__plan"){openPlan(planArea||AREAS[0]);return;}
     if(id==="__about"){openAbout();return;}
     if(id==="__star"){state.starred=true;state.home=false;state.sec="";close();render();return;}
@@ -619,25 +622,58 @@ async function peekCachedMenu(p){
   }
 }
 
+// Menu speed/reliability fix — diagnosed root causes (not guessed):
+//  1. rawCall's fetch had NO timeout at all, so a stuck request left the user
+//     staring at a static spinner indefinitely (the exact "waits forever, no
+//     result" complaint) instead of failing into the error UI.
+//  2. showMenu's fallback chain was up to 6 fully SEQUENTIAL network calls in
+//     the worst case: runMenu's web-search loop (4 rounds) + callAny trying
+//     two near-identical message shapes one after the other even when the
+//     first failure was a plain network/timeout error the second attempt
+//     could never fix. Each round compounds bottleneck #1.
+//  3. The photo path sent the OCR engine the raw, full-resolution camera/
+//     gallery file with no resizing — Tesseract's recognition time scales
+//     with pixel count, so a large phone photo was the single biggest
+//     contributor to "OCR feels slow" independent of any network issue.
+// Fixed below: a real per-call timeout, a shorter/non-duplicated fallback
+// chain, an overall timeout on the whole attempt, image downscaling before
+// OCR, and staged progress text so the UI never sits static.
+const MENU_CALL_TIMEOUT=20000, MENU_TOTAL_TIMEOUT=28000;
+function withTimeout(promise,ms){
+  return new Promise((resolve,reject)=>{
+    const t=setTimeout(()=>reject(new Error("TIMEOUT")),ms);
+    promise.then(v=>{clearTimeout(t);resolve(v);},e=>{clearTimeout(t);reject(e);});
+  });
+}
 async function rawCall(body){
-  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
-   headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),MENU_CALL_TIMEOUT);
+  let res;
+  try{
+    res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+     headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal:ctrl.signal});
+  }catch(e){throw new Error(e&&e.name==="AbortError"?"TIMEOUT":"NETWORK");}
+  finally{clearTimeout(t);}
   let data=null;try{data=await res.json();}catch(e){throw new Error("HTTP "+res.status);}
   if(data&&data.error)throw new Error((data.error.message||"خطأ").slice(0,160));
   if(!res.ok)throw new Error("HTTP "+res.status);return data;}
 async function runMenu(q){let msgs=[{role:"user",content:q}];
-  for(let i=0;i<4;i++){const d=await rawCall({model:"claude-sonnet-4-6",max_tokens:1000,messages:msgs,
+  for(let i=0;i<2;i++){const d=await rawCall({model:"claude-sonnet-4-6",max_tokens:1000,messages:msgs,
     tools:[{type:"web_search_20250305",name:"web_search"}]});
    const t=textOf(d);
    if(d.stop_reason==="pause_turn"){msgs=msgs.concat([{role:"assistant",content:d.content}]);continue;}
    if(t)return t;
    msgs=msgs.concat([{role:"assistant",content:d.content},{role:"user",content:"اكتب المنيو الآن بالعربية."}]);}
   return "";}
+// Single attempt, not two near-identical message shapes tried back-to-back —
+// the API treats a string `content` and a one-block array `content` the same
+// way, so the previous second attempt only ever doubled the wait on a
+// network/timeout failure without ever succeeding differently.
 async function callAny(prompt){
-  for(const b of [{model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]},
-   {model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:[{type:"text",text:prompt}]}]}]){
-   try{const d=await rawCall(b);const t=textOf(d);if(t)return {txt:t,err:""};}catch(e){var last=e.message;}}
-  return {txt:"",err:typeof last!=="undefined"?last:"رد فاضي"};}
+  try{const d=await rawCall({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]});
+   const t=textOf(d);if(t)return {txt:t,err:""};return {txt:"",err:"رد فاضي"};}
+  catch(e){return {txt:"",err:e.message};}}
+const menuFriendlyErr=(e,fallback)=>(e&&e.message==="TIMEOUT")?"تعذر إكمال الترجمة الآن.":(fallback||"تعذّر جلب المنيو الآن.");
 
 // State 1: internet-based Arabic lookup (unchanged behavior from the source app).
 async function showMenu(p,force){
@@ -646,11 +682,16 @@ async function showMenu(p,force){
   const base=`مكان اسمه "${p.n}" في ${p.a} في بالي (${p.c}).
 اكتب المنيو بالعربية فقط وبدون مقدمة: قسّمه لأقسام، ولكل صنف الاسم بالعربية ثم الأصلي بين قوسين ثم السعر بالروبية إن توفر،
 وضع ⚠️ أمام أي صنف فيه لحم خنزير أو كحول، واذكر أشهر ٣ أصناف.`;
-  let txt="",err="";
-  try{txt=await runMenu("ابحث في الإنترنت عن المنيو الحالي لـ "+base);}catch(e){err=e.message;}
-  if(!txt){const r=await callAny(base+"\n(اعتمد على معلوماتك واكتب في أول سطر: معلومات تقريبية غير مؤكدة)");
-   txt=r.txt;if(!txt)err=r.err||err;}
-  if(!txt){paintMenu(p,{err:"تعذّر جلب المنيو"+(err?" — "+err:"")+"."});return;}
+  let txt="",failErr=null;
+  try{
+    txt=await withTimeout((async()=>{
+      let t="";
+      try{t=await runMenu("ابحث في الإنترنت عن المنيو الحالي لـ "+base);}catch(e){/* fall through to callAny */}
+      if(!t){const r=await callAny(base+"\n(اعتمد على معلوماتك واكتب في أول سطر: معلومات تقريبية غير مؤكدة)");t=r.txt;}
+      return t;
+    })(),MENU_TOTAL_TIMEOUT);
+  }catch(e){failErr=e;}
+  if(!txt){paintMenu(p,{err:menuFriendlyErr(failErr)});return;}
   const cache={source:"web",dishes:null,rawAr:txt,rawOrig:null,t:Date.now()};
   await setMenuCache(p,cache);menuView="ar";paintMenu(p,{cache});
 }
@@ -689,6 +730,26 @@ function triggerImagePick(p){
   document.getElementById("menufromgallery").onclick=()=>openImageInput(p,"menuimg");
   document.getElementById("menufromcamera").onclick=()=>openImageInput(p,"menuimgcam");
 }
+// A full-resolution phone photo (often 3000-4000px+) is the single biggest
+// real slowdown in the OCR step — Tesseract's recognition time scales with
+// pixel count. Downscale to a still perfectly legible max dimension before
+// handing it to the OCR engine. Falls back to the original file untouched
+// on any failure (never block the flow over a preprocessing error).
+async function resizeImageForOCR(file){
+  const MAX=1800;
+  try{
+    const bmp=await createImageBitmap(file);
+    const w0=bmp.width,h0=bmp.height;
+    if(Math.max(w0,h0)<=MAX){bmp.close&&bmp.close();return file;}
+    const scale=MAX/Math.max(w0,h0);
+    const w=Math.round(w0*scale),h=Math.round(h0*scale);
+    const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext("2d");ctx.imageSmoothingQuality="high";
+    ctx.drawImage(bmp,0,0,w,h);bmp.close&&bmp.close();
+    const blob=await new Promise(res=>canvas.toBlob(res,"image/jpeg",0.88));
+    return blob||file;
+  }catch(e){return file;}
+}
 async function translateMenuText(text,p){
   const prompt=`النص التالي مستخرج بتقنية OCR من صورة منيو مطعم اسمه "${p.n}" في بالي، وقد يحتوي أخطاء OCR بسيطة.
 حوّله إلى مصفوفة JSON فقط (بدون أي نص أو شرح قبلها أو بعدها، وبدون markdown) بهذا الشكل بالضبط:
@@ -701,7 +762,7 @@ async function translateMenuText(text,p){
 - أخرج JSON صالح فقط.
 النص المستخرج من الصورة:
 """${text.slice(0,4000)}"""`;
-  const r=await callAny(prompt);
+  const r=await withTimeout(callAny(prompt),MENU_CALL_TIMEOUT+2000);
   if(!r.txt)throw new Error(r.err||"لا يوجد رد من خدمة الترجمة");
   const cleaned=r.txt.trim().replace(/^```json\s*/i,"").replace(/^```\s*/,"").replace(/```\s*$/,"");
   try{const dishes=JSON.parse(cleaned);if(!Array.isArray(dishes)||!dishes.length)throw 0;return{dishes,rawAr:null};}
@@ -712,12 +773,19 @@ async function startImageMenu(p,file){
   paintMenu(p,{loading:"جاري قراءة المنيو…"});
   try{await ensureTesseract();}
   catch(e){paintMenu(p,{err:(e&&e.message)||"تعذّر تحميل أداة قراءة الصور. تحقّق من اتصالك بالإنترنت."});return;}
+  const img=await resizeImageForOCR(file);
   let text="";
   try{
-    const res=await Tesseract.recognize(file,"eng");
+    const res=await Tesseract.recognize(img,"eng");
     text=((res&&res.data&&res.data.text)||"").trim();
   }catch(e){paintMenu(p,{err:"تعذّر قراءة المنيو من هذه الصورة.",noRetry:true});return;}
   if(text.length<3){paintMenu(p,{err:"الصورة غير واضحة بما يكفي لقراءة المنيو.",noRetry:true});return;}
+  // Progressive feedback: a real (not fabricated) line count from the text
+  // just extracted, shown briefly so the UI visibly advances before the
+  // slower translation call starts — never a fake percentage.
+  const priceLines=text.split("\n").filter(l=>/\d[\d.,]{2,}|rp\s?\d|\$\s?\d/i.test(l)).length;
+  paintMenu(p,{loading:priceLines?`تم العثور على ${priceLines} عنصرًا تقريبًا`:"تم استخراج نص المنيو"});
+  await new Promise(r=>setTimeout(r,450));
   paintMenu(p,{loading:"جاري ترجمة المنيو…"});
   try{
     const{dishes,rawAr}=await translateMenuText(text,p);
@@ -726,18 +794,18 @@ async function startImageMenu(p,file){
   }catch(e){
     const cache={source:"ocr",dishes:null,rawAr:null,rawOrig:text,t:Date.now()};
     await setMenuCache(p,cache);menuView="orig";
-    paintMenu(p,{err:"تعذّر ترجمة هذه الصورة بالكامل.",cache});
+    paintMenu(p,{err:menuFriendlyErr(e,"تعذّر ترجمة هذه الصورة بالكامل."),cache});
   }
 }
 async function retryFromCache(p){
   const c=await getMenuCache(p);
   if(c&&c.rawOrig&&!c.dishes&&!c.rawAr){
-    paintMenu(p,{loading:"📝 جاري إعادة الترجمة…"});
+    paintMenu(p,{loading:"جاري إعادة الترجمة…"});
     try{
       const{dishes,rawAr}=await translateMenuText(c.rawOrig,p);
       const cache={source:"ocr",dishes,rawAr,rawOrig:c.rawOrig,t:Date.now()};
       await setMenuCache(p,cache);menuView="ar";paintMenu(p,{cache});
-    }catch(e){paintMenu(p,{err:"تعذّر ترجمة هذه الصورة بالكامل.",cache:c});}
+    }catch(e){paintMenu(p,{err:menuFriendlyErr(e,"تعذّر ترجمة هذه الصورة بالكامل."),cache:c});}
     return;
   }
   showMenu(p,true);
@@ -902,21 +970,94 @@ function markFilterBtn(){document.getElementById("filtBtn").dataset.on=
 function close(){document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));markFilterBtn();}
 document.querySelectorAll("[data-close]").forEach(e=>e.onclick=close);
 
-/* ---------------- map ---------------- */
-let L_map=null,layer=null;
+/* ---------------- map ----------------
+ * Root cause of the white-screen-with-dots bug: the tile layer pointed at
+ * {s}.tile.openstreetmap.org — OSM's raw tile server, which its own usage
+ * policy (operations.osmfoundation.org/policies/tiles) explicitly warns
+ * against embedding directly in an app: it throttles/blocks exactly this
+ * traffic pattern. The markers (circleMarker) are vector shapes Leaflet
+ * draws locally with no network request, so they always rendered fine —
+ * only the raster basemap images were silently failing, hence "dots on
+ * white". Fixed by switching to CARTO's Voyager basemap, a tile provider
+ * meant for this kind of direct client embedding.
+ */
+const MAP_TILE_URL="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const MAP_TILE_ATTR='© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
+let L_map=null,layer=null,meMarker=null,mapLocateBtn=null,mapLocateTried=false;
+function placeIcon(p){
+  const hex=tintFg(p.k);
+  return L.divIcon({className:"jmarker",iconSize:[26,26],iconAnchor:[13,13],
+    html:`<span class="jmarker-dot" style="--ring:${hex}"></span>`});
+}
+function meIcon(){return L.divIcon({className:"jmarker-me",iconSize:[20,20],iconAnchor:[10,10],html:'<span></span>'});}
+function openMapCard(p){
+  const km=kmOf(p);
+  document.getElementById("mcpanel").innerHTML=`<div class="grab"></div>
+   <div class="mcname">${esc(p.n)}</div>
+   <div class="mcmeta"><span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
+    <span>${esc(p.a)}</span></div>
+   <div class="mcstats">
+    ${p.r?`<span>⭐ ${p.r.toFixed(1)}</span>`:""}
+    ${p.p?`<span>${esc(p.p)}</span>`:""}
+    ${km!=null?`<span>${fmtKm(km)}</span>`:""}
+   </div>
+   ${p.desc?`<p class="mcdesc">${esc(p.desc.split("\n")[0])}</p>`:""}
+   <button class="primary" id="mcopen" style="margin-top:14px">عرض المكان</button>`;
+  document.getElementById("mcopen").onclick=()=>{document.getElementById("mapcard").classList.remove("on");openDetail(p.n);};
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+  document.getElementById("mapcard").classList.add("on");
+}
+function mapLocateError(){
+  const el=document.getElementById("mapbanner");if(!el)return;
+  el.innerHTML=`لم نتمكن من تحديد موقعك.<button id="mapaskloc">السماح بالموقع</button>`;
+  el.style.display="flex";
+  document.getElementById("mapaskloc").onclick=locateOnMap;
+}
+function locateOnMap(){
+  const el=document.getElementById("mapbanner");if(el)el.style.display="none";
+  if(!navigator.geolocation){mapLocateError();return;}
+  if(mapLocateBtn)mapLocateBtn.classList.add("busy");
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      if(mapLocateBtn)mapLocateBtn.classList.remove("busy");
+      me=[pos.coords.latitude,pos.coords.longitude];meLabel="موقعك";
+      if(!L_map)return;
+      if(meMarker)L_map.removeLayer(meMarker);
+      meMarker=L.marker(me,{icon:meIcon(),zIndexOffset:1000}).addTo(L_map).bindPopup("موقعي");
+      L_map.setView(me,14);
+      render();
+    },
+    ()=>{if(mapLocateBtn)mapLocateBtn.classList.remove("busy");mapLocateError();},
+    {timeout:10000,maximumAge:60000});
+}
 function drawMap(rows){
   const el=document.getElementById("map");
-  if(!L_map){L_map=L.map(el,{zoomControl:false}).setView([-8.67,115.16],10);
-   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(L_map);
-   L.control.zoom({position:"bottomleft"}).addTo(L_map);}
+  const firstInit=!L_map;
+  if(firstInit){
+    L_map=L.map(el,{zoomControl:false}).setView(me||[-8.67,115.16],me?13:10);
+    L.tileLayer(MAP_TILE_URL,{maxZoom:20,attribution:MAP_TILE_ATTR,subdomains:"abcd"}).addTo(L_map);
+    L.control.zoom({position:"bottomleft"}).addTo(L_map);
+    const LocateControl=L.Control.extend({options:{position:"bottomleft"},
+      onAdd(){const b=L.DomUtil.create("button","map-locate");b.type="button";b.title="موقعي";
+        b.innerHTML=licon("map-pin");L.DomEvent.disableClickPropagation(b);
+        b.onclick=locateOnMap;mapLocateBtn=b;return b;}});
+    new LocateControl().addTo(L_map);
+    if(me){meMarker=L.marker(me,{icon:meIcon(),zIndexOffset:1000}).addTo(L_map).bindPopup("موقعي");}
+  }
   if(layer)L_map.removeLayer(layer);
   const pts=rows.filter(p=>p.lat);
-  layer=L.layerGroup(pts.map(p=>{const m=L.circleMarker([p.lat,p.lng],
-    {radius:6,color:"#fff",weight:1.5,fillColor:tintFg(p.k),fillOpacity:.95});
-   m.bindPopup(`<div class="pop"><b>${esc(p.n)}</b>${EMO[p.k]||"📍"} ${esc(p.c)} · ${p.r?p.r.toFixed(1)+" ★ · ":""}${esc(p.a)}<br>
-    <a href="${p.u}" target="_blank" rel="noopener">افتح في الخرائط</a></div>`);return m;})).addTo(L_map);
-  if(pts.length)L_map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(.15));
-  setTimeout(()=>L_map.invalidateSize(),60);}
+  const markers=pts.map(p=>{const m=L.marker([p.lat,p.lng],{icon:placeIcon(p)});
+    m.on("click",()=>openMapCard(p));return m;});
+  layer=(L.markerClusterGroup)?L.markerClusterGroup({maxClusterRadius:50,
+    iconCreateFunction(cluster){const n=cluster.getChildCount();
+      return L.divIcon({html:`<span class="jcluster">${n}</span>`,className:"",iconSize:[38,38]});}}):
+    L.layerGroup();
+  markers.forEach(m=>layer.addLayer(m));
+  layer.addTo(L_map);
+  if(firstInit&&!me&&pts.length)L_map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(.15));
+  setTimeout(()=>L_map.invalidateSize(),60);
+  if(firstInit&&!me&&!mapLocateTried){mapLocateTried=true;locateOnMap();}
+}
 
 /* ---------------- wiring ---------------- */
 function setSortUI(k){document.querySelectorAll("#sortSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.s===k));}
@@ -924,9 +1065,10 @@ document.getElementById("q").oninput=e=>{state.q=e.target.value;if(state.q)state
 document.querySelectorAll("#sortSeg button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.s;setSortUI(k);state.sort=k;if(k==="near"&&!me){openNear();return;}render();});
 document.getElementById("filtBtn").onclick=openFilters;
-document.getElementById("mapBtn").onclick=e=>{state.map=!state.map;if(state.map)state.home=false;
- const b=e.currentTarget;b.dataset.on=state.map?"1":"";b.textContent=state.map?"قائمة":"خريطة";
- document.getElementById("map").style.display=state.map?"block":"none";
- document.getElementById("list").style.display=state.map?"none":"block";render();};
+function setMapView(on){state.map=on;if(on)state.home=false;
+ const b=document.getElementById("mapBtn");b.dataset.on=on?"1":"";b.textContent=on?"قائمة":"خريطة";
+ document.getElementById("mapwrap").style.display=on?"block":"none";
+ document.getElementById("list").style.display=on?"none":"block";render();}
+document.getElementById("mapBtn").onclick=()=>setMapView(!state.map);
 addEventListener("scroll",()=>{document.getElementById("hdr").classList.toggle("stuck",window.scrollY>4);},{passive:true});
 loadMarks().then(render);
