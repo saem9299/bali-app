@@ -1043,12 +1043,60 @@ function locateOnMap(){
     ()=>{if(mapLocateBtn)mapLocateBtn.classList.remove("busy");mapLocateError();},
     {timeout:10000,maximumAge:60000});
 }
+// Root cause of the "لصق/تعلق" (lag/freeze) reports: drawMap() used to run on
+// *every* render() — every keystroke in search, every filter/sort toggle, even
+// unrelated state changes like starring a place — and unconditionally tore down
+// and rebuilt every marker + the whole cluster group each time. With 300+ places
+// that's real main-thread work happening far more often than the visible result
+// set actually changes. Fixed by (a) only touching markers when the set of
+// visible places actually changed (lastPtsKey below) and (b) debouncing the
+// search input itself (see the "q" oninput wiring) so typing doesn't call
+// render()/drawMap() once per keystroke.
+let lastPtsKey=null,mapTileFailed=false;
+function showMapStatus(html){const el=document.getElementById("mapstatus");if(!el)return;
+  el.innerHTML=html;el.classList.add("on");}
+function hideMapStatus(){const el=document.getElementById("mapstatus");if(el)el.classList.remove("on");}
+function retryMap(){
+  mapTileFailed=false;hideMapStatus();
+  if(L_map){L_map.remove();L_map=null;layer=null;lastPtsKey=null;}
+  render();
+}
+function mapSdkFailed(){
+  mapTileFailed=true;L_map=null;layer=null;lastPtsKey=null;
+  showMapStatus('<p>تعذر تحميل الخريطة</p><button id="mapretry">إعادة المحاولة</button>');
+  const b=document.getElementById("mapretry");if(b)b.onclick=retryMap;
+}
 function drawMap(rows){
   const el=document.getElementById("map");
   const firstInit=!L_map;
   if(firstInit){
+    showMapStatus('<div class="sp"></div><p>جاري تحميل الخريطة…</p>');
+    // Leaflet itself (loaded from a CDN in index.html) can fail to load — no
+    // network, an ad-blocker, a CDN outage. Without this guard that left the
+    // "جاري التحميل" spinner up forever with an uncaught ReferenceError on `L`
+    // instead of ever reaching a retry state — the real "white/blank screen
+    // that never recovers" failure mode, distinct from a tile-load failure.
+    if(typeof L==="undefined"){mapSdkFailed();return;}
+    try{
+    // zoomControl:false + our own LocateControl below — created once here and
+    // never again, since L_map is a module-level singleton reused by every
+    // later drawMap() call (guarded by the `firstInit` check).
     L_map=L.map(el,{zoomControl:false}).setView(me||[-8.67,115.16],me?13:10);
-    L.tileLayer(MAP_TILE_URL,{maxZoom:20,attribution:MAP_TILE_ATTR,subdomains:"abcd"}).addTo(L_map);
+    const tiles=L.tileLayer(MAP_TILE_URL,{maxZoom:20,attribution:MAP_TILE_ATTR,subdomains:"abcd"}).addTo(L_map);
+    let tileOk=false;
+    tiles.on("load",()=>{tileOk=true;mapTileFailed=false;hideMapStatus();});
+    tiles.on("tileerror",()=>{
+      if(tileOk||mapTileFailed)return; // one real tile already loaded — don't flag a lone drop as total failure
+      mapTileFailed=true;
+      showMapStatus('<p>تعذر تحميل الخريطة</p><button id="mapretry">إعادة المحاولة</button>');
+      const b=document.getElementById("mapretry");if(b)b.onclick=retryMap;
+    });
+    // Belt-and-suspenders: if no tile event fires at all within 6s (e.g. the
+    // container was hidden/zero-size at init), stop showing the loading
+    // spinner forever and offer a retry instead of a silent white screen.
+    setTimeout(()=>{if(!tileOk&&!mapTileFailed){mapTileFailed=true;
+      showMapStatus('<p>تعذر تحميل الخريطة</p><button id="mapretry">إعادة المحاولة</button>');
+      const b=document.getElementById("mapretry");if(b)b.onclick=retryMap;}},6000);
     L.control.zoom({position:"bottomleft"}).addTo(L_map);
     const LocateControl=L.Control.extend({options:{position:"bottomleft"},
       onAdd(){const b=L.DomUtil.create("button","map-locate");b.type="button";b.title="موقعي";
@@ -1056,9 +1104,17 @@ function drawMap(rows){
         b.onclick=locateOnMap;mapLocateBtn=b;return b;}});
     new LocateControl().addTo(L_map);
     if(me){meMarker=L.marker(me,{icon:meIcon(),zIndexOffset:1000}).addTo(L_map).bindPopup("موقعي");}
+    // The container can still be display:none at the exact tick L.map() runs
+    // (setMapView flips it right before calling render()); invalidateSize()
+    // after layout settles is what actually fixes a blank/mis-sized map here.
+    requestAnimationFrame(()=>setTimeout(()=>L_map.invalidateSize(),50));
+    }catch(err){mapSdkFailed();return;}
   }
-  if(layer)L_map.removeLayer(layer);
   const pts=rows.filter(p=>p.lat);
+  const key=pts.length+":"+pts.map(p=>p.n).join("|");
+  if(!firstInit&&key===lastPtsKey){setTimeout(()=>L_map.invalidateSize(),50);return;}
+  lastPtsKey=key;
+  if(layer)L_map.removeLayer(layer);
   const markers=pts.map(p=>{const m=L.marker([p.lat,p.lng],{icon:placeIcon(p)});
     m.on("click",()=>openMapCard(p));return m;});
   layer=(L.markerClusterGroup)?L.markerClusterGroup({maxClusterRadius:50,
@@ -1068,13 +1124,14 @@ function drawMap(rows){
   markers.forEach(m=>layer.addLayer(m));
   layer.addTo(L_map);
   if(firstInit&&!me&&pts.length)L_map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(.15));
-  setTimeout(()=>L_map.invalidateSize(),60);
   if(firstInit&&!me&&!mapLocateTried){mapLocateTried=true;locateOnMap();}
 }
 
 /* ---------------- wiring ---------------- */
 function setSortUI(k){document.querySelectorAll("#sortSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.s===k));}
-document.getElementById("q").oninput=e=>{state.q=e.target.value;if(state.q)state.home=false;render();};
+let searchDebounce=null;
+document.getElementById("q").oninput=e=>{state.q=e.target.value;if(state.q)state.home=false;
+ clearTimeout(searchDebounce);searchDebounce=setTimeout(render,120);};
 document.querySelectorAll("#sortSeg button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.s;setSortUI(k);state.sort=k;if(k==="near"&&!me){openNear();return;}render();});
 document.getElementById("filtBtn").onclick=openFilters;

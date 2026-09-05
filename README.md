@@ -719,3 +719,66 @@ group only inside Shopping; opening a shopping place's detail sheet
 works and shows the why-go/what-to-buy text; Food section, search, and
 map toggle all continue to work unchanged; `tools/build-data.mjs`
 regenerated `data/places.generated.js` with 0 validation errors.
+
+## Map stability fix + place-sheet close button
+
+Two real bugs, root-caused before touching anything:
+
+**1. Map lag/freeze.** `drawMap()` used to run on *every* `render()` call —
+every keystroke in search, every filter/sort toggle, even unrelated state
+changes like starring a place while the map was open — and each time it
+unconditionally tore down and rebuilt every marker plus the whole
+marker-cluster group. With 300+ places that's real main-thread work
+happening far more often than the visible result set actually changed.
+Fixed in `js/app.js`'s `drawMap()`: it now compares a cheap signature of
+the currently-visible place set (`lastPtsKey`) and skips the marker
+rebuild entirely when nothing actually changed. The search input
+(`#q` `oninput`) is also now debounced (120ms) instead of calling
+`render()` once per keystroke, which was the single biggest source of
+redundant map (and list) re-renders while typing.
+
+**2. Silent failure → permanent blank/"loading" screen.** The map
+container itself was fine (explicit `height:calc(100vh - 230px)`, not a
+zero-height parent), but two real failure paths had no recovery: (a) if
+the Leaflet SDK itself failed to load (CDN blocked, offline, ad-blocker)
+`L.map(...)` threw an uncaught `ReferenceError` and the "جاري تحميل
+الخريطة…" spinner stayed up forever with no error shown; (b) if tiles
+failed to load there was no feedback at all. Fixed by wrapping map
+initialization in `try/catch`, listening for the tile layer's `load`/
+`tileerror` events, and adding a 6-second no-event fallback — any of
+these now show "تعذر تحميل الخريطة" with an **إعادة المحاولة** (Retry)
+button (`#mapstatus` in `index.html`/`css/styles.css`) instead of a dead
+white screen. Map initialization itself was already correctly guarded
+against re-running (`L_map` is a module-level singleton, only created
+once) — that part wasn't a real bug, just re-verified.
+
+**3. ✕ close button on Place Details and the Map preview card.** Both
+sheets previously could only be closed by tapping the thin scrim sliver
+above the panel (the panel fills up to 88vh) — no visible close control.
+Added a fixed `.sheetx` ✕ button (top-right in this RTL layout) to both
+`#detail` and `#mapcard` in `index.html`, wired for free through the
+existing generic `[data-close] → close()` handler (no new JS needed for
+the button itself). Tap-the-scrim-to-close still works unchanged.
+Closing either sheet only removes its `.on` class — it never touches
+`L_map`/`layer`, so map center, zoom, markers, and filters are preserved
+exactly as they were.
+
+**Verified (Playwright), given this sandbox blocks the Leaflet/CARTO CDN
+outright (same standing network restriction as every earlier phase — no
+live tile rendering could be observed here):** simulating an SDK-load
+failure now correctly shows the Retry state with zero uncaught JS errors
+(previously threw `L is not defined`); the ✕ button closes both Place
+Details and the Map card immediately, leaving the map's own DOM/state
+untouched; scrim-tap-to-close still works from the reachable strip;
+search debounce doesn't break result correctness; favorites (★) persist
+across reload; filters open/apply correctly. Not independently
+verifiable in this sandbox: real tile rendering, pan/zoom smoothness,
+and marker-cluster visuals on a live network — these depend on the
+Leaflet CDN load that this session's network policy blocks, exactly as
+documented in the earlier map-fix and PWA phases.
+
+**Explicitly not done, to keep this change scoped to the two things
+asked for:** browser Back-button interception to close the sheet before
+navigating away (would require adding `history.pushState`/`popstate`
+handling app-wide, which is a bigger navigational change than "fix the
+map and the close button").

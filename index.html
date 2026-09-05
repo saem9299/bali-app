@@ -48,17 +48,23 @@
 </div>
 <div class="count num" id="count"></div>
 <main class="wrapmax"><div id="list"></div>
-  <div id="mapwrap"><div id="map"></div><div id="mapbanner"></div></div>
+  <div id="mapwrap"><div id="map"></div><div id="mapbanner"></div>
+    <div id="mapstatus"></div>
+  </div>
 </main>
 <nav id="tabs"></nav>
 
-<div class="sheet" id="detail"><div class="scrim" data-close></div><div class="panel" id="dpanel"></div></div>
+<div class="sheet" id="detail"><div class="scrim" data-close></div>
+  <button class="sheetx" data-close aria-label="إغلاق">✕</button>
+  <div class="panel" id="dpanel"></div></div>
 <div class="sheet" id="filters"><div class="scrim" data-close></div><div class="panel" id="fpanel"></div></div>
 <div class="sheet" id="more"><div class="scrim" data-close></div><div class="panel" id="mpanel"></div></div>
 <div class="sheet" id="plan"><div class="scrim" data-close></div><div class="panel" id="ppanel"></div></div>
 <div class="sheet" id="near"><div class="scrim" data-close></div><div class="panel" id="npanel"></div></div>
 <div class="sheet" id="flow"><div class="scrim" data-close></div><div class="panel" id="wpanel"></div></div>
-<div class="sheet" id="mapcard"><div class="scrim" data-close></div><div class="panel" id="mcpanel"></div></div>
+<div class="sheet" id="mapcard"><div class="scrim" data-close></div>
+  <button class="sheetx" data-close aria-label="إغلاق">✕</button>
+  <div class="panel" id="mcpanel"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
