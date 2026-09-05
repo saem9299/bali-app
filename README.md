@@ -782,3 +782,50 @@ asked for:** browser Back-button interception to close the sheet before
 navigating away (would require adding `history.pushState`/`popstate`
 handling app-wide, which is a bigger navigational change than "fix the
 map and the close button").
+
+## Home UX polish
+
+Decluttered `renderHome()` without touching the map, the place-sheet
+close button, Bottom Navigation, or any data — a polish pass, not a
+rebuild:
+
+- **Hero shrunk ~20%** (`min-height:168px → 134px`, tighter inner
+  padding) and the photo credit made smaller/lighter and pulled closer
+  to the image, so the page reaches the decision CTAs faster.
+- **Quick Actions trimmed from 7 to 4** (قريب مني / وش آكل؟ / وش أشرب؟ /
+  رياضة). Dropped شواطئ (already its own Section card right below —
+  was a same-shape duplicate), خطط يومي and المميّزة (both already one
+  tap away in "المزيد" — nothing was removed from the app, just
+  decluttered off Home).
+- **Section cards now describe what's inside** instead of naming the
+  top-rated place (`SECTION_BLURB` in `js/app.js` — real taxonomy
+  labels already used elsewhere, e.g. "مطاعم · كافيهات · حلويات"), and
+  are reordered for Home display only (`HOME_SEC_ORDER`) so Shopping
+  sits with the other browsing sections instead of trailing after
+  إقامة/سبا.
+- **Replaced the two "مفتوح الآن وقريب" / "جديد على جالان" mini-lists**
+  with a single **"⭐ يستحق الزيارة"** section: 3–5 diverse picks from
+  the existing `score()` recommendation engine (already weighs
+  rating + distance + open-now), diversified one-per-section so it
+  doesn't just repeat the same category five times, with a small nudge
+  toward whichever meal slot (breakfast/lunch/dinner) it actually is
+  right now. Each card reuses `whyList()` for its one-line "ليش؟" —
+  no new recommendation logic, no invented ratings/distances/reasons;
+  a field is simply omitted when the place has no real data for it.
+  A **"شوف الكل"** button below opens the exact same list view every
+  other entry point already uses (`showAllBest()`, sort=best,
+  no new page).
+
+**Not touched, as instructed:** map code, the place-sheet ✕/swipe close
+behavior, Bottom Navigation, the section/category taxonomy, and no new
+features (no stories/offers/login/etc.) were added.
+
+**Verified (Playwright, 390×844 viewport):** all four required Home
+copy points present (وين نروح الآن / اختَر لي / يستحق الزيارة / شوف
+الكل); Quick Actions show exactly the 4 specified buttons; all 8
+section cards render with the new blurb copy in the expected order;
+Shopping visible in the grid; 5 diverse recommendation picks render
+with real ratings/area/distance and a genuine why-reason; hero measures
+134px tall; opening a pick and closing it via the existing ✕ works
+unchanged; "شوف الكل" opens the full 303-place list; clicking a section
+card still enters that section normally; zero JS errors.

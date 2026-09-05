@@ -364,15 +364,52 @@ function renderEmpty(){
       state.cats.clear();state.price.clear();state.tagsOn.clear();document.getElementById("q").value="";}
     render();});
 }
+// Short "what's inside" line per section card — real taxonomy labels already
+// used elsewhere (LBL), not invented business copy. Home-only display order so
+// Shopping sits with the other browsing sections instead of being buried last.
+const SECTION_BLURB={food:"مطاعم · كافيهات · حلويات",drinks:"قهوة · ماتشا · عصائر · بروتين",
+ sports:"جيم · بادل · تنس · بيلاتس",beach:"بيتش كلب · طبيعة",visit:"معالم · مغامرات · ثقافة",
+ shop:"مولات · أسواق · أوتلت",stay:"فنادق وفلل",spa:"سبا · استشفاء"};
+const HOME_SEC_ORDER=["food","drinks","sports","beach","visit","shop","stay","spa"];
+// The "⭐ يستحق الزيارة" picks reuse the existing score()/whyList() engine as-is
+// (rating+distance+openNow already weighted in score(); whyList() already only
+// states real, verified facts) — this just diversifies across sections instead
+// of showing near-duplicates from the same category, and gives food a small
+// nudge toward whichever meal slot it actually is right now.
+function homePicks(){
+  const hh=new Date().getHours();
+  const mealNow=hh<11?"b":hh<15?"l":hh<17?"br":"d";
+  const pool=PLACES.filter(p=>p.desc);
+  const ranked=pool.map(p=>({p,s:score(p)+(FOODK.has(p.k)&&p[mealNow]?0.05:0)}))
+    .sort((a,b)=>b.s-a.s).map(x=>x.p);
+  const picks=[],seenSec=new Set();
+  for(const p of ranked){const sec=KIND_SECTION[p.k]||"other";
+    if(seenSec.has(sec))continue;picks.push(p);seenSec.add(sec);if(picks.length>=5)break;}
+  if(picks.length<3)for(const p of ranked){if(!picks.includes(p)){picks.push(p);if(picks.length>=3)break;}}
+  return picks.slice(0,5);
+}
+function showAllBest(){state.home=false;state.sec="";state.sort="best";setSortUI("best");
+  close();window.scrollTo({top:0});render();}
 function renderHome(){
   const H="https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20terraces,%20Bali.jpg?width=1200";
-  const cards=SECTIONS.map(S=>{const ps=PLACES.filter(p=>inSec(p,S));
-   const top=ps.slice().sort((a,b)=>(b.r||0)-(a.r||0))[0];const k=ps[0]?ps[0].k:"other";
+  const cards=HOME_SEC_ORDER.map(id=>secOf(id)).filter(Boolean).map(S=>{const ps=PLACES.filter(p=>inSec(p,S));
+   const k=ps[0]?ps[0].k:"other";
    return `<button class="card" data-sec="${S.id}" style="border-inline-start:3px solid ${tintFg(k)}">
     <span class="cico" style="background:${tintBg(k)};color:${tintFg(k)}">${S.ic}</span>
     <b>${S.label}</b><span class="cn">${ps.length} مكان</span>
-    <span class="cs">${top?esc(top.n):""}</span></button>`;}).join("");
+    <span class="cs">${esc(SECTION_BLURB[S.id]||"")}</span></button>`;}).join("");
   const openCnt=PLACES.filter(p=>openState(p)===1).length;
+  const picks=homePicks();
+  const pickCard=p=>{const km=kmOf(p),why=whyList(p)[0];
+    const meta=[p.r?`⭐ ${p.r.toFixed(1)}`:null,p.a,km!=null?fmtKm(km):null].filter(Boolean).join(" · ");
+    const when=p.d?"عشاء":p.l?"غداء":p.br?"برنش":p.b?"فطور":"";
+    const cat=[p.c,when].filter(Boolean).join(" · ");
+    return `<button class="row pick" data-n="${esc(p.n)}">
+     <div class="pickname">${esc(p.n)}</div>
+     <div class="pickmeta">${esc(meta)}</div>
+     ${cat?`<div class="pickcat">${esc(cat)}</div>`:""}
+     ${why?`<div class="pickwhy"><b>ليش؟</b> ${esc(why)}</div>`:""}
+    </button>`;};
   document.getElementById("list").innerHTML=`<div class="home-wrap">
    <div class="hero"><img src="${H}" alt="" onerror="this.style.display='none'"><div class="veil"></div>
     <div class="in"><div class="kicker">JALAN</div><h2 class="serif">وين نروح اليوم؟</h2>
@@ -382,13 +419,14 @@ function renderHome(){
    <button class="cta2" id="surbtn">✨ اختَر لي — قرار سريع</button>
    <div class="quick">
      <button data-q="near">${licon("map-pin")} قريب مني</button><button data-q="meal">${licon("utensils")} وش آكل؟</button>
-     <button data-q="drinks">${licon("cup-soda")} مشروبات</button>
-     <button data-q="sports">${licon("dumbbell")} رياضة</button><button data-q="beach">${licon("palmtree")} شواطئ</button>
-     <button data-q="plan">${licon("calendar")} خطط يومي</button><button data-q="star">${licon("star")} المميّزة</button>
+     <button data-q="drinks">${licon("cup-soda")} وش أشرب؟</button>
+     <button data-q="sports">${licon("dumbbell")} رياضة</button>
    </div>
    <div class="hsec">الأقسام</div><div class="grid">${cards}</div>
-   <div class="hsec">مفتوح الآن وقريب</div><div id="hnow"></div>
-   <div class="hsec">جديد على جالان</div><div id="hnew"></div></div>`;
+   <div class="hsec">⭐ يستحق الزيارة</div>
+   <div id="hpicks">${picks.map(pickCard).join("")}</div>
+   ${picks.length?`<button class="seeall" id="seeAllBtn">شوف الكل ‹</button>`:""}
+  </div>`;
   document.querySelectorAll("#list .card").forEach(b=>b.onclick=()=>pickSec(b.dataset.sec));
   document.getElementById("flowbtn").onclick=()=>openFlow(0);
   document.getElementById("surbtn").onclick=surprise;
@@ -398,19 +436,9 @@ function renderHome(){
     if(q==="meal"){pickSec("food");return;}
     if(q==="drinks"){pickSec("drinks");return;}
     if(q==="sports"){pickSec("sports");return;}
-    if(q==="beach"){pickSec("beach");return;}
-    if(q==="plan"){state.home=true;openPlan(planArea||AREAS[0]);return;}
-    if(q==="star"){state.starred=true;}
     render();});
-  const mini=(arr,el)=>{document.getElementById(el).innerHTML=arr.map(p=>
-    `<button class="row" data-n="${esc(p.n)}" style="border-radius:12px;border:1px solid var(--stone);margin-bottom:8px">
-     <span class="rmain"><span class="rname">${esc(p.n)}</span>
-     <span class="rmeta"><span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
-     <span class="dots">${esc(p.a)}${kmOf(p)!=null?" · "+fmtKm(kmOf(p)):""}</span></span></span>
-     <span class="rside"><div class="rate ${p.r>=4.7?"hi":""}">${p.r?p.r.toFixed(1):"—"}</div></span></button>`).join("");
-    document.querySelectorAll("#"+el+" .row").forEach(b=>b.onclick=()=>openDetail(b.dataset.n));};
-  mini(PLACES.filter(p=>openState(p)===1).sort((a,b)=>score(b)-score(a)).slice(0,4),"hnow");
-  mini(PLACES.filter(p=>p.sug).sort((a,b)=>(b.r||0)-(a.r||0)).slice(0,4),"hnew");
+  document.querySelectorAll("#hpicks .pick").forEach(b=>b.onclick=()=>openDetail(b.dataset.n));
+  const seeAll=document.getElementById("seeAllBtn");if(seeAll)seeAll.onclick=showAllBest;
 }
 
 /* ---------------- decision flow ---------------- */
