@@ -112,10 +112,10 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
  margin-top:8px}
 .map-locate .licon{width:19px;height:19px}
 .map-locate.busy{opacity:.55;pointer-events:none}
-#mapbanner{display:none;position:absolute;inset-inline:12px;top:12px;z-index:500;background:var(--ink);
+#mapbanner{display:none;position:absolute;inset-inline:12px;top:12px;z-index:1200;background:var(--ink);
  color:#fff;border-radius:12px;padding:11px 14px;font-size:13px;align-items:center;justify-content:space-between;
  gap:10px;box-shadow:0 2px 10px rgba(17,24,39,.3)}
-#mapstatus{display:none;position:absolute;inset:0;z-index:600;background:var(--paper);
+#mapstatus{display:none;position:absolute;inset:0;z-index:1200;background:var(--paper);
  flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px}
 #mapstatus.on{display:flex}
 #mapstatus .sp{width:30px;height:30px;border-radius:50%;border:3px solid var(--stone);border-top-color:var(--primary);
@@ -177,7 +177,13 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 .card .cn{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .card .cs{font-size:11.5px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.sheet{position:fixed;inset:0;z-index:100;display:none}
+/* z-index:2000 — must clear Leaflet's own internal panes/controls, which use
+ * z-index up to 1000 (.leaflet-top/.leaflet-bottom) inside #mapwrap. Since
+ * #mapwrap doesn't isolate its own stacking context, those Leaflet-internal
+ * z-indexes were competing directly with .sheet's old z-index:100, so the
+ * map's zoom/locate controls and attribution painted on top of any open
+ * sheet (place card, its ✕ button, detail) instead of underneath it. */
+.sheet{position:fixed;inset:0;z-index:2000;display:none}
 .sheet.on{display:block}
 .scrim{position:absolute;inset:0;background:rgba(17,24,39,.45)}
 .panel{position:absolute;inset-inline:0;bottom:0;max-width:100%;background:var(--paper);border-radius:20px 20px 0 0;
