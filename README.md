@@ -976,3 +976,36 @@ specific verifiable venue names in search and were left untouched
 rather than padded with generic entries. Canggu/Ubud/Uluwatu still
 dominate by raw count; meaningfully rebalancing that would take several
 more research passes at this same quality bar, not one.
+
+## Geo QA pass on the 42 WebSearch-sourced places
+
+The TomTom connector came back mid-session, so the 42 places added
+without coordinates got a proper geocoding pass instead of staying
+`websearch`-only: 28 matched a real, exact-or-near-exact-name POI in
+TomTom's index and were updated (`src` upgraded to `"tomtom"`,
+`verAt` refreshed) — only `lat`/`lng`/`src`/`verAt` changed, confirmed
+via `git diff`, zero editorial fields touched. The other 14 (Joli
+Café, Diver's Cafe Amed, Jaring, Warung Subak Pekendungan, Cafe Dasa,
+La Paya, SIKI, Kekeb Restaurant, Mandala, Okaeri Bali, Kunti Sushi Bar,
+TORO, Splash Water Park, and **The Damai** — the last one specifically
+*rejected* because TomTom's only match for that name geocoded to
+Denpasar, not Lovina, i.e. clearly the wrong business) stay coordinate-less
+rather than guessed. Coordinate coverage: 279/345 → 321/345 (93%).
+
+**S2S CrossFit / Alchemy Bali coordinate collision, resolved:** both
+independently geocode via TomTom to the exact same address, "Jalan Raya
+Canggu 1" — different phone numbers, different URLs, different POI
+categories (fitness club vs. café). This is Alchemy Bali's known
+multi-use wellness compound (café + training studio, one building), not
+a duplicate place entry. Left as two separate records, as it should be.
+
+**Region taxonomy QA:** Berawa, Pecatu, Legian, Munduk, and Bedugul all
+show 0 in the region breakdown, but JALAN's schema has no
+neighborhood-level field below `a` (region) to check text for — several
+of this session's TomTom geocode results *did* return
+`municipalitySecondarySubdivision: "Tibubeneng"` (a Berawa-adjacent
+neighborhood) for places tagged `a:"Canggu"`, and `"Kerobokan Kelod"`
+for some tagged `a:"Seminyak"`, confirming those neighborhoods already
+have real coverage folded into their parent region rather than being
+truly empty. Munduk and Bedugul remain genuinely uncovered — no
+verifiable venue names were found there in this pass or the last.

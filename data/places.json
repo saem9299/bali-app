@@ -9535,8 +9535,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.477336,
+  "lng": 115.438613,
   "u": "https://www.google.com/maps/search/?api=1&query=Sleeping%20Gajah%20Kitchen%20Bali",
   "t": "",
   "b": 0,
@@ -9553,7 +9553,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9565,8 +9565,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.4748,
+  "lng": 115.4408,
   "u": "https://www.google.com/maps/search/?api=1&query=Asri%20Dining%20Bali",
   "t": "",
   "b": 0,
@@ -9583,7 +9583,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9625,8 +9625,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.3344,
+  "lng": 115.6373,
   "u": "https://www.google.com/maps/search/?api=1&query=St.%20Bernard%20Coffee%20Bali",
   "t": "",
   "b": 0,
@@ -9643,7 +9643,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9685,8 +9685,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.162,
+  "lng": 115.02515,
   "u": "https://www.google.com/maps/search/?api=1&query=AKAR%20Cafe%20Bali",
   "t": "",
   "b": 0,
@@ -9705,7 +9705,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9777,8 +9777,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.1605,
+  "lng": 115.0284,
   "u": "https://www.google.com/maps/search/?api=1&query=Warung%20Ibu%20Wina%20Bali",
   "t": "",
   "b": 0,
@@ -9795,7 +9795,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9807,8 +9807,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.6167,
+  "lng": 115.0858,
   "u": "https://www.google.com/maps/search/?api=1&query=De%20Jukung%20Resto%20%26%20Bar%20Bali",
   "t": "",
   "b": 0,
@@ -9825,7 +9825,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9837,8 +9837,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.5497,
+  "lng": 115.133,
   "u": "https://www.google.com/maps/search/?api=1&query=Uma%20Batukaru%20Bali",
   "t": "",
   "b": 0,
@@ -9855,7 +9855,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9867,8 +9867,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.59728,
+  "lng": 115.10748,
   "u": "https://www.google.com/maps/search/?api=1&query=Paon%20Ijo%20Bali",
   "t": "",
   "b": 0,
@@ -9885,7 +9885,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9927,8 +9927,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.7115,
+  "lng": 115.2538,
   "u": "https://www.google.com/maps/search/?api=1&query=Genius%20Cafe%20Bali",
   "t": "",
   "b": 0,
@@ -9945,7 +9945,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -9957,8 +9957,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.69324,
+  "lng": 115.263782,
   "u": "https://www.google.com/maps/search/?api=1&query=Junsei%20Bali",
   "t": "",
   "b": 0,
@@ -9975,7 +9975,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10047,8 +10047,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.67741,
+  "lng": 115.263676,
   "u": "https://www.google.com/maps/search/?api=1&query=Sutasoma%20Lounge%20Bali",
   "t": "",
   "b": 0,
@@ -10065,7 +10065,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10077,8 +10077,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.68411,
+  "lng": 115.25677,
   "u": "https://www.google.com/maps/search/?api=1&query=From%20Here%20Bali%20Bali",
   "t": "",
   "b": 0,
@@ -10097,7 +10097,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10109,8 +10109,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.67389,
+  "lng": 115.2621,
   "u": "https://www.google.com/maps/search/?api=1&query=Canvas%20Cafe%20Bali",
   "t": "",
   "b": 0,
@@ -10127,7 +10127,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10169,8 +10169,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.828395,
+  "lng": 115.214073,
   "u": "https://www.google.com/maps/search/?api=1&query=Koral%20Bali",
   "t": "",
   "b": 0,
@@ -10189,7 +10189,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10201,8 +10201,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.80463,
+  "lng": 115.21693,
   "u": "https://www.google.com/maps/search/?api=1&query=Art%20Cafe%20by%20Bumbu%20Bali%20Bali",
   "t": "",
   "b": 0,
@@ -10219,7 +10219,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10291,8 +10291,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.6333,
+  "lng": 115.2169,
   "u": "https://www.google.com/maps/search/?api=1&query=Limestones%20Bali%20Restaurant%20Bali",
   "t": "",
   "b": 0,
@@ -10309,7 +10309,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10321,8 +10321,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.673082,
+  "lng": 115.228398,
   "u": "https://www.google.com/maps/search/?api=1&query=Warung%20Mina%20Renon%20Bali",
   "t": "",
   "b": 0,
@@ -10339,7 +10339,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10351,8 +10351,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.67365,
+  "lng": 115.26302,
   "u": "https://www.google.com/maps/search/?api=1&query=Warung%20Mak%20Beng%20Bali",
   "t": "",
   "b": 0,
@@ -10369,7 +10369,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10381,8 +10381,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.69466,
+  "lng": 115.258836,
   "u": "https://www.google.com/maps/search/?api=1&query=Massimo%20Italian%20Restaurant%20Bali",
   "t": "",
   "b": 0,
@@ -10399,7 +10399,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10411,8 +10411,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.639,
+  "lng": 115.1408,
   "u": "https://www.google.com/maps/search/?api=1&query=Kenji%20Ramen%20Bali",
   "t": "",
   "b": 0,
@@ -10429,7 +10429,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10471,8 +10471,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.660212,
+  "lng": 115.13703,
   "u": "https://www.google.com/maps/search/?api=1&query=Shichirin%20Bali",
   "t": "",
   "b": 0,
@@ -10489,7 +10489,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10501,8 +10501,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.66521,
+  "lng": 115.13993,
   "u": "https://www.google.com/maps/search/?api=1&query=One%20Eyed%20Jack%20Bali",
   "t": "",
   "b": 0,
@@ -10519,7 +10519,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10531,8 +10531,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.6433,
+  "lng": 115.1423,
   "u": "https://www.google.com/maps/search/?api=1&query=Mad%20Ronin%20Bali",
   "t": "",
   "b": 0,
@@ -10549,7 +10549,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10591,8 +10591,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.67637,
+  "lng": 115.156497,
   "u": "https://www.google.com/maps/search/?api=1&query=Rayjin%20Teppanyaki%20Bali",
   "t": "",
   "b": 0,
@@ -10609,7 +10609,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10621,8 +10621,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.6721,
+  "lng": 115.1643,
   "u": "https://www.google.com/maps/search/?api=1&query=Shima%20Teppanyaki%20%26%20Shabu%20Shabu%20Bali",
   "t": "",
   "b": 0,
@@ -10639,7 +10639,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10681,8 +10681,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.5098,
+  "lng": 115.2626,
   "u": "https://www.google.com/maps/search/?api=1&query=Kyoka%20Japanese%20Kitchen%20Bali",
   "t": "",
   "b": 0,
@@ -10699,7 +10699,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10744,8 +10744,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.6537,
+  "lng": 115.132,
   "u": "https://www.google.com/maps/search/?api=1&query=F45%20Training%20Canggu%20Bali",
   "t": "",
   "b": 0,
@@ -10764,7 +10764,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  },
  {
@@ -10776,8 +10776,8 @@
   "r": null,
   "rc": null,
   "p": null,
-  "lat": null,
-  "lng": null,
+  "lat": -8.6728,
+  "lng": 115.151982,
   "u": "https://www.google.com/maps/search/?api=1&query=F45%20Training%20Seminyak%20Bali",
   "t": "",
   "b": 0,
@@ -10796,7 +10796,7 @@
   "cu": "",
   "menuUrl": "",
   "sug": 1,
-  "src": "websearch",
+  "src": "tomtom",
   "verAt": "2026-09-05"
  }
 ]
