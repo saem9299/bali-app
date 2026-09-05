@@ -32,7 +32,8 @@ const EMO={cafe:"☕",coffee:"☕",matcha:"🍵",juice:"🥤",protein:"💪",bak
  italian:"🍝",steak:"🥩",burger:"🍔",sandwich:"🥪",mex:"🌮",seafood:"🦐",indo:"🍜",asian:"🍣",
  indian:"🍛",me:"🥙",beachclub:"🏖️",bar:"🍸",hotel:"🏨",spa:"💆",gym:"🏋️",shop:"🛍️",nature:"🌴",
  attraction:"📸",rest:"🍽️",other:"📍",padel:"🎾",tennis:"🎾",box:"🥊",boxing:"🥊",muaythai:"🥊",
- pilates:"🤸",crossfit:"🏋️‍♂️",hyrox:"⚡",yoga:"🧘",surf:"🏄",swimming:"🏊",recovery:"♨️",adv:"⛰️",cult:"🎭",fam:"🎡"};
+ pilates:"🤸",crossfit:"🏋️‍♂️",hyrox:"⚡",yoga:"🧘",surf:"🏄",swimming:"🏊",recovery:"♨️",adv:"⛰️",cult:"🎭",fam:"🎡",
+ mall:"🏬",market:"🧺",outlet:"🏷️",fashion:"👕",gifts:"🎁",beauty:"🧴",jewelry:"💎",decor:"🏠",nightmarket:"🌙",localmarket:"🛒"};
 const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي",protein:"بروتين وصحي",cafe:"كافيه",
  bakery:"حلا ومخبوزات",breakfast:"فطور وبرنش",italian:"إيطالي",steak:"ستيك ومشاوي",seafood:"بحري",
  indo:"إندونيسي",asian:"آسيوي",indian:"هندي",me:"شرق أوسطي وعربي",burger:"برجر",sandwich:"ساندويتش",
@@ -40,7 +41,9 @@ const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي"
  hotel:"إقامة",spa:"سبا وجمال",shop:"تسوق",other:"أخرى",attraction:"معالم",adv:"مغامرات",
  cult:"ثقافة وعروض",fam:"عائلي",gym:"جيم",padel:"بادل",tennis:"تنس",pilates:"بيلاتس",
  crossfit:"كروس فت",hyrox:"هايروكس",boxing:"ملاكمة",muaythai:"موي تاي",yoga:"يوقا",
- surf:"سيرف",swimming:"سباحة",recovery:"استشفاء وساونا"};
+ surf:"سيرف",swimming:"سباحة",recovery:"استشفاء وساونا",
+ mall:"مولات",market:"بازارات وأسواق",outlet:"أوتلت",fashion:"ملابس وأزياء",gifts:"هدايا وتذكارات",
+ beauty:"بيوتي ولايف ستايل",jewelry:"مجوهرات وإكسسوارات",decor:"ديكور وحرف",nightmarket:"أسواق ليلية",localmarket:"أسواق محلية"};
 // Unified line-icon set (Lucide, MIT/ISC-licensed static SVGs — inlined so there's no
 // new runtime/CDN dependency) for the Home/nav chrome, replacing the mixed-style emoji
 // there (sections, bottom nav, meal picker). Per-place category glyphs in EMO above are
@@ -77,7 +80,9 @@ const SECTIONS=[
  {id:"visit",label:"تستحق الزيارة",ic:licon("compass"),keys:["attraction","adv","cult","fam"],subs:["attraction","adv","cult","fam"]},
  {id:"stay",label:"إقامة",ic:licon("hotel"),keys:["hotel"],subs:[]},
  {id:"spa",label:"سبا وجمال",ic:licon("flower-2"),keys:["spa","recovery"],subs:[]},
- {id:"shop",label:"تسوق",ic:licon("shopping-bag"),keys:["shop","other"],subs:[]}
+ {id:"shop",label:"تسوق",ic:licon("shopping-bag"),
+  keys:["mall","market","outlet","fashion","gifts","beauty","jewelry","decor","nightmarket","localmarket","shop","other"],
+  subs:["mall","market","outlet","fashion","gifts","beauty","jewelry","decor","nightmarket","localmarket","shop"]}
 ];
 // Visual identity: one accent color per Home section (design tokens in css/styles.css,
 // mirrored here since section→color is a lookup the renderer needs, not a CSS rule).
@@ -926,6 +931,12 @@ function openFilters(){
   const feats=[["open","مفتوح الآن"],["nobooking","بدون حجز"],["family","للعائلة"],["quiet","هادئ"],
    ["healthy","صحي"],["halal","حلال"],["arabic","عربي"],["noalcohol","بدون كحول"],["nopork","بدون خنزير"],
    ["work","للعمل"],["view","إطلالة"],["budget","اقتصادي"],["premium","فاخر"]];
+  // "ماذا أشتري هنا؟" — shown only inside Shopping, reusing the same tag-filter
+  // mechanism (state.tagsOn / p.tags) as the generic فيتشرز above, no new UI.
+  const buy=[["clothes","ملابس"],["shoes","أحذية"],["sportswear","سبورتوير"],["surfwear","سيرف وير"],
+   ["jewelry","مجوهرات"],["beauty","بيوتي"],["gifts","هدايا"],["souvenirs","تذكارات"],
+   ["home","ديكور المنزل"],["handicrafts","حرف يدوية"],["food","أكل ومقتنيات"],["luxury","فاخر"]]
+   .filter(([v])=>pool.some(p=>(p.tags||[]).includes(v)));
   document.getElementById("fpanel").innerHTML=`<div class="grab"></div>
    <div class="fctx">فلاتر داخل: <b>${S?esc(S.label):"كل الأماكن"}</b>${state.area?" · "+esc(state.area):""}</div>
    ${subs.length>1?`<div class="fgroup"><h3>التصنيف</h3><div class="fchips">
@@ -938,6 +949,8 @@ function openFilters(){
     ${rates.map(v=>chip(v.toFixed(1)+" فأعلى",state.minR===v,"min:"+v,pool.filter(p=>p.r>=v).length)).join("")}</div></div>`:""}
    ${me?`<div class="fgroup"><h3>المسافة</h3><div class="fchips">
     ${[2,5,10,18].map(v=>chip("أقل من "+v+" كم",state.maxKm===v,"km:"+v)).join("")}</div></div>`:""}
+   ${state.sec==="shop"&&buy.length?`<div class="fgroup"><h3>ماذا أشتري هنا؟</h3><div class="fchips">
+    ${buy.map(([v,l])=>chip(l,state.tagsOn.has(v),"tag:"+v,pool.filter(p=>(p.tags||[]).includes(v)).length)).join("")}</div></div>`:""}
    <div class="fgroup"><h3>مواصفات</h3><div class="fchips">
     ${feats.map(([v,l])=>chip(l,v==="open"?state.openNow:state.tagsOn.has(v),"tag:"+v)).join("")}</div></div>
    <div class="fgroup"><h3>قوائمي</h3><div class="fchips">

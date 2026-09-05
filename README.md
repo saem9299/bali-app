@@ -650,3 +650,72 @@ from a real HTTPS URL a phone can open — Claude Artifact preview links
 require being logged into claude.ai and aren't meant for this. The
 repo isn't yet deployed anywhere with a public URL (e.g., GitHub Pages);
 that's a separate step — see the conversation for the current status.
+
+## Shopping expansion (🛍️ التسوق)
+
+Added a real Shopping section without rebuilding anything: it reuses the
+exact same section/category/filter/map/detail mechanisms every other
+Home section already uses (`SECTIONS[].subs` for the vertical category
+picker, `p.cats`/`p.tags` for membership and "what to buy" filtering,
+`filtered()`/`drawMap()` for search+map — zero new UI code paths).
+
+**Audit first.** Before adding anything, the existing database (279
+places) was checked for shopping-category places: 13 existed, all
+individual boutiques/convenience stores (e.g. UNCLEJIN STORE, Saint
+Tropez Store, STOCKxSNEAKERS.ID, Alfamart/Indomaret). **Zero** malls,
+markets, bazaars, night markets, jewelry areas, or factory outlets
+existed — confirming the gap the request described. Every new place's
+name/phone/coordinates were checked against all 279 existing records
+before adding — no duplicates found, nothing needed enriching instead.
+
+**Taxonomy** — 10 new subcategories added under Shopping (`js/app.js`
+`SECTIONS`/`EMO`/`LBL`): 🏬 مولات، 🧺 بازارات وأسواق، 🏷️ أوتلت، 🎁 هدايا
+وتذكارات، 💎 مجوهرات وإكسسوارات، 🏠 ديكور وحرف، 🌙 أسواق ليلية، 🛒 أسواق
+محلية (plus `fashion`/`beauty` reserved for future items). Populating
+`subs` was enough to get the same vertical-card picker Food/Sports use —
+no new screens were built. A "ماذا أشتري هنا؟" (what to buy) filter group
+was added to the existing filter sheet, shown only inside Shopping,
+reusing the same `tag:`-prefixed chip mechanism as the generic filters.
+
+**22 new places added** (301 total), researched via web search and
+included only where a named, real venue could be confirmed:
+- **Malls (7):** Beachwalk Shopping Centre, Discovery Shopping Mall,
+  Seminyak Village, Bali Collection, Lippo Mall Kuta, Level 21 Mall,
+  Living World Denpasar.
+- **Traditional/art markets (3):** Ubud Traditional Art Market, Sukawati
+  Art Market, Pasar Kumbasari (Denpasar).
+- **Night markets (4):** Gianyar Night Market, Sanur Night Market (Pasar
+  Sindhu), Kuta Night Market, Pasar Malam Berawa (Canggu).
+- **Factory outlets (3):** World Brand Factory Outlet, Surf Factory
+  Outlet (BSO), Billabong Factory Outlet — all verified real
+  factory-outlet destinations on Kuta's bypass road, not just anything
+  using the word "outlet."
+- **Jewelry (3):** Celuk Village (the silver-making village near Ubud),
+  One Love Jewelry, Bloom Jewelry (both Seminyak).
+- **Home decor/concept stores (2):** Barefoot Aristocracy, Hedonist Store.
+
+Every new record answers "لماذا أروح؟" and "ماذا أشتري هنا؟" directly in
+its description, and carries "what to buy" tags (`clothes`, `shoes`,
+`souvenirs`, `jewelry`, `home`, etc.) that feed the new filter group.
+
+**What was intentionally left null/empty (not invented):** ratings,
+review counts, phone numbers, and exact coordinates for all 22 new
+places — this session's sandbox blocks outbound requests to Google Maps
+and every other place-lookup source (confirmed via direct testing, same
+limitation as the earlier Data Expansion phase), so nothing beyond what
+web search text results actually stated (names, general
+areas/addresses, a few opening hours) was recorded. These places are
+therefore excluded from map markers and distance sorting exactly like
+the ~50 other coordinate-less places already in the database — same
+documented, pre-existing tradeoff, not a new one. A follow-up pass with
+map/place-ID access could fill in coordinates and enrich ratings without
+touching anything else.
+
+**Regression-tested** (Playwright): Home → المزيد → تسوق opens the new
+picker with all 10 subcategories visible; tapping "مولات" filters to the
+mall list; global search for "Outlet", "Mall", and "هدايا" returns the
+correct new places; the filter sheet shows the new "ماذا أشتري هنا؟"
+group only inside Shopping; opening a shopping place's detail sheet
+works and shows the why-go/what-to-buy text; Food section, search, and
+map toggle all continue to work unchanged; `tools/build-data.mjs`
+regenerated `data/places.generated.js` with 0 validation errors.
