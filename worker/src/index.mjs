@@ -45,8 +45,10 @@ function corsHeaders(origin, allowedOrigin) {
     "Vary": "Origin",
   };
 }
-function jsonError(code, message, status, extraHeaders) {
-  return new Response(JSON.stringify({ error: { code, message } }), {
+function jsonError(code, message, status, extraHeaders, debug) {
+  const body = { error: { code, message } };
+  if (debug) body.error.debug = debug; // TEMP DIAGNOSTIC field, see call site
+  return new Response(JSON.stringify(body), {
     status,
     headers: { "Content-Type": "application/json", ...(extraHeaders || {}) },
   });
@@ -200,7 +202,12 @@ export default {
 
     if (!upstreamRes.ok) {
       const [code, message, status] = mapUpstreamStatus(upstreamRes.status);
-      return jsonError(code, message, status, cors);
+      // TEMP DIAGNOSTIC: include Anthropic's real error text (safe, non-secret
+      // descriptive text) while we track down a production issue. Remove
+      // `debug` before considering this done.
+      let debugDetail = "";
+      try { debugDetail = (await upstreamRes.text()).slice(0, 500); } catch (e) {}
+      return jsonError(code, message, status, cors, debugDetail);
     }
 
     let data;
