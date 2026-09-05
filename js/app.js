@@ -678,7 +678,7 @@ const MENU_CALL_TIMEOUT=20000, MENU_TOTAL_TIMEOUT=28000;
 // through a small Cloudflare Worker (see worker/) that holds the real key as
 // a server-side secret and only accepts requests from this app's own origin.
 // Update this URL once the Worker is deployed (see worker/README.md).
-const AI_API_URL="https://jalan-menu-ai.YOUR-SUBDOMAIN.workers.dev/v1/messages";
+const AI_API_URL="https://jalan-menu-ai.saem9299.workers.dev/v1/messages";
 function withTimeout(promise,ms){
   return new Promise((resolve,reject)=>{
     const t=setTimeout(()=>reject(new Error("TIMEOUT")),ms);
