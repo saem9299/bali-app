@@ -12,7 +12,7 @@ const ANTHROPIC_VERSION = "2023-06-01";
 // Pinned server-side so a compromised/rewritten frontend can't make this
 // Worker call an arbitrary model on the API key's account. The client-sent
 // `model` field (whatever JALAN's frontend happens to send) is ignored.
-const PINNED_MODEL = "claude-sonnet-4-5";
+const PINNED_MODEL = "claude-sonnet-5";
 const UPSTREAM_TIMEOUT_MS = 25000;
 const MAX_BODY_BYTES = 100 * 1024; // menu prompts are plain OCR/search text, never images
 const MAX_TOKENS_CAP = 1500;
