@@ -614,3 +614,39 @@ category via `cats[]`) for the areas this task's brief emphasized:
   included where a source stated a specific number (e.g., Canggu Surf
   School's "5.0 from 67 reviews"); left `null`/omitted everywhere else
   rather than estimated.
+
+## Installable app (PWA)
+
+JALAN can now be installed to a phone's home screen as a real standalone
+app — no App Store/Play Store, no native build tooling, just the existing
+static site plus the standard web-app manifest pieces:
+
+- `manifest.json` — name, JALAN-green theme/background color, `standalone`
+  display (opens with no browser address bar), portrait orientation, and
+  icon set.
+- `icons/` — a proper icon set generated from the app's own brand mark
+  (green square, gold dot, white bars — same SVG used for the browser-tab
+  favicon), at 192px/512px plus maskable variants for Android's adaptive
+  icon shapes, and a 180px `apple-touch-icon.png` for iOS.
+- `sw.js` — a minimal service worker that caches the app shell
+  (`index.html`, `css/styles.css`, `js/app.js`,
+  `data/places.generated.js`, icons) on first visit. Only same-origin
+  requests are intercepted — map tiles, fonts, Tesseract, and the menu
+  translation call are left to hit the network normally, so this only
+  affects the app shell itself, not any of the app's actual features or
+  their existing network-dependent behavior.
+
+Verified in a real browser: manifest loads and is discovered, the service
+worker registers and activates, and — the actual point of a PWA — going
+fully offline after one visit and reloading still loads and renders all
+279 places correctly (tested via Playwright's offline mode, not assumed).
+
+**To install on a phone:** open the site's URL in Safari (iOS) or Chrome
+(Android) → Share/menu → "Add to Home Screen". The icon that appears opens
+JALAN full-screen, exactly like a native app.
+
+**Still needed for a real phone to actually reach it:** this only works
+from a real HTTPS URL a phone can open — Claude Artifact preview links
+require being logged into claude.ai and aren't meant for this. The
+repo isn't yet deployed anywhere with a public URL (e.g., GitHub Pages);
+that's a separate step — see the conversation for the current status.
