@@ -507,3 +507,110 @@ panel — that opens the same map view (`setMapView(true)`, a small shared
 helper factored out of the existing toolbar button's handler so both entry
 points stay in sync). The toolbar button is unchanged and still there;
 bottom navigation itself was not touched.
+
+## Data expansion (231 → 279 places)
+
+Real, current research via live web search — not invented. Before writing
+any code: audited the existing 231-record dataset first (see "Audit
+findings" below), then researched and added 48 new places (49 built, 1
+turned out to already exist — see "Duplicate caught" below).
+
+**A hard constraint discovered mid-task, disclosed rather than worked
+around:** this session's `WebFetch` is blocked for every external domain
+tested, including the venue's own website and `google.com/maps` directly
+(confirmed with direct tool calls, not assumed) — only `WebSearch`'s text
+summaries are reachable. That means **no coordinate for any new place could
+be genuinely verified** this session. Per the app's own data rules, every
+new record's `lat`/`lng` is `null` rather than guessed — flagged to the user
+mid-task, who confirmed proceeding on that basis. Practical effect: these
+48 places search, filter, and open normally, but won't appear on the map
+or support distance sorting/"near me" until real coordinates are added
+(the existing `oh: null` / missing-coordinate pattern already handles this
+gracefully everywhere — verified, not just assumed, via a real browser
+test opening a coordinate-less place's detail page: no distance shown, no
+crash).
+
+**Audit findings (before adding anything):**
+- No exact-name duplicates in the original 231, no shared/near-identical
+  coordinates. Four phone numbers each shared by two places — checked
+  individually, all four are legitimate multi-branch/same-group venues
+  (e.g. two YUKI branches, two Livingstone locations), not duplicates.
+- Two real category gaps confirmed: **no `swimming` category existed at
+  all** in the Sports taxonomy (not one entry, and not even a valid key —
+  the app's own filter chips couldn't have shown it), and **no dedicated
+  running places** — running in Bali is overwhelmingly informal meetup
+  clubs with no fixed address (confirmed via research), so per "don't add
+  an unverified route/place," none were added as their own records rather
+  than forcing something in on weak grounds.
+
+**Duplicate caught before it shipped:** while merging, the newly-researched
+"Meimei" (Canggu) turned out to already exist in the database (as
+lowercase `meimei`, with real coordinates, rating, phone, and a fuller
+description than what research alone could produce). Dropped the new
+blank-coordinate copy and left the existing, richer record untouched —
+exactly the "update/enrich, never duplicate" rule, caught by an actual
+case-insensitive name check against the full merged set, not assumed away.
+
+**Schema change required for integration:** added `swimming` as a new
+Sports category (`SECTIONS` sports `keys`/`subs`, plus its icon/label in
+`EMO`/`LBL` in `js/app.js`) — the minimum change needed for the 3 new
+swimming places to actually be filterable, per "make new places work with
+the existing category system," not a restructure.
+
+**New places marked `sug:1`** (the existing "suggested/new" flag, already
+used for a "جديد على جالان" home section and a "مقترحة لك" filter — a
+correct, un-invented use of a field that already means exactly this).
+
+### Report
+
+| | Count |
+|---|---|
+| Before | 231 |
+| Added | 48 |
+| Updated/enriched | 0 (the 2 candidate enrichments — adding "tennis" to two Liga.Tennis padel clubs — turned out already present in the data) |
+| Duplicates caught and dropped | 1 (Meimei) |
+| **Final** | **279** |
+
+New regions added (only where enough real places justified it, per the
+brief's own rule): **Jimbaran** (3 seafood restaurants) and **Nusa Penida**
+(3 well-known named attractions). A single new Berawa restaurant (Mosto)
+was folded into the existing **Canggu** region instead of creating a
+1-place region.
+
+Category breakdown (of all 279, a place can count in more than one
+category via `cats[]`) for the areas this task's brief emphasized:
+
+| Category | Total | New this pass |
+|---|---|---|
+| Padel | 9 | 0 (none added — already well covered; 2 existing padel clubs already had `tennis` listed too) |
+| Tennis | 9 | 2 |
+| Gym | 15 | 0 |
+| Pilates | 10 | 3 |
+| CrossFit | 5 | 2 |
+| HYROX | 6 | 2 |
+| Boxing | 10 | 4 |
+| Muay Thai | 9 | 4 |
+| Yoga | 11 | 5 |
+| Surf | 4 | 2 |
+| Swimming | 3 | 3 (new category) |
+| Cafes | 42 | 5 |
+| Coffee | 39 | 2 |
+| Juice/Smoothies | 16 | 0 |
+| Protein/Healthy Drinks | 15 | 1 |
+| Restaurants (general + cuisine-specific) | ~90 across cuisines | 11 |
+| Seafood | 8 | 3 |
+| Beaches/Nature | 12 | 5 |
+
+### What was not attempted and why
+
+- **Running clubs/routes**: informal, no fixed venue for the clubs found;
+  didn't force a record onto weak grounds.
+- **Amed and other regions named in the brief** (North Bali, Sidemen, East
+  Bali, Tanah Lot): searched, but didn't turn up specific *named venues* I
+  could verify well enough in the time available — general area
+  descriptions without a specific confirmed place aren't enough to add a
+  record on, so these regions weren't introduced this pass.
+- **Exact review counts, prices, and opening hours** for new places: only
+  included where a source stated a specific number (e.g., Canggu Surf
+  School's "5.0 from 67 reviews"); left `null`/omitted everywhere else
+  rather than estimated.

@@ -32,7 +32,7 @@ const EMO={cafe:"☕",coffee:"☕",matcha:"🍵",juice:"🥤",protein:"💪",bak
  italian:"🍝",steak:"🥩",burger:"🍔",sandwich:"🥪",mex:"🌮",seafood:"🦐",indo:"🍜",asian:"🍣",
  indian:"🍛",me:"🥙",beachclub:"🏖️",bar:"🍸",hotel:"🏨",spa:"💆",gym:"🏋️",shop:"🛍️",nature:"🌴",
  attraction:"📸",rest:"🍽️",other:"📍",padel:"🎾",tennis:"🎾",box:"🥊",boxing:"🥊",muaythai:"🥊",
- pilates:"🤸",crossfit:"🏋️‍♂️",hyrox:"⚡",yoga:"🧘",surf:"🏄",recovery:"♨️",adv:"⛰️",cult:"🎭",fam:"🎡"};
+ pilates:"🤸",crossfit:"🏋️‍♂️",hyrox:"⚡",yoga:"🧘",surf:"🏄",swimming:"🏊",recovery:"♨️",adv:"⛰️",cult:"🎭",fam:"🎡"};
 const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي",protein:"بروتين وصحي",cafe:"كافيه",
  bakery:"حلا ومخبوزات",breakfast:"فطور وبرنش",italian:"إيطالي",steak:"ستيك ومشاوي",seafood:"بحري",
  indo:"إندونيسي",asian:"آسيوي",indian:"هندي",me:"شرق أوسطي وعربي",burger:"برجر",sandwich:"ساندويتش",
@@ -40,7 +40,7 @@ const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي"
  hotel:"إقامة",spa:"سبا وجمال",shop:"تسوق",other:"أخرى",attraction:"معالم",adv:"مغامرات",
  cult:"ثقافة وعروض",fam:"عائلي",gym:"جيم",padel:"بادل",tennis:"تنس",pilates:"بيلاتس",
  crossfit:"كروس فت",hyrox:"هايروكس",boxing:"ملاكمة",muaythai:"موي تاي",yoga:"يوقا",
- surf:"سيرف",recovery:"استشفاء وساونا"};
+ surf:"سيرف",swimming:"سباحة",recovery:"استشفاء وساونا"};
 // Unified line-icon set (Lucide, MIT/ISC-licensed static SVGs — inlined so there's no
 // new runtime/CDN dependency) for the Home/nav chrome, replacing the mixed-style emoji
 // there (sections, bottom nav, meal picker). Per-place category glyphs in EMO above are
@@ -71,8 +71,8 @@ const SECTIONS=[
  {id:"food",label:"أكل",ic:licon("utensils"),keys:["italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","rest","cafe"],
   subs:["rest","italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","cafe"]},
  {id:"drinks",label:"مشروبات",ic:licon("cup-soda"),keys:["coffee","matcha","juice","protein","cafe"],subs:["coffee","matcha","juice","protein"]},
- {id:"sports",label:"رياضة",ic:licon("dumbbell"),keys:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","recovery"],
-  subs:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","recovery"]},
+ {id:"sports",label:"رياضة",ic:licon("dumbbell"),keys:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","swimming","recovery"],
+  subs:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","swimming","recovery"]},
  {id:"beach",label:"شواطئ وبيتش كلب",ic:licon("palmtree"),keys:["beachclub","nature"],subs:["beachclub","nature"]},
  {id:"visit",label:"تستحق الزيارة",ic:licon("compass"),keys:["attraction","adv","cult","fam"],subs:["attraction","adv","cult","fam"]},
  {id:"stay",label:"إقامة",ic:licon("hotel"),keys:["hotel"],subs:[]},
