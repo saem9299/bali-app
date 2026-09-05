@@ -1,0 +1,9 @@
+name = "jalan-menu-ai"
+main = "src/index.mjs"
+compatibility_date = "2026-09-01"
+
+# Public config only -- ANTHROPIC_API_KEY is a secret, set via:
+#   wrangler secret put ANTHROPIC_API_KEY
+# never put it here.
+[vars]
+ALLOWED_ORIGIN = "https://saem9299.github.io"
