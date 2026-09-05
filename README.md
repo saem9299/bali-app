@@ -1009,3 +1009,32 @@ for some tagged `a:"Seminyak"`, confirming those neighborhoods already
 have real coverage folded into their parent region rather than being
 truly empty. Munduk and Bedugul remain genuinely uncovered — no
 verifiable venue names were found there in this pass or the last.
+
+## Menu AI backend (Cloudflare Worker) — root-caused and fixed
+
+The menu-translation feature's `rawCall()` was fetching
+`https://api.anthropic.com/v1/messages` **directly from the browser** —
+that can never work in production: the API requires a secret `x-api-key`
+a static GitHub Pages site can't hold, and doesn't return CORS headers for
+arbitrary browser origins, so a real browser on `saem9299.github.io`
+would have the request blocked regardless. Fixed by adding a small,
+narrowly-scoped Cloudflare Worker (`worker/`) that holds the real key
+server-side and is the only thing the browser talks to now. Full
+architecture, deployment steps, and troubleshooting: **[`docs/menu-ai.md`](docs/menu-ai.md)**.
+
+Nothing about the menu UI, OCR, image selection, caching, or fallback
+logic changed — only `rawCall()`'s target URL (`AI_API_URL` in
+`js/app.js`, a placeholder until the Worker is deployed and the constant
+updated to its real URL). Verified locally that the browser now calls
+only the configured Worker URL, never `api.anthropic.com` — zero requests
+to Anthropic from the client in every test. The Worker's own 14-case test
+suite (`worker/test/run.mjs`) passes: CORS allow/deny, method/origin/
+payload validation, disallowed-tool rejection, upstream error mapping,
+and confirms the API key never appears in any response.
+
+**Remaining manual step (cannot be done from here):** deploying the
+Worker requires an interactive `wrangler login` against a real Cloudflare
+account, and setting the secret requires pasting a real Anthropic key —
+neither is possible in a non-interactive session, by design (the key must
+never pass through this chat). See `docs/menu-ai.md` for the exact
+commands to run.
