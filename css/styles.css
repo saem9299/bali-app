@@ -125,7 +125,9 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 .hsec{font-family:"IBM Plex Sans Arabic","Inter",sans-serif;font-size:17px;font-weight:700;margin:18px 0 10px}
 .quick{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
 .quick::-webkit-scrollbar{display:none}
-.quick button{flex:0 0 auto;padding:10px 14px;border-radius:12px;border:1px solid var(--stone);background:var(--paper);font-size:13.5px;cursor:pointer;font-weight:500}
+.quick button{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;
+ border:1px solid var(--stone);background:var(--paper);font-size:13.5px;cursor:pointer;font-weight:500;color:var(--ink)}
+.licon{width:1.1em;height:1.1em;flex:0 0 auto;vertical-align:-.18em}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .card{position:relative;text-align:start;border:1px solid var(--stone);border-radius:16px;background:var(--paper);
  padding:14px 13px 12px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:106px;overflow:hidden;

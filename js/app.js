@@ -41,17 +41,43 @@ const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي"
  cult:"ثقافة وعروض",fam:"عائلي",gym:"جيم",padel:"بادل",tennis:"تنس",pilates:"بيلاتس",
  crossfit:"كروس فت",hyrox:"هايروكس",boxing:"ملاكمة",muaythai:"موي تاي",yoga:"يوقا",
  surf:"سيرف",recovery:"استشفاء وساونا"};
+// Unified line-icon set (Lucide, MIT/ISC-licensed static SVGs — inlined so there's no
+// new runtime/CDN dependency) for the Home/nav chrome, replacing the mixed-style emoji
+// there (sections, bottom nav, meal picker). Per-place category glyphs in EMO above are
+// left untouched — those are category/data iconography, out of this pass's scope.
+const LICO_PATH={
+ home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ utensils:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+ "cup-soda":'<path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/><path d="m12 8 1-6h2"/>',
+ dumbbell:'<path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/>',
+ palmtree:'<path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4"/><path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1-1-1 1h-3"/><path d="M5.89 9.71c-2.15 2.15-2.3 5.47-.35 7.43l4.24-4.25.7-.7.71-.71 2.12-2.12c-1.95-1.96-5.27-1.8-7.42.35"/><path d="M11 15.5c.5 2.5-.17 4.5-1 6.5h4c2-5.5-.5-12-1-14"/>',
+ compass:'<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/>',
+ hotel:'<path d="M10 22v-6.57"/><path d="M12 11h.01"/><path d="M12 7h.01"/><path d="M14 15.43V22"/><path d="M15 16a5 5 0 0 0-6 0"/><path d="M16 11h.01"/><path d="M16 7h.01"/><path d="M8 11h.01"/><path d="M8 7h.01"/><rect x="4" y="2" width="16" height="20" rx="2"/>',
+ "flower-2":'<path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1"/><circle cx="12" cy="8" r="2"/><path d="M12 10v12"/><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z"/><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z"/>',
+ "shopping-bag":'<path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.79a1 1 0 0 1 .984 1.192l-1.964 10a1 1 0 0 1-.984.808H5.067a1 1 0 0 1-.984-.808l-1.964-10a1 1 0 0 1 .984-1.192"/><path d="M8.5 6a3.5 3.5 0 1 1 7 0"/>',
+ "more-horizontal":'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+ sunrise:'<path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m16 6-4 4-4-4"/><path d="M16 18a4 4 0 0 0-8 0"/>',
+ croissant:'<path d="M10.2 18H4.774a1.5 1.5 0 0 1-1.352-.97 11 11 0 0 1-.594-4.377c.05-1.83.53-3.6 1.216-5.271A2.28 2.28 0 0 1 5.774 6c2.313.098 6.017.281 8.226.281.687 0 1.35-.024 1.964-.076"/><path d="M12.75 6.53A2.28 2.28 0 0 1 14.5 6c1.146 0 2.084.35 2.916.911A11 11 0 0 1 19.5 9.5"/><path d="m14 6.5 4.5 9.5"/><path d="m10.5 18-4-9"/>',
+ moon:'<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.42.402.764a7 7 0 0 0 9.31 9.31c.344-.215.786-.003.764.402z"/>',
+ calendar:'<path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/>',
+ star:'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.166-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+ "map-pin":'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'
+};
+const licon=(name,cls)=>`<svg class="licon${cls?" "+cls:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LICO_PATH[name]||""}</svg>`;
+
 const SECTIONS=[
- {id:"food",label:"أكل",ic:"🍽️",keys:["italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","rest","cafe"],
+ {id:"food",label:"أكل",ic:licon("utensils"),keys:["italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","rest","cafe"],
   subs:["rest","italian","steak","seafood","indo","asian","indian","me","burger","sandwich","mex","bakery","breakfast","cafe"]},
- {id:"drinks",label:"مشروبات",ic:"🥤",keys:["coffee","matcha","juice","protein","cafe"],subs:["coffee","matcha","juice","protein"]},
- {id:"sports",label:"رياضة",ic:"🎯",keys:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","recovery"],
+ {id:"drinks",label:"مشروبات",ic:licon("cup-soda"),keys:["coffee","matcha","juice","protein","cafe"],subs:["coffee","matcha","juice","protein"]},
+ {id:"sports",label:"رياضة",ic:licon("dumbbell"),keys:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","recovery"],
   subs:["gym","padel","tennis","pilates","crossfit","hyrox","boxing","muaythai","yoga","surf","recovery"]},
- {id:"beach",label:"شواطئ وبيتش كلب",ic:"🏖️",keys:["beachclub","nature"],subs:["beachclub","nature"]},
- {id:"visit",label:"تستحق الزيارة",ic:"📸",keys:["attraction","adv","cult","fam"],subs:["attraction","adv","cult","fam"]},
- {id:"stay",label:"إقامة",ic:"🏨",keys:["hotel"],subs:[]},
- {id:"spa",label:"سبا وجمال",ic:"💆",keys:["spa","recovery"],subs:[]},
- {id:"shop",label:"تسوق",ic:"🛍️",keys:["shop","other"],subs:[]}
+ {id:"beach",label:"شواطئ وبيتش كلب",ic:licon("palmtree"),keys:["beachclub","nature"],subs:["beachclub","nature"]},
+ {id:"visit",label:"تستحق الزيارة",ic:licon("compass"),keys:["attraction","adv","cult","fam"],subs:["attraction","adv","cult","fam"]},
+ {id:"stay",label:"إقامة",ic:licon("hotel"),keys:["hotel"],subs:[]},
+ {id:"spa",label:"سبا وجمال",ic:licon("flower-2"),keys:["spa","recovery"],subs:[]},
+ {id:"shop",label:"تسوق",ic:licon("shopping-bag"),keys:["shop","other"],subs:[]}
 ];
 // Visual identity: one accent color per Home section (design tokens in css/styles.css,
 // mirrored here since section→color is a lookup the renderer needs, not a CSS rule).
@@ -66,7 +92,7 @@ const hexToRgb=h=>{const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255
 const tintBg=k=>{const[r,g,b]=hexToRgb(SECTION_HEX[KIND_SECTION[k]]||"#4B5563");return`rgba(${r},${g},${b},.1)`;};
 const tintFg=k=>SECTION_HEX[KIND_SECTION[k]]||"#4B5563";
 const TABS=["food","drinks","sports"];
-const MEALS=[["b","فطور","🍳"],["br","برنش","🥐"],["l","غداء","🍽️"],["d","عشاء","🌙"]];
+const MEALS=[["b","فطور",licon("sunrise")],["br","برنش",licon("croissant")],["l","غداء",licon("utensils")],["d","عشاء",licon("moon")]];
 const secOf=id=>SECTIONS.find(s=>s.id===id);
 const AREAS=[...new Set(PLACES.map(p=>p.a))].sort((a,b)=>PLACES.filter(p=>p.a===b).length-PLACES.filter(p=>p.a===a).length);
 const hasCat=(p,k)=>(p.cats||[p.k]).includes(k);
@@ -172,9 +198,9 @@ function renderTabs(){
   const nav=document.getElementById("tabs");nav.innerHTML="";
   const add=(ic,label,on,fn)=>{const b=document.createElement("button");b.setAttribute("aria-pressed",on);
    b.innerHTML=`<span class="ic">${ic}</span><span>${label}</span>`;b.onclick=fn;nav.appendChild(b);};
-  add("◎","الرئيسية",state.home,goHome);
+  add(licon("home"),"الرئيسية",state.home,goHome);
   TABS.forEach(id=>{const S=secOf(id);add(S.ic,S.label,state.sec===id,()=>pickSec(id));});
-  add("⋯","المزيد",!!state.sec&&!TABS.includes(state.sec),openMore);
+  add(licon("more-horizontal"),"المزيد",!!state.sec&&!TABS.includes(state.sec),openMore);
 }
 function renderChips(){
   const base=PLACES.filter(passSec);
@@ -199,12 +225,12 @@ function openMore(){
   document.getElementById("mpanel").innerHTML=`<div class="grab"></div><div class="morelist">
    ${rest.map(S=>`<button data-id="${S.id}"><span style="font-size:19px">${S.ic}</span><span>${S.label}</span>
     <span class="n">${PLACES.filter(p=>inSec(p,S)).length}</span></button>`).join("")}
-   <button data-id="__plan"><span style="font-size:19px">🗓️</span><span>خطط يومي</span><span class="n"></span></button>
-   <button data-id="__star"><span style="font-size:19px">★</span><span>المميّزة عندي</span>
+   <button data-id="__plan"><span style="font-size:19px">${licon("calendar")}</span><span>خطط يومي</span><span class="n"></span></button>
+   <button data-id="__star"><span style="font-size:19px">${licon("star")}</span><span>المميّزة عندي</span>
     <span class="n">${PLACES.filter(p=>mk(p.n).s).length}</span></button>
-   <button data-id="__vis"><span style="font-size:19px">✓</span><span>اللي زرتها</span>
+   <button data-id="__vis"><span style="font-size:19px">${licon("check")}</span><span>اللي زرتها</span>
     <span class="n">${PLACES.filter(p=>mk(p.n).v).length}</span></button>
-   <button data-id="__about"><span style="font-size:19px">ℹ️</span><span>عن جالان ونسخة احتياطية</span><span class="n"></span></button>
+   <button data-id="__about"><span style="font-size:19px">${licon("info")}</span><span>عن جالان ونسخة احتياطية</span><span class="n"></span></button>
   </div>`;
   document.querySelectorAll("#mpanel .morelist button").forEach(b=>b.onclick=()=>{
     const id=b.dataset.id;
@@ -284,7 +310,7 @@ function renderPicker(S){
   const pool=PLACES.filter(p=>inSec(p,S));
   if(S.id==="food"&&!state.mealPicked){
     list.innerHTML=`<div class="vlist">
-      <button class="vrow" data-meal="__all"><span class="vi">🍽️</span><span class="vt">كل أماكن الأكل</span>
+      <button class="vrow" data-meal="__all"><span class="vi">${licon("utensils")}</span><span class="vt">كل أماكن الأكل</span>
         <span class="vn">${pool.length}</span><span class="va">‹</span></button>
       ${MEALS.map(([k,lab,ic])=>{const n=pool.filter(p=>p[k]).length;return !n?"":
         `<button class="vrow" data-meal="${k}"><span class="vi">${ic}</span><span class="vt">${lab}</span>
@@ -347,10 +373,10 @@ function renderHome(){
    <button class="cta" id="flowbtn">🧭 وين نروح الآن؟<small>توصية ذكية بخمس خطوات سريعة</small></button>
    <button class="cta2" id="surbtn">✨ اختَر لي — قرار سريع</button>
    <div class="quick">
-     <button data-q="near">📍 قريب مني</button><button data-q="meal">🍽️ وش آكل؟</button>
-     <button data-q="drinks">🥤 مشروبات</button>
-     <button data-q="sports">🎯 رياضة</button><button data-q="beach">🏝️ شواطئ</button>
-     <button data-q="plan">🗓️ خطط يومي</button><button data-q="star">★ المميّزة</button>
+     <button data-q="near">${licon("map-pin")} قريب مني</button><button data-q="meal">${licon("utensils")} وش آكل؟</button>
+     <button data-q="drinks">${licon("cup-soda")} مشروبات</button>
+     <button data-q="sports">${licon("dumbbell")} رياضة</button><button data-q="beach">${licon("palmtree")} شواطئ</button>
+     <button data-q="plan">${licon("calendar")} خطط يومي</button><button data-q="star">${licon("star")} المميّزة</button>
    </div>
    <div class="hsec">الأقسام</div><div class="grid">${cards}</div>
    <div class="hsec">مفتوح الآن وقريب</div><div id="hnow"></div>

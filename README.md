@@ -343,3 +343,31 @@ those two cases specifically (retrying the same blurry photo doesn't help;
 "choose another photo" is the only useful action) while keeping retry for
 the translation-failure case, which does benefit from it (re-translates
 the already-OCR'd text without re-scanning).
+
+## Mobile-only final polish
+
+Scoped to mobile visual polish and one icon-consistency fix — no category,
+data, search/filter, favorites/visited/notes, planner, map, menu logic, or
+photo-upload logic touched (all verified unaffected by a full regression
+pass across four mobile viewport sizes: 360, 375, 390, 412px wide).
+
+**Unified icon system.** Home/section/nav chrome used mixed-style emoji
+(🍳 🥐 🌙 🍽️ for meals; a different emoji per section for cards, bottom
+nav, and the "More" list). Replaced with a single consistent line-icon set
+— [Lucide](https://lucide.dev)'s static SVGs (MIT/ISC), inlined directly
+as strings in `js/app.js` (`LICO_PATH` + the `licon()` helper), so there's
+**no new runtime dependency or CDN script** — just embedded, currentColor-
+stroked SVGs that size via the existing `font-size`/`.licon` (1.1em) like
+the emoji they replaced. Covers: bottom navigation (Home/More), the Home
+section cards, the "More" panel list, the Home quick-action pills, and the
+food page's meal picker (Breakfast/Brunch/Lunch/Dinner — the exact example
+in this pass's brief). Per-place category glyphs (`EMO`, ~30 kinds shown
+in list-row tags, the detail band, map markers) are intentionally left
+alone — that's category/data iconography, not nav/section chrome, and out
+of this pass's scope.
+
+Everything else was already addressed in the prior "Final Polish" pass
+(hero height, the three "where to go" entry points' distinct roles, quiet
+section cards with a small accent border, bottom-nav tap targets, region
+chips, card shadows) — re-verified here on four screen widths rather than
+redone.
