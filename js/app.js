@@ -334,9 +334,9 @@ function renderHome(){
   const H="https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20terraces,%20Bali.jpg?width=1200";
   const cards=SECTIONS.map(S=>{const ps=PLACES.filter(p=>inSec(p,S));
    const top=ps.slice().sort((a,b)=>(b.r||0)-(a.r||0))[0];const k=ps[0]?ps[0].k:"other";
-   return `<button class="card" data-sec="${S.id}">
-    <span class="band" style="background:linear-gradient(135deg,${tintBg(k)},${tintBg(k)} 40%,#fff0)"></span>
-    <span class="ci">${S.ic}</span><b>${S.label}</b><span class="cn">${ps.length} مكان</span>
+   return `<button class="card" data-sec="${S.id}" style="border-inline-start:3px solid ${tintFg(k)}">
+    <span class="cico" style="background:${tintBg(k)};color:${tintFg(k)}">${S.ic}</span>
+    <b>${S.label}</b><span class="cn">${ps.length} مكان</span>
     <span class="cs">${top?esc(top.n):""}</span></button>`;}).join("");
   const openCnt=PLACES.filter(p=>openState(p)===1).length;
   document.getElementById("list").innerHTML=`<div class="home-wrap">
@@ -344,7 +344,7 @@ function renderHome(){
     <div class="in"><div class="kicker">JALAN</div><h2 class="serif">وين نروح اليوم؟</h2>
     <p>${PLACES.length} محطة في ${AREAS.length} مناطق · ${openCnt} مفتوحة الآن</p></div></div>
    <p class="credit">صورة: Vyacheslav Argenberg · <a href="https://creativecommons.org/licenses/by/4.0" target="_blank" rel="noopener">CC BY 4.0</a></p>
-   <button class="cta" id="flowbtn">وين نروح الآن؟<small>خمس خطوات سريعة ونعطيك الأنسب لك الحين</small></button>
+   <button class="cta" id="flowbtn">🧭 وين نروح الآن؟<small>توصية ذكية بخمس خطوات سريعة</small></button>
    <button class="cta2" id="surbtn">✨ اختَر لي — قرار سريع</button>
    <div class="quick">
      <button data-q="near">📍 قريب مني</button><button data-q="meal">🍽️ وش آكل؟</button>
@@ -502,7 +502,8 @@ function openDetail(name){
      ${p.menuUrl?`<a class="mlink" href="${esc(p.menuUrl)}" target="_blank" rel="noopener">فتح المنيو الأصلي ↗</a>`:""}
      <button id="menuimgbtn">📷 ترجمة من صورة</button>
     </div>
-    <input type="file" accept="image/*" capture="environment" id="menuimg" class="menuimg-input">
+    <input type="file" accept="image/*" id="menuimg" class="menuimg-input">
+    <input type="file" accept="image/*" capture="environment" id="menuimgcam" class="menuimg-input">
     <div id="menuwrap"></div>
    </div>`:""}
    <textarea id="note" placeholder="ملاحظاتك عن المكان…">${esc(m.note||"")}</textarea>`;
@@ -559,9 +560,10 @@ function paintMenu(p,state){
   }else if(state.err){
     body=`<div class="menuerr">${esc(state.err)}
      <div class="merow">
-      <button id="menuretry">إعادة المحاولة</button>
-      <button id="menuupload2">رفع صورة أخرى</button>
-      <a href="${gsearch(p)}" target="_blank" rel="noopener">ابحث في قوقل</a>
+      ${state.noRetry?"":'<button id="menuretry">إعادة المحاولة</button>'}
+      <button id="menuupload2">اختيار صورة أخرى</button>
+      ${p.menuUrl?`<a href="${esc(p.menuUrl)}" target="_blank" rel="noopener">فتح المنيو الأصلي</a>`:
+       `<a href="${gsearch(p)}" target="_blank" rel="noopener">ابحث في قوقل</a>`}
      </div></div>`;
     if(c&&c.rawOrig)body+=`<div class="menucap" style="margin-top:12px">النص الأصلي المستخرج من الصورة:</div><div class="txt">${esc(c.rawOrig)}</div>`;
   }else if(c&&(c.dishes||c.rawAr)){
@@ -642,9 +644,24 @@ function ensureTesseract(){
   });
   return tesseractLoad;
 }
-function triggerImagePick(p){
-  const inp=document.getElementById("menuimg");if(!inp)return;
+function openImageInput(p,id){
+  const inp=document.getElementById(id);if(!inp)return;
   inp.value="";inp.onchange=()=>{const f=inp.files&&inp.files[0];if(f)startImageMenu(p,f);};inp.click();
+}
+// Shows the "choose source" mini-screen inline in the menu section instead of
+// jumping straight to a capture-forced camera input — a plain <input capture=environment>
+// on many mobile browsers skips the photo library entirely, which is exactly the gap
+// this adds: an explicit "Choose from Photos" path alongside "Take a Photo".
+function triggerImagePick(p){
+  const w=document.getElementById("menuwrap");if(!w)return;
+  w.innerHTML=`<div class="menuchoose">
+    <h5>ترجمة المنيو</h5>
+    <p>اختر صورة واضحة للمنيو وسيحاول جالان قراءتها وترجمتها.</p>
+    <button id="menufromgallery" class="mprimary">🖼️ اختيار من الصور</button>
+    <button id="menufromcamera">📷 تصوير المنيو</button>
+  </div>`;
+  document.getElementById("menufromgallery").onclick=()=>openImageInput(p,"menuimg");
+  document.getElementById("menufromcamera").onclick=()=>openImageInput(p,"menuimgcam");
 }
 async function translateMenuText(text,p){
   const prompt=`النص التالي مستخرج بتقنية OCR من صورة منيو مطعم اسمه "${p.n}" في بالي، وقد يحتوي أخطاء OCR بسيطة.
@@ -666,16 +683,16 @@ async function translateMenuText(text,p){
 }
 async function startImageMenu(p,file){
   menuView="orig";
-  paintMenu(p,{loading:"📷 جاري قراءة النص من الصورة…"});
+  paintMenu(p,{loading:"جاري قراءة المنيو…"});
   try{await ensureTesseract();}
   catch(e){paintMenu(p,{err:(e&&e.message)||"تعذّر تحميل أداة قراءة الصور. تحقّق من اتصالك بالإنترنت."});return;}
   let text="";
   try{
     const res=await Tesseract.recognize(file,"eng");
     text=((res&&res.data&&res.data.text)||"").trim();
-  }catch(e){paintMenu(p,{err:"تعذّر قراءة النص من هذه الصورة. جرّب صورة أوضح."});return;}
-  if(text.length<3){paintMenu(p,{err:"ما قدرنا نميّز نصًا واضحًا في هذه الصورة."});return;}
-  paintMenu(p,{loading:"📝 جاري ترجمة المنيو…"});
+  }catch(e){paintMenu(p,{err:"تعذّر قراءة المنيو من هذه الصورة.",noRetry:true});return;}
+  if(text.length<3){paintMenu(p,{err:"الصورة غير واضحة بما يكفي لقراءة المنيو.",noRetry:true});return;}
+  paintMenu(p,{loading:"جاري ترجمة المنيو…"});
   try{
     const{dishes,rawAr}=await translateMenuText(text,p);
     const cache={source:"ocr",dishes,rawAr,rawOrig:text,t:Date.now()};

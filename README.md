@@ -297,3 +297,49 @@ make translation actually succeed for real users, route `rawCall()` in
 `js/app.js` through a small backend proxy that holds the API key server-side
 — everything else (UI states, caching, fallback chain) is already built to
 work with that call unchanged.
+
+## Final polish pass
+
+A follow-up pass, scoped to exactly two things: visual polish and one menu
+fix. No category, data, search/filter, favorites/visited/notes, planner,
+map, or navigation logic changed.
+
+**Visual polish** (all in `css/styles.css` / the home-render code in
+`js/app.js`, still driven entirely by the same `:root` tokens — no new
+colors introduced):
+- Hero shortened ~27% (230px → 168px min-height) with tighter type/padding,
+  so "الأقسام" and the places list are reachable without scrolling past a
+  large banner.
+- The three "where to go" entry points now read as distinct roles instead
+  of three similar buttons: the hero stays identity + the core question;
+  "🧭 وين نروح الآن؟" is framed as the guided smart recommendation (icon +
+  "توصية ذكية بخمس خطوات سريعة" subtitle, kept as the one solid/shadowed
+  primary action); "✨ اختَر لي" stays a plain bordered secondary/quick tool.
+- Section cards (`.card`) no longer paint a colored gradient band across
+  the top like a dashboard tile — background is quiet white, the section
+  color now shows only as a small icon badge and a 3px accent border.
+- Bottom nav: bigger tap targets (~55px), bigger icons, unchanged "active
+  = primary green only" rule.
+- Search placeholder reframed to lead with "ابحث عن مطعم، رياضة، مشروب أو
+  منطقة" before the example keywords, so it reads as JALAN's primary tool
+  rather than a bare example list.
+- A few secondary-text sizes bumped slightly (row meta, detail subtitle)
+  for mobile readability; a very light shadow added to cards/category rows
+  per this pass's spec (the prior pass had deliberately used none).
+
+**Menu: added the missing "choose from Photos" path.** The existing photo
+button used a single `<input type="file" accept="image/*" capture="environment">`
+— on a meaningful share of mobile browsers, the `capture` attribute forces
+straight to the camera and skips the photo library, so there was no
+reliable way to pick a saved screenshot or an existing photo. Fixed by
+adding a second, non-`capture` file input and a small inline "choose
+source" step (`triggerImagePick` in `js/app.js`, `.menuchoose` in
+`css/styles.css`) offering "🖼️ اختيار من الصور" (gallery/library, all
+screenshots and saved photos included) and "📷 تصوير المنيو" (camera, kept,
+not removed). Both feed the exact same unchanged OCR → translate pipeline
+from the previous pass. Also tightened the OCR-failure and unclear-image
+messages to the exact wording specified and dropped the "retry" action for
+those two cases specifically (retrying the same blurry photo doesn't help;
+"choose another photo" is the only useful action) while keeping retry for
+the translation-failure case, which does benefit from it (re-translates
+the already-OCR'd text without re-scanning).
