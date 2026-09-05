@@ -923,3 +923,56 @@ After running it, regenerate the bundle as usual: `node tools/build-data.mjs`.
    by name before anything was written.
 7. Data model ready for future external sources: **YES** — `src`/
    `verAt` plus the factual/editorial split above.
+
+## Database expansion — geographic & category gap fill (303 → 345)
+
+TomTom's connector had expired re-authorization at the start of this
+pass and re-auth requires an interactive session, so this round used
+WebSearch as the discovery/verification source instead — same standing
+rule: only real, named, verifiable venues, nothing invented, `null`
+left where a fact (rating, phone, hours) isn't confirmed.
+
+**Audit first.** 90% of the 303 places sat in just 5 regions (Canggu
+108, Ubud 46, Uluwatu 45, Seminyak 39, Pererenan 34); Sanur, Nusa Dua,
+Kerobokan each had ≤1 place, and Berawa, Tibubeneng, Petitenget,
+Legian, Sidemen, Amed, North Bali, Tabanan/Tanah Lot had zero. Japanese/
+sushi cuisine and family/kids activities were also essentially absent
+despite being explicitly requested categories.
+
+**42 new places added**, targeted at those specific gaps: East Bali
+(Sidemen, Amed), North Bali (Lovina), Tanah Lot/Tabanan, Sanur (+7),
+Nusa Dua (+5), Denpasar (+4), 10 Japanese/sushi restaurants across
+Canggu/Seminyak/Ubud, one family water park (Splash, Canggu), and two
+F45 HIIT studios (Canggu, Seminyak — mapped to the existing `crossfit`
+taxonomy key with an added `hiit` tag rather than inventing a new
+category). Every record was name-checked against all 303 existing
+places first — zero duplicates (two near-hits, Waterbom Bali and Sol
+Rooftop Bali, were already in the database and correctly skipped).
+Coordinates left `null` for all 42 (WebSearch doesn't return verifiable
+GPS, same limitation as every prior WebSearch-based research phase) —
+tagged `src:"websearch"` so this is visible and distinguishable from
+the TomTom-sourced coordinates on the other 63 places.
+
+**Known pre-existing artifact, not introduced by this batch:** one
+coordinate pair `(-8.64607, 115.1716)` is shared by two unrelated
+places (S2S CrossFit and Alchemy Bali) from the earlier TomTom
+geocoding pass — almost certainly two businesses in the same small
+building/cluster that TomTom geocoded to one centroid, not a duplicate
+place entry (different names, different categories). Left as-is; flagged
+here for visibility.
+
+**Verified:** `node tools/build-data.mjs` → 345 places, 0 validation
+errors; no duplicate names; no duplicate/invalid coordinates beyond the
+one pre-existing pair above; all coordinates that exist fall inside
+Bali's bounding box; Playwright confirms Home renders all 8 sections
+with correct updated counts, search finds new places (Sidemen, Kenji
+Ramen, Waterbom, F45, Sanur all returned correct results), and zero JS
+errors.
+
+**Honest scope note:** this was one substantial, gap-targeted research
+pass, not an exhaustive sweep of all ~30 region×category combinations
+the brief listed — Munduk and Bedugul, for example, returned no
+specific verifiable venue names in search and were left untouched
+rather than padded with generic entries. Canggu/Ubud/Uluwatu still
+dominate by raw count; meaningfully rebalancing that would take several
+more research passes at this same quality bar, not one.
