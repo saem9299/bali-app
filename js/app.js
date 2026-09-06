@@ -285,9 +285,16 @@ function goHome(){Object.assign(state,{home:true,sec:"",sub:"",meal:"",mealPicke
  flowWhy:null,customOnly:null});
  state.cats.clear();state.price.clear();state.tagsOn.clear();
  const qq=document.getElementById("q");if(qq)qq.value="";
+ const mapWasOpen=state.map;
  if(state.map){state.map=false;document.getElementById("mapwrap").style.display="none";
   document.getElementById("list").style.display="block";const b=document.getElementById("mapBtn");b.dataset.on="";b.textContent="خريطة";}
- close();window.scrollTo({top:0});render();}
+ close(); // close() itself pops a pending "detail" history entry, if any
+ // Jumping straight Home (bottom-nav tab) while the map was open bypasses
+ // closeOverlay entirely, which would otherwise leave a still-pending "map"
+ // history entry un-popped — pop it here so a later Back press doesn't land
+ // on a phantom entry for a screen that's already closed.
+ if(mapWasOpen&&!popGuard&&history.state&&history.state.jalanOverlay==="map")history.back();
+ window.scrollTo({top:0});render();}
 function openMore(){
   const rest=SECTIONS.filter(S=>!TABS.includes(S.id));
   document.getElementById("mpanel").innerHTML=`<div class="grab"></div><div class="morelist">
@@ -500,7 +507,14 @@ function renderHome(){
    ${picks.length?`<button class="seeall" id="seeAllBtn">شوف الكل ‹</button>`:""}
   </div>`;
   document.querySelectorAll("#list .card").forEach(b=>b.onclick=()=>pickSec(b.dataset.sec));
-  document.getElementById("flowbtn").onclick=()=>openFlow(0);
+  // Stale-state bug: FLOW is a module-level object reused across every run of
+  // "وين نروح الآن؟" — without resetting it here, re-opening the flow after
+  // finishing it once silently pre-selected the PREVIOUS run's answers (what/
+  // km/budget/extras), so a user who just clicked through without re-picking
+  // anything got yesterday's choices applied again with no visible warning.
+  document.getElementById("flowbtn").onclick=()=>{
+    FLOW.where=null;FLOW.what=null;FLOW.km=null;FLOW.budget=null;FLOW.extra=new Set();
+    openFlow(0);};
   document.getElementById("surbtn").onclick=surprise;
   document.querySelectorAll("#list [data-q]").forEach(b=>b.onclick=()=>{
     const q=b.dataset.q;state.home=false;
@@ -592,6 +606,13 @@ function surprise(){
 /* ---------------- detail ---------------- */
 function openDetail(name){
   const p=PLACES.find(x=>x.n===name);if(!p)return;
+  // Only push a new history entry when Details is actually being opened
+  // fresh — this same function is also called to re-render the sheet in
+  // place after starring/marking visited (see the `set()` helper below), and
+  // pushing there too would silently stack a duplicate history entry per tap,
+  // so a single Back press would just reopen the same place unchanged.
+  const alreadyOpen=document.getElementById("detail").classList.contains("on");
+  if(!alreadyOpen)pushOverlay("detail");
   const m=mk(p.n),km=kmOf(p),op=openState(p);
   const photos=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.n+" Bali")}`;
   const T=p.tags||[];
@@ -1027,7 +1048,12 @@ function openPlan(area){
   document.getElementById("plan").classList.add("on");}
 
 /* ---------------- filters ---------------- */
-const filterPool=()=>PLACES.filter(p=>{if(state.sec){const S=secOf(state.sec);if(!S||!inSec(p,S))return false;}return true;});
+// Inconsistent-state bug: this ignored state.customOnly (used by the
+// Visited list), so opening Filters while viewing "اللي زرتها" computed every
+// count/chip against all 345 places instead of the visited subset actually
+// on screen — the panel's numbers didn't match what filtered() would return.
+const filterPool=()=>(state.customOnly?PLACES.filter(state.customOnly):PLACES)
+ .filter(p=>{if(state.sec){const S=secOf(state.sec);if(!S||!inSec(p,S))return false;}return true;});
 function openFilters(){
   const chip=(t,on,id,n)=>`<button class="fchip" data-id="${id}" aria-pressed="${on}">${t}${n!=null?` <b style="font-weight:500;opacity:.55">${n}</b>`:""}</button>`;
   const pool=filterPool(),S=state.sec?secOf(state.sec):null;
@@ -1087,8 +1113,53 @@ function openFilters(){
 function markFilterBtn(){document.getElementById("filtBtn").dataset.on=
  (state.cats.size||state.price.size||state.tagsOn.size||state.meal||state.minR||state.maxKm||
   state.openNow||state.starred||state.unvisited||state.sug)?"1":"";}
-function close(){document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));markFilterBtn();}
+// ---- lightweight history integration (Map + Place Details only) ----
+// Real bug (PART 5): neither screen was wired to the browser/OS back
+// gesture at all — a user swiping back on Safari, or a hardware/Android
+// back button, would just leave the app instead of closing the sheet they
+// were looking at. Scoped to these two screens (the ones explicitly called
+// out as "you can enter but not know how to exit") rather than every minor
+// sheet (filters/more/plan/...), to keep the blast radius small and testable:
+// those keep using the plain close() below exactly as before.
+// popGuard prevents the popstate handler's own cleanup from pushing/popping
+// further history entries — the one thing standing between this and an
+// infinite back loop.
+let popGuard=false;
+function pushOverlay(kind){if(!popGuard)history.pushState({jalanOverlay:kind},"");}
+function closeOverlay(){
+  if(!popGuard&&history.state&&history.state.jalanOverlay){history.back();}
+  else{close();if(state.map)setMapView(false);}
+}
+window.addEventListener("popstate",e=>{
+  popGuard=true;
+  const st=e.state;
+  if(st&&st.jalanOverlay==="map"){
+    // landed back on the map-open state (e.g. came from map→detail→back) —
+    // close Details but leave the map itself open, one level at a time.
+    document.getElementById("detail").classList.remove("on");
+  }else{
+    // landed on "no overlay" — close everything Details/Map opened.
+    document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+    if(state.map)setMapView(false);
+  }
+  markFilterBtn();
+  popGuard=false;
+});
+function close(){
+  // Centralized so EVERY existing call site (tab switches, "المزيد" picks,
+  // region/filter selection, the flow, etc.) that happens to close an open
+  // Details sheet also keeps the history stack balanced automatically,
+  // instead of needing that logic sprinkled at each call site.
+  const detailWasOpen=document.getElementById("detail").classList.contains("on");
+  document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));
+  markFilterBtn();
+  if(detailWasOpen&&!popGuard&&history.state&&history.state.jalanOverlay==="detail"){history.back();}
+}
 document.querySelectorAll("[data-close]").forEach(e=>e.onclick=close);
+// Details' own ✕/scrim specifically route through closeOverlay (back()) so a
+// device/Safari back-gesture and tapping ✕ behave identically and never
+// desync the history stack from each other.
+document.querySelectorAll("#detail [data-close]").forEach(e=>e.onclick=closeOverlay);
 
 /* ---------------- map ----------------
  * Root cause of the white-screen-with-dots bug: the tile layer pointed at
@@ -1252,14 +1323,18 @@ document.getElementById("filtBtn").onclick=openFilters;
 // completely untouched by opening/closing the map either way.
 let mapPrevHome=false;
 function setMapView(on){
- if(on)mapPrevHome=state.home;
+ if(on){mapPrevHome=state.home;pushOverlay("map");}
  state.map=on;
  if(on)state.home=false;
  else if(mapPrevHome&&!state.sec)state.home=true;
  const b=document.getElementById("mapBtn");b.dataset.on=on?"1":"";b.textContent=on?"قائمة":"خريطة";
  document.getElementById("mapwrap").style.display=on?"block":"none";
  document.getElementById("list").style.display=on?"none":"block";render();}
-document.getElementById("mapBtn").onclick=()=>setMapView(!state.map);
-document.getElementById("mapCloseX").onclick=()=>setMapView(false);
+// Opening routes through setMapView (which pushes a history entry); closing
+// — whether the toolbar toggle or the ✕ — routes through closeOverlay so a
+// device/Safari back-gesture and tapping either close control behave
+// identically and the history stack never gets out of sync with them.
+document.getElementById("mapBtn").onclick=()=>{if(state.map)closeOverlay();else setMapView(true);};
+document.getElementById("mapCloseX").onclick=closeOverlay;
 addEventListener("scroll",()=>{document.getElementById("hdr").classList.toggle("stuck",window.scrollY>4);},{passive:true});
 loadMarks().then(render);
