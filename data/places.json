@@ -2743,7 +2743,13 @@
   "tags": [],
   "cu": "",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Pura%20Ulun%20Danu%20Beratan%20Bedugul%20Bali.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:Pura_Ulun_Danu_Beratan_Bedugul_Bali.jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Wikimedia Commons (free-licensed); exact license not confirmed from snippet",
+   "verified": false
+  }
  },
  {
   "n": "Expat. Roasters Seminyak Petitenget",
@@ -3226,7 +3232,13 @@
   ],
   "cu": "",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/La%20Brisa%20beach%20club%20at%20Echo%20Beach%2C%20Canggu%2C%20Bali.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:La_Brisa_beach_club_at_Echo_Beach,_Canggu,_Bali.jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Wikimedia Commons (free-licensed); exact license not confirmed",
+   "verified": false
+  }
  },
  {
   "n": "Single Fin Bali",
@@ -3347,7 +3359,13 @@
   "tags": [],
   "cu": "",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Pantai%20Melasti%2C%20Bali.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:Pantai_Melasti,_Bali.jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Wikimedia Commons (free-licensed); exact license not confirmed",
+   "verified": false
+  }
  },
  {
   "n": "Sensorium Bali",
@@ -3568,7 +3586,13 @@
   "tags": [],
   "cu": "",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Suluban%20Beach%2C%20Pecatu%2C%20Bali%20-%20Indonesia%20-%20panoramio.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:Suluban_Beach,_Pecatu,_Bali_-_Indonesia_-_panoramio.jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Wikimedia Commons (free-licensed, ex-Panoramio import); exact license not confirmed",
+   "verified": false
+  }
  },
  {
   "n": "L'Osteria Pizza e Cucina Canggu",
@@ -4353,7 +4377,13 @@
   "tags": [],
   "cu": "",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Nyang%20Nyang%20Beach.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:Nyang_Nyang_Beach.jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Wikimedia Commons (free-licensed); exact license not confirmed",
+   "verified": false
+  }
  },
  {
   "n": "Warung Local",
@@ -4703,7 +4733,13 @@
   ],
   "cu": "إندونيسي",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/The%20ANVAYA%20Beach%20Resort%20Bali.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:The_ANVAYA_Beach_Resort_Bali.jpg",
+   "credit": "Wikimedia Commons",
+   "license": "CC BY-SA 4.0",
+   "verified": false
+  }
  },
  {
   "n": "Akasa Jumeirah Bali",
@@ -4897,7 +4933,13 @@
   ],
   "cu": "بار",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/The%20Rock%20Bar%20Bali%20%287188376333%29.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:The_Rock_Bar_Bali_(7188376333).jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Wikimedia Commons (free-licensed); exact license not confirmed",
+   "verified": false
+  }
  },
  {
   "n": "Dreamland Beach",
@@ -4927,7 +4969,13 @@
   ],
   "cu": "",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Dreamland%20Beach%20%28Bali%2C%20Indonesia%29.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:Dreamland_Beach_(Bali,_Indonesia).jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Wikimedia Commons (free-licensed); exact license not confirmed",
+   "verified": false
+  }
  },
  {
   "n": "Al Jazeerah Signature",
@@ -6897,7 +6945,13 @@
   ],
   "cu": "",
   "menuUrl": "",
-  "image": null
+  "image": {
+   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Air%20Terjun%20Sekumpul.jpg?width=800",
+   "source": "https://commons.wikimedia.org/wiki/File:Air_Terjun_Sekumpul.jpg",
+   "credit": "Wikimedia Commons",
+   "license": "Creative Commons Attribution-Share Alike 4.0 (uploaded as part of Wiki Loves Earth 2017)",
+   "verified": false
+  }
  },
  {
   "n": "Pulse Pilates Studio Bali",
