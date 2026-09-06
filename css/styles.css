@@ -386,6 +386,59 @@ textarea{width:100%;margin-top:12px;padding:11px;border-radius:12px;border:1px s
 .sact button{border:1px solid var(--stone);background:var(--sand);border-radius:9px;padding:6px 9px;font-size:12px;cursor:pointer}
 .step{font-size:12px;color:var(--muted);margin-bottom:6px}
 .nerr{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.28);color:var(--error);border-radius:12px;padding:11px 13px;font-size:13.5px;margin-bottom:14px}
+
+/* ---------------- خطّط يومك (itinerary) ---------------- */
+.itinmodes{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.itinmode{display:flex;flex-direction:column;gap:4px;text-align:start;padding:16px;border-radius:14px;
+ border:1px solid var(--stone);background:var(--paper);cursor:pointer}
+.itinmode b{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:700;font-family:var(--serif)}
+.itinmode b .licon{width:17px;height:17px;color:var(--primary)}
+.itinmode small{font-size:12.5px;color:var(--muted)}
+.itinhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px}
+.itintabs{display:flex;gap:6px;margin:10px 0 14px}
+.itintabs button{flex:1;padding:8px;border-radius:10px;border:1px solid var(--stone);background:var(--paper);
+ font-size:13.5px;cursor:pointer}
+.itintabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.itinlist{display:flex;flex-direction:column;gap:8px}
+.itinrow{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--hair);
+ border-radius:14px;padding:8px 10px}
+.itinnum{flex:0 0 26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;
+ font-size:12.5px;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.itinbody{flex:1;min-width:0;text-align:start;border:0;background:transparent;cursor:pointer;padding:2px 0}
+.itinname{display:block;font-size:14.5px;font-weight:600;direction:ltr;text-align:start;overflow-wrap:anywhere}
+.itinmeta{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.itinacts{flex:0 0 auto;display:flex;gap:4px}
+.itinacts button{width:28px;height:28px;border-radius:8px;border:1px solid var(--stone);background:var(--sand);
+ cursor:pointer;font-size:12px;color:var(--text2);display:flex;align-items:center;justify-content:center}
+.itinnudge{margin-top:14px;padding:14px;border-radius:14px;background:rgba(27,94,74,.07);
+ border:1px solid rgba(27,94,74,.2);display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.itinnudge b{font-family:var(--serif);font-size:15.5px}
+.itinnudge span{font-size:13px;color:var(--text2)}
+.itinnudge.done{align-items:center;text-align:center}
+.itinsugg{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--paper);
+ border:1px solid var(--hair);border-radius:14px;padding:11px;margin-top:8px}
+.itinsuggbody{display:flex;flex-direction:column;gap:2px;min-width:0}
+.itinsuggbody b{font-size:11.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.02em}
+.itinsuggbody span{font-size:14px;font-weight:600;direction:ltr;text-align:start;overflow-wrap:anywhere}
+.itinsuggbody small{font-size:12px;color:var(--muted)}
+.itinsuggacts{flex:0 0 auto;display:flex;gap:6px}
+.itinsuggacts button{padding:7px 11px;border-radius:9px;border:1px solid var(--stone);background:var(--sand);
+ font-size:12.5px;cursor:pointer}
+.itinsuggacts button[data-acc]{background:var(--jade);border-color:var(--jade);color:#fff}
+#itinmapwrap{position:relative;height:min(48vh,360px);width:100%;border-radius:14px;overflow:hidden;
+ border:1px solid var(--hair)}
+#itinmap{height:100%;width:100%}
+.itinmapfail{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:10px;background:var(--sand)}
+.itinmapfail p{margin:0;font-size:13.5px;color:var(--muted)}
+.itinmapfail button{padding:8px 16px;border-radius:10px;border:0;background:var(--jade);color:#fff;
+ font-weight:600;font-size:13px;cursor:pointer}
+.itinroutenote{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:10px;
+ line-height:1.6}
+.itinroutenote .licon{width:14px;height:14px;flex:0 0 auto}
+.itinmarker-dot{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;
+ background:var(--ring,var(--primary));color:#fff;font-weight:700;font-size:12px;border:2.5px solid #fff;
+ box-shadow:0 1px 3px rgba(35,32,27,.35);font-variant-numeric:tabular-nums}
 @media (max-width:392px){body{font-size:14.5px}.brand h1{font-size:20px}.rname{font-size:15px}
  .card b{font-size:14px}.vrow .vt{font-size:15px}nav button{font-size:10px}}
 @media (min-width:760px){.wrapmax{max-width:720px;margin:0 auto}.grid{grid-template-columns:repeat(3,1fr)}}

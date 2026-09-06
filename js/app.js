@@ -310,6 +310,8 @@ function openMore(){
   document.getElementById("mpanel").innerHTML=`<div class="grab"></div><div class="morelist">
    <button data-id="__map" class="mhero"><span class="mheroic">${licon("map-pin")}</span>
     <span class="mtxt"><b>الخريطة</b><small>استكشف الأماكن المحفوظة حولك</small></span></button>
+   <button data-id="__itin" class="mhero"><span class="mheroic">${licon("compass")}</span>
+    <span class="mtxt"><b>خطّط يومك</b><small>رتّب يومك في بالي بطريقتك</small></span></button>
    ${rest.map(S=>`<button data-id="${S.id}"><span style="font-size:19px">${S.ic}</span><span>${S.label}</span>
     <span class="n">${PLACES.filter(p=>inSec(p,S)).length}</span></button>`).join("")}
    <button data-id="__plan"><span style="font-size:19px">${licon("calendar")}</span><span>خطط يومي</span><span class="n"></span></button>
@@ -322,6 +324,7 @@ function openMore(){
   document.querySelectorAll("#mpanel .morelist button").forEach(b=>b.onclick=()=>{
     const id=b.dataset.id;
     if(id==="__map"){close();setMapView(true);return;}
+    if(id==="__itin"){close();openItinEntry();return;}
     if(id==="__plan"){openPlan(planArea||AREAS[0]);return;}
     if(id==="__about"){openAbout();return;}
     if(id==="__star"){state.starred=true;state.home=false;state.sec="";close();render();return;}
@@ -676,7 +679,8 @@ function openDetail(name){
     ${p.ph?`<a href="https://wa.me/${p.ph.replace(/[^0-9]/g,"")}" target="_blank" rel="noopener">واتساب</a>
     <a href="tel:${p.ph}">اتصال</a>`:""}
     <button id="star" class="${m.s?"on":""}">${m.s?"★ مميّز":"☆ ميّزه"}</button>
-    <button id="vis" class="${m.v?"on":""}">${m.v?"✓ زرته":"سجّل زيارة"}</button></div>
+    <button id="vis" class="${m.v?"on":""}">${m.v?"✓ زرته":"سجّل زيارة"}</button>
+    <button id="addplan" class="${itinHas(p.n)?"on":""}">${itinHas(p.n)?"✓ موجود في خطتي":"+ أضف لخطتي"}</button></div>
    ${FOODK.has(p.k)?`<div class="menusec"><h4>🍽️ المنيو</h4>
     <div class="menubtns">
      <button id="menutxt" class="mprimary">ترجمة المنيو</button>
@@ -691,6 +695,7 @@ function openDetail(name){
   const set=async patch=>{marks[p.n]=Object.assign({},mk(p.n),patch);await saveMarks();openDetail(p.n);render();};
   document.getElementById("star").onclick=()=>set({s:mk(p.n).s?0:1});
   document.getElementById("vis").onclick=()=>set({v:mk(p.n).v?0:1});
+  document.getElementById("addplan").onclick=()=>{if(!itinHas(p.n)){addToItin(p.n);openDetail(p.n);}};
   if(FOODK.has(p.k)){
     document.getElementById("menutxt").onclick=()=>showMenu(p,false);
     document.getElementById("menuimgbtn").onclick=()=>triggerImagePick(p);
@@ -1073,6 +1078,248 @@ function openPlan(area){
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
   document.getElementById("plan").classList.add("on");}
 
+/* ---------------- خطّط يومك (itinerary) ----------------
+ * A standalone feature, independent of the recommendation flow ("وين نروح
+ * الآن؟"/"اختَر لي") and of the older area-only "خطط يومي" planner above —
+ * its own state, its own persistence, its own screen. Two entry modes:
+ *  A) "خلّ JALAN يخطط لي" — builds a full day in one shot using the same
+ *     SLOTS/score() engine as the older planner (real data: rating, review
+ *     count, meal compatibility, opening hours — nothing random).
+ *  B) "أنا أبني جدولي" — the user adds/removes/reorders places themselves;
+ *     "كمّل لي اليوم" then fills only the SLOTS the user's own picks don't
+ *     already cover, as reviewable suggestions (accept/reject), never a
+ *     silent auto-add.
+ * itinerary.places stores PLACE NAMES only (the same id pattern already
+ * used by marks[p.n]) — never a duplicate copy of place data, and never a
+ * write to data/places.json.
+ */
+let itin={mode:null,places:[],suggestions:[],area:null,date:null};
+const ITIN_KEY="bali:itin";
+const placeByName=n=>PLACES.find(p=>p.n===n);
+async function loadItin(){
+  try{const r=await window.storage.get(ITIN_KEY);
+    if(r&&r.value)itin=Object.assign({mode:null,places:[],suggestions:[],area:null,date:null},JSON.parse(r.value));
+  }catch(e){}
+}
+async function saveItin(){try{await window.storage.set(ITIN_KEY,JSON.stringify(itin));}catch(e){}}
+function itinHas(n){return itin.places.includes(n);}
+function addToItin(n){if(!itinHas(n))itin.places.push(n);saveItin();}
+function removeItin(i){itin.places.splice(i,1);saveItin();renderItin();}
+function moveItin(i,dir){const j=i+dir;if(j<0||j>=itin.places.length)return;
+  [itin.places[i],itin.places[j]]=[itin.places[j],itin.places[i]];saveItin();renderItin();}
+function resetItin(){itin={mode:null,places:[],suggestions:[],area:null,date:null};saveItin();openItinEntry();}
+
+// Mode A — one-shot full-day build for a region, reusing the exact SLOTS
+// definitions (فطور/قهوة/غداء/نشاط/غروب/عشاء/حلا) and score() ranking as the
+// existing "خطط يومي" planner, so "don't pick randomly" holds the same way.
+function buildItinAI(area){
+  const used=new Set(),out=[];
+  SLOTS.forEach(S=>{
+    const cand=PLACES.filter(p=>p.a===area&&S.ok(p)&&!used.has(p.n)).sort((a,b)=>score(b)-score(a))[0];
+    if(cand){out.push(cand.n);used.add(cand.n);}
+  });
+  return out;
+}
+// Which SLOTS categories the current itinerary does NOT yet cover — this
+// (not a raw place count) is what "يومك جاهز" / "كمّل لي اليوم" are based on,
+// since a region may genuinely have no candidate for one slot (e.g. no
+// dedicated dessert spot) without that meaning the day is "incomplete".
+function itinGaps(){
+  const have=itin.places.map(placeByName).filter(Boolean);
+  return SLOTS.filter(S=>!have.some(p=>S.ok(p)));
+}
+// Real, available-data-only reasons — never a fabricated drive time (PART
+// 15): region match, an actual distance to the nearest existing stop (via
+// the same haversine dist() used everywhere else), slot-time fit, rating.
+function whyForSuggestion(p,have,S,region){
+  const reasons=[];
+  if(region&&p.a===region)reasons.push("بنفس منطقة يومك");
+  const near=have.find(h=>h.lat&&p.lat);
+  if(near){const km=dist(near.lat,near.lng,p.lat,p.lng);if(km<20)reasons.push("قريب من محطتك ("+fmtKm(km)+" تقريبًا)");}
+  if(S.lab==="غروب")reasons.push("يناسب وقت الغروب");
+  else if((p.r||0)>=4.5)reasons.push("تقييمه "+p.r.toFixed(1)+" وهو من الأعلى");
+  return reasons.length?reasons.slice(0,2).join(" · "):"يكمل تنوّع يومك";
+}
+function completeMyDay(){
+  const have=itin.places.map(placeByName).filter(Boolean);
+  const haveNames=new Set(itin.places);
+  const region=itin.area||(have[0]&&have[0].a)||null;
+  const already=new Set(itin.suggestions.map(s=>s.n));
+  const added=[];
+  itinGaps().forEach(S=>{
+    let cand=PLACES.filter(p=>S.ok(p)&&!haveNames.has(p.n)&&!already.has(p.n));
+    const inRegion=region?cand.filter(p=>p.a===region):[];
+    cand=(inRegion.length?inRegion:cand).sort((a,b)=>score(b)-score(a));
+    if(!cand.length)return;
+    const pick=cand[0];
+    added.push({n:pick.n,slot:S.lab,why:whyForSuggestion(pick,have,S,region)});
+    already.add(pick.n);
+  });
+  itin.suggestions=itin.suggestions.concat(added);
+  saveItin();renderItin();
+}
+function acceptSuggestion(n){itin.suggestions=itin.suggestions.filter(s=>s.n!==n);addToItin(n);renderItin();}
+function rejectSuggestion(n){itin.suggestions=itin.suggestions.filter(s=>s.n!==n);saveItin();renderItin();}
+
+function openItinEntry(){
+  if(itin.places.length||itin.mode){renderItin();pushOverlay("itin");
+    document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+    document.getElementById("itin").classList.add("on");return;}
+  document.getElementById("itinpanel").innerHTML=`<div class="grab"></div>
+   <div class="ptitle">خطّط يومك</div>
+   <div class="psub">رتّب يومك في بالي بطريقتك</div>
+   <div class="itinmodes">
+    <button class="itinmode" id="modeAI"><b>${licon("compass")} خلّ JALAN يخطط لي</b><small>يوم كامل جاهز خلال ثواني</small></button>
+    <button class="itinmode" id="modeManual"><b>${licon("map-pin")} أنا أبني جدولي</b><small>أضف أماكنك، وJALAN يساعدك تكمل</small></button>
+   </div>`;
+  document.getElementById("modeAI").onclick=startAIDay;
+  document.getElementById("modeManual").onclick=()=>{itin.mode="manual";saveItin();renderItin();};
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+  document.getElementById("itin").classList.add("on");
+  pushOverlay("itin");
+}
+function startAIDay(){
+  document.getElementById("itinpanel").innerHTML=`<div class="grab"></div>
+   <div class="ptitle">من أي منطقة؟</div>
+   <div class="psub">نبني يومك الكامل فيها</div>
+   <div class="vlist">${AREAS.map(a=>`<button class="vrow" data-area="${esc(a)}">
+     <span class="vi">${licon("map-pin")}</span><span class="vt">${esc(a)}</span><span class="va">‹</span></button>`).join("")}</div>`;
+  document.querySelectorAll("#itinpanel [data-area]").forEach(b=>b.onclick=()=>{
+    itin.mode="ai";itin.area=b.dataset.area;itin.places=buildItinAI(itin.area);itin.suggestions=[];
+    saveItin();renderItin();});
+}
+function itinRowHtml(p,i,total){
+  const when=p.d?"عشاء":p.l?"غداء":p.br?"برنش":p.b?"فطور":"";
+  const meta=[p.a,when||p.c].filter(Boolean).join(" · ");
+  return `<div class="itinrow">
+   <span class="itinnum">${i+1}</span>
+   <button class="itinbody" data-open="${esc(p.n)}">
+    <span class="itinname">${esc(p.n)}</span><span class="itinmeta">${esc(meta)}</span></button>
+   <span class="itinacts">
+    ${i>0?`<button data-up="${i}" aria-label="نقل لأعلى">▲</button>`:""}
+    ${i<total-1?`<button data-down="${i}" aria-label="نقل لأسفل">▼</button>`:""}
+    <button data-rm="${i}" aria-label="إزالة">✕</button></span></div>`;
+}
+function itinSuggestionHtml(s){
+  const p=placeByName(s.n);if(!p)return"";
+  return `<div class="itinsugg">
+   <div class="itinsuggbody"><b>${esc(s.slot)}</b><span>${esc(p.n)}</span><small>${esc(s.why)}</small></div>
+   <div class="itinsuggacts"><button data-acc="${esc(s.n)}">قبول</button><button data-rej="${esc(s.n)}">تجاهل</button></div></div>`;
+}
+let itinShowMap=false;
+function renderItin(){
+  const panel=document.getElementById("itinpanel");
+  const places=itin.places.map(placeByName).filter(Boolean);
+  let html=`<div class="grab"></div>
+   <div class="itinhead"><div><div class="ptitle" style="margin:0">خطّط يومك</div>
+    <div class="psub" style="margin:2px 0 0">${places.length?places.length+" محطات":"رتّب يومك في بالي بطريقتك"}</div></div>
+    ${places.length?`<button class="tbtn" id="itinReset">جدول جديد</button>`:""}</div>`;
+  if(!places.length){
+    html+=`<div class="empty" style="padding:34px 10px"><b>ابدأ بإضافة أول مكان ليومك</b>
+     <button class="tbtn" id="itinAddFirst" style="margin-top:14px;background:var(--jade);border-color:var(--jade);color:#fff">+ أضف مكان</button></div>`;
+    panel.innerHTML=html;
+    document.getElementById("itinAddFirst").onclick=openItinAdd;
+    const rb0=document.getElementById("itinReset");if(rb0)rb0.onclick=resetItin;
+    return;
+  }
+  html+=`<div class="itintabs"><button data-v="list" aria-pressed="${!itinShowMap}">القائمة</button>
+   <button data-v="map" aria-pressed="${itinShowMap}">الخريطة</button></div>`;
+  if(itinShowMap){
+    html+=`<div id="itinmapwrap"><div id="itinmap"></div></div>
+     <div class="itinroutenote">${licon("map-pin")} مسار يومك التقريبي — بترتيب محطاتك، وليس مسار قيادة فعلي</div>`;
+  }else{
+    html+=`<div class="itinlist">${places.map((p,i)=>itinRowHtml(p,i,places.length)).join("")}</div>
+     <button class="tbtn" id="itinAddMore" style="width:100%;margin-top:8px">+ أضف مكان</button>`;
+    const gaps=itinGaps();
+    if(gaps.length){
+      if(places.length<=2){
+        html+=`<div class="itinnudge"><b>يومك بدأ 👍</b><span>هل تريد أن نكمله؟</span>
+         <button class="tbtn" id="itinComplete" style="background:var(--jade);border-color:var(--jade);color:#fff">كمّل لي اليوم</button></div>`;
+      }else{
+        html+=`<button class="tbtn" id="itinComplete" style="width:100%;margin-top:10px;background:var(--jade);border-color:var(--jade);color:#fff">كمّل لي اليوم</button>`;
+      }
+    }else{
+      html+=`<div class="itinnudge done"><b>يومك جاهز</b></div>`;
+    }
+    if(itin.suggestions.length){
+      html+=`<div class="hsec" style="margin-top:22px;font-size:16px">${licon("star")} نقترح لك</div>`
+       +itin.suggestions.map(itinSuggestionHtml).join("");
+    }
+  }
+  panel.innerHTML=html;
+  document.querySelectorAll("#itinpanel .itintabs button").forEach(b=>b.onclick=()=>{itinShowMap=b.dataset.v==="map";renderItin();});
+  const rb=document.getElementById("itinReset");if(rb)rb.onclick=resetItin;
+  const addBtn=document.getElementById("itinAddMore");if(addBtn)addBtn.onclick=openItinAdd;
+  const compBtn=document.getElementById("itinComplete");if(compBtn)compBtn.onclick=completeMyDay;
+  panel.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openDetail(b.dataset.open));
+  panel.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>moveItin(+b.dataset.up,-1));
+  panel.querySelectorAll("[data-down]").forEach(b=>b.onclick=()=>moveItin(+b.dataset.down,1));
+  panel.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>removeItin(+b.dataset.rm));
+  panel.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>acceptSuggestion(b.dataset.acc));
+  panel.querySelectorAll("[data-rej]").forEach(b=>b.onclick=()=>rejectSuggestion(b.dataset.rej));
+  if(itinShowMap)requestAnimationFrame(()=>setTimeout(()=>drawItinMap(places),30));
+}
+function openItinAdd(){
+  document.getElementById("itinAddPanel").innerHTML=`<div class="grab"></div>
+   <div class="ptitle">أضف مكانًا</div>
+   <input id="itinq" type="search" placeholder="ابحث باسم المكان أو المنطقة"
+    style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--stone);background:var(--sand);margin-top:2px">
+   <div id="itinResults" class="vlist" style="padding-inline:0;margin-top:8px"></div>`;
+  const paint=q=>{
+    const qq=(q||"").trim().toLowerCase();
+    const rows=(qq?PLACES.filter(p=>(p.n+" "+p.a+" "+p.c).toLowerCase().includes(qq)):PLACES.filter(p=>p.desc)).slice(0,30);
+    document.getElementById("itinResults").innerHTML=rows.length?rows.map(p=>{
+      const already=itinHas(p.n);
+      return `<button class="vrow" data-add="${esc(p.n)}" ${already?"disabled":""}>
+       <span class="vi">${EMO[p.k]||"📍"}</span><span class="vt">${esc(p.n)}</span>
+       <span class="vn">${esc(p.a)}</span><span class="va">${already?"✓":"+"}</span></button>`;
+    }).join(""):`<div class="empty" style="padding:20px"><b>ما لقينا نتائج</b></div>`;
+    document.querySelectorAll("#itinResults [data-add]").forEach(b=>b.onclick=()=>{
+      addToItin(b.dataset.add);paint(document.getElementById("itinq").value);});
+  };
+  paint("");
+  document.getElementById("itinq").oninput=e=>paint(e.target.value);
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+  document.getElementById("itinAdd").classList.add("on");
+}
+// Numbered markers + a route line, using the SAME Leaflet setup (MAP_TILE_URL,
+// tintFg for per-kind color) as the main map — no new map provider. The line
+// is dashed and explicitly labeled "مسار تقريبي" (PART 15: never claim a real
+// driving route/time without a routing engine, which this app doesn't have).
+let ItinMap=null,itinLayer=null,itinLine=null;
+function itinNumberIcon(n,hex){
+  return L.divIcon({className:"itinmarker",iconSize:[28,28],iconAnchor:[14,14],
+    html:`<span class="itinmarker-dot" style="--ring:${hex}">${n}</span>`});
+}
+function drawItinMap(places){
+  const el=document.getElementById("itinmap");if(!el)return;
+  // Same guard as the main map's mapSdkFailed(): if the Leaflet script
+  // itself never loaded (CDN unreachable / blocked), show an honest retry
+  // state instead of leaving a blank empty box that looks broken.
+  if(typeof L==="undefined"){
+    el.innerHTML=`<div class="itinmapfail"><p>تعذر تحميل الخريطة</p><button id="itinmapretry">إعادة المحاولة</button></div>`;
+    const rb=document.getElementById("itinmapretry");if(rb)rb.onclick=()=>{el.innerHTML="";drawItinMap(places);};
+    return;
+  }
+  const pts=places.filter(p=>p.lat);
+  if(!ItinMap){
+    ItinMap=L.map(el,{zoomControl:false}).setView(pts.length?[pts[0].lat,pts[0].lng]:[-8.67,115.16],pts.length?12:10);
+    L.tileLayer(MAP_TILE_URL,{maxZoom:20,attribution:MAP_TILE_ATTR,subdomains:"abcd"}).addTo(ItinMap);
+    L.control.zoom({position:"bottomleft"}).addTo(ItinMap);
+  }
+  if(itinLayer)ItinMap.removeLayer(itinLayer);
+  if(itinLine){ItinMap.removeLayer(itinLine);itinLine=null;}
+  itinLayer=L.layerGroup();
+  pts.forEach((p,i)=>L.marker([p.lat,p.lng],{icon:itinNumberIcon(i+1,tintFg(p.k))}).addTo(itinLayer));
+  itinLayer.addTo(ItinMap);
+  if(pts.length>1){
+    itinLine=L.polyline(pts.map(p=>[p.lat,p.lng]),
+      {color:cssVar("--primary"),weight:3,opacity:.85,dashArray:"1,9",lineCap:"round"}).addTo(ItinMap);
+    ItinMap.fitBounds(itinLine.getBounds().pad(.25));
+  }else if(pts.length===1){ItinMap.setView([pts[0].lat,pts[0].lng],13);}
+  setTimeout(()=>ItinMap.invalidateSize(),50);
+}
+
 /* ---------------- filters ---------------- */
 // Inconsistent-state bug: this ignored state.customOnly (used by the
 // Visited list), so opening Filters while viewing "اللي زرتها" computed every
@@ -1143,10 +1390,11 @@ function markFilterBtn(){document.getElementById("filtBtn").dataset.on=
 // Real bug (PART 5): neither screen was wired to the browser/OS back
 // gesture at all — a user swiping back on Safari, or a hardware/Android
 // back button, would just leave the app instead of closing the sheet they
-// were looking at. Scoped to these two screens (the ones explicitly called
-// out as "you can enter but not know how to exit") rather than every minor
-// sheet (filters/more/plan/...), to keep the blast radius small and testable:
-// those keep using the plain close() below exactly as before.
+// were looking at. Scoped to Map, Details, and (added with خطّط يومك)
+// Itinerary — screens you can genuinely get stuck inside — rather than
+// every minor sheet (filters/more/plan/near/itinAdd/...), to keep the blast
+// radius small and testable: those keep using the plain close() below
+// exactly as before.
 // popGuard prevents the popstate handler's own cleanup from pushing/popping
 // further history entries — the one thing standing between this and an
 // infinite back loop.
@@ -1163,8 +1411,15 @@ window.addEventListener("popstate",e=>{
     // landed back on the map-open state (e.g. came from map→detail→back) —
     // close Details but leave the map itself open, one level at a time.
     document.getElementById("detail").classList.remove("on");
+  }else if(st&&st.jalanOverlay==="itin"){
+    // landed back on the itinerary-open state (e.g. itin→Details→back) —
+    // #itinpanel keeps its rendered content while hidden, so just closing
+    // Details and re-showing the itin sheet restores it exactly as it was.
+    document.getElementById("detail").classList.remove("on");
+    document.getElementById("itinAdd").classList.remove("on");
+    document.getElementById("itin").classList.add("on");
   }else{
-    // landed on "no overlay" — close everything Details/Map opened.
+    // landed on "no overlay" — close everything Details/Map/Itinerary opened.
     document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
     if(state.map)setMapView(false);
   }
@@ -1174,18 +1429,30 @@ window.addEventListener("popstate",e=>{
 function close(){
   // Centralized so EVERY existing call site (tab switches, "المزيد" picks,
   // region/filter selection, the flow, etc.) that happens to close an open
-  // Details sheet also keeps the history stack balanced automatically,
-  // instead of needing that logic sprinkled at each call site.
+  // Details or Itinerary sheet also keeps the history stack balanced
+  // automatically, instead of needing that logic sprinkled at each call site.
   const detailWasOpen=document.getElementById("detail").classList.contains("on");
+  const itinWasOpen=document.getElementById("itin").classList.contains("on");
   document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));
   markFilterBtn();
-  if(detailWasOpen&&!popGuard&&history.state&&history.state.jalanOverlay==="detail"){history.back();}
+  if(popGuard)return;
+  if(detailWasOpen&&history.state&&history.state.jalanOverlay==="detail"){history.back();}
+  else if(itinWasOpen&&history.state&&history.state.jalanOverlay==="itin"){history.back();}
 }
 document.querySelectorAll("[data-close]").forEach(e=>e.onclick=close);
-// Details' own ✕/scrim specifically route through closeOverlay (back()) so a
-// device/Safari back-gesture and tapping ✕ behave identically and never
-// desync the history stack from each other.
+// Details'/Itinerary's own ✕/scrim specifically route through closeOverlay
+// (back()) so a device/Safari back-gesture and tapping ✕ behave identically
+// and never desync the history stack from each other.
 document.querySelectorAll("#detail [data-close]").forEach(e=>e.onclick=closeOverlay);
+document.querySelectorAll("#itin [data-close]").forEach(e=>e.onclick=closeOverlay);
+// itinAdd is a minor picker sheet layered on top of itin (like Filters is on
+// top of a results list) — closing it just returns to the itin screen
+// beneath it, no separate history entry of its own.
+document.querySelectorAll("#itinAdd [data-close]").forEach(e=>e.onclick=()=>{
+  document.getElementById("itinAdd").classList.remove("on");
+  renderItin();
+  document.getElementById("itin").classList.add("on");
+});
 
 /* ---------------- map ----------------
  * Root cause of the white-screen-with-dots bug: the tile layer pointed at
@@ -1363,4 +1630,4 @@ function setMapView(on){
 document.getElementById("mapBtn").onclick=()=>{if(state.map)closeOverlay();else setMapView(true);};
 document.getElementById("mapCloseX").onclick=closeOverlay;
 addEventListener("scroll",()=>{document.getElementById("hdr").classList.toggle("stuck",window.scrollY>4);},{passive:true});
-loadMarks().then(render);
+Promise.all([loadMarks(),loadItin()]).then(render);
