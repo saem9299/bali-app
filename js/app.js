@@ -417,13 +417,11 @@ function homePicks(){
 function showAllBest(){state.home=false;state.sec="";state.sort="best";setSortUI("best");
   close();window.scrollTo({top:0});render();}
 function renderHome(){
-  const H="https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20terraces,%20Bali.jpg?width=1200";
   const cards=HOME_SEC_ORDER.map(id=>secOf(id)).filter(Boolean).map(S=>{const ps=PLACES.filter(p=>inSec(p,S));
    return `<button class="card" data-sec="${S.id}">
     <span class="cico" style="background:${tintBgSec(S.id)};color:${tintFgSec(S.id)}">${S.ic}</span>
     <b>${S.label}</b><span class="cn">${ps.length} مكان</span>
     <span class="cs">${esc(SECTION_BLURB[S.id]||"")}</span></button>`;}).join("");
-  const openCnt=PLACES.filter(p=>openState(p)===1).length;
   const picks=homePicks();
   const pickCard=p=>{const km=kmOf(p),why=whyList(p)[0];
     const meta=[p.r?`★ ${p.r.toFixed(1)}`:null,p.a,km!=null?fmtKm(km):null].filter(Boolean).join(" · ");
@@ -439,10 +437,6 @@ function renderHome(){
      </div>
     </button>`;};
   document.getElementById("list").innerHTML=`<div class="home-wrap">
-   <div class="hero"><img src="${H}" alt="" onerror="this.style.display='none'"><div class="veil"></div>
-    <div class="in"><div class="kicker">JALAN</div><h2 class="serif">وين نروح اليوم؟</h2>
-    <p>${PLACES.length} محطة في ${AREAS.length} مناطق · ${openCnt} مفتوحة الآن</p></div></div>
-   <p class="credit">صورة: Vyacheslav Argenberg · <a href="https://creativecommons.org/licenses/by/4.0" target="_blank" rel="noopener">CC BY 4.0</a></p>
    <button class="cta" id="flowbtn"><span class="cta-ic">${licon("compass")}</span><span>وين نروح الآن؟<small>توصية ذكية بخمس خطوات سريعة</small></span></button>
    <button class="cta2" id="surbtn">${licon("shuffle")} اختَر لي — قرار سريع</button>
    <div class="quick">
