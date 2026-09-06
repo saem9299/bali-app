@@ -91,7 +91,7 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
  background:var(--paper);border:0;border-radius:18px;overflow:hidden;
  margin:0 14px 16px;box-shadow:0 1px 3px rgba(35,32,27,.06)}
 .row:active{opacity:.92}
-.rph{position:relative;width:100%;aspect-ratio:16/11;overflow:hidden;
+.rph{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;
  background:linear-gradient(155deg,var(--stone),var(--tint));display:flex;align-items:center;justify-content:center}
 .rph .ph-ic{color:var(--stone)}
 .rph .ph-ic .licon{width:28px;height:28px}
