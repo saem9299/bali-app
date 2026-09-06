@@ -77,7 +77,13 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
  * listings table): image on top, quiet single-line stats, one why-reason.
  * Cards float with real gaps between them instead of a divided full-bleed
  * list, which is most of what was reading as "dashboard" before. */
-.row{display:block;position:relative;width:100%;max-width:100%;text-align:start;cursor:pointer;
+/* width intentionally NOT 100% here: this box also carries a left/right
+ * margin (the card's outer gutter), and width:100% + non-zero side margins
+ * on the same box adds up to more than the container and overflows it —
+ * exactly the bug that was slipping past the blanket overflow-x:hidden on
+ * html/body. Block-level auto width already correctly fills "container
+ * minus its own margins", which is what we want here. */
+.row{display:block;position:relative;max-width:calc(100% - 28px);text-align:start;cursor:pointer;
  background:var(--paper);border:0;border-radius:18px;overflow:hidden;
  margin:0 14px 16px;box-shadow:0 1px 3px rgba(35,32,27,.06)}
 .row:active{opacity:.92}
@@ -211,7 +217,7 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 
 /* Home "يستحق الزيارة" discovery cards — same photo-forward language as .row,
  * horizontal (small image + text) since these sit in a tighter home context. */
-.pick{display:flex;gap:12px;align-items:stretch;width:100%;text-align:start;border-radius:16px;
+.pick{display:flex;gap:12px;align-items:stretch;text-align:start;border-radius:16px;
  background:var(--paper);padding:10px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 3px rgba(35,32,27,.05)}
 .pick:active{opacity:.92}
 .pickph{position:relative;flex:0 0 84px;width:84px;border-radius:11px;overflow:hidden;
