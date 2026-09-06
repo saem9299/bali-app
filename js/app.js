@@ -254,12 +254,19 @@ function renderChips(){
   clr.onclick=e=>{e.stopPropagation();state.area="";render();};
   ac.appendChild(clr);
 }
-// Picking (or clearing to "كل المناطق") a region also marks the current
-// section's meal/sub step as already answered — this is what makes region
-// selection an INDEPENDENT, immediately-applied filter (PART 7/9): the user
-// never has to additionally pick a meal/sub type just to see results for the
-// region they picked, and later removing the region doesn't regress the view
-// back into the meal/sub picker screen.
+// Picking (or clearing to "كل المناطق") a region marks the current section's
+// SUB-category step as already answered, for every section — this is what
+// lets region compose immediately with an already-picked filter instead of
+// forcing an extra "التصنيف الفرعي" screen, and later removing the region
+// doesn't regress the view back into that picker.
+//
+// Food is the one deliberate exception: its MEAL step (فطور/غداء/عشاء…) is
+// never auto-satisfied by picking a region. Product rule (explicit fix):
+// "أكل + منطقة" alone must NOT skip straight to results — the user still has
+// to answer "وش تبي تاكل؟" first. Region becomes an applied, visible filter
+// (shown as a chip, factored into every picker screen's counts) but it never
+// substitutes for that answer. Once a meal IS picked (before or after the
+// region), region composes with it immediately like everywhere else.
 function openRegionSelector(){
   const base=PLACES.filter(passSec);
   const row=(v,label,n,on)=>`<button class="vrow" data-area="${esc(v)}"><span class="vi">${licon("map-pin")}</span>
@@ -272,7 +279,10 @@ function openRegionSelector(){
     </div>`;
   document.querySelectorAll("#rspanel [data-area]").forEach(b=>b.onclick=()=>{
     const v=b.dataset.area;state.area=(v==="__all")?"":v;
-    if(state.sec){state.mealPicked=true;state.subPicked=true;}
+    if(state.sec){
+      state.subPicked=true;
+      if(state.sec!=="food")state.mealPicked=true; // food's meal gate is answered explicitly only
+    }
     close();render();});
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
   document.getElementById("regionSel").classList.add("on");
@@ -336,10 +346,16 @@ function render(){
   const S=state.sec?secOf(state.sec):null;
   const foodStep=S&&S.id==="food"&&!state.mealPicked;
   const subStep=S&&S.subs.length&&!state.subPicked&&!state.q&&!foodStep;
-  // A region filter makes the section+region result set independently valid
-  // right away — never force the user through the meal/sub picker screen
-  // first just to see "أكل + Ubud" (PART 7: filters must be composable).
-  const needPicker=(foodStep||subStep)&&!state.q&&!state.area;
+  // Real fix (not a visual patch): the gate lives purely in mealPicked/
+  // subPicked, never in a separate "does a region exist" check here. Food's
+  // meal step (foodStep) is answered ONLY by explicitly picking a meal —
+  // picking a region never flips mealPicked, so "أكل + Ubud" alone correctly
+  // stays on the meal picker (openRegionSelector's handler above is the only
+  // place region composes with the picker flags, and it deliberately leaves
+  // food's mealPicked alone). Once a meal IS picked, region composes with it
+  // immediately like every other section, because subPicked already got set
+  // true when the region was chosen.
+  const needPicker=(foodStep||subStep)&&!state.q;
   tb.style.display=needPicker?"none":"";ct.style.display=needPicker?"none":"";
   renderChips();
   document.getElementById("total").textContent=PLACES.length+" مكان";
@@ -357,8 +373,14 @@ function render(){
   ct.innerHTML=ctHtml;
   ct.querySelectorAll("[data-clr]").forEach(b=>b.onclick=()=>{
     const k=b.dataset.clr;
-    if(k==="meal")state.meal="";
-    else if(k==="sub")state.sub="";
+    // Clearing meal/sub un-answers that picker step (mealPicked/subPicked
+    // reset too, not just the value) — otherwise removing "فطور" would
+    // silently keep showing "كل أماكن الأكل" instead of asking again, which
+    // is exactly the "لا تعرض كل المطاعم" rule for Food (scenario F): the
+    // region stays applied, but the user is sent back to answer the meal
+    // question, never shown an unscoped fallback list.
+    if(k==="meal"){state.meal="";state.mealPicked=false;}
+    else if(k==="sub"){state.sub="";state.subPicked=false;}
     else if(k==="area")state.area="";
     render();});
   const list=document.getElementById("list");
@@ -398,7 +420,11 @@ function render(){
 }
 function renderPicker(S){
   const list=document.getElementById("list");
-  const pool=PLACES.filter(p=>inSec(p,S));
+  // Region is an already-applied filter even while stuck on this picker
+  // screen ("Ubud تصبح فلترًا مطبقًا في الـ state") — its counts must reflect
+  // that instead of the unfiltered global numbers, even though the screen
+  // itself doesn't advance to results until the meal question is answered.
+  const pool=PLACES.filter(p=>inSec(p,S)&&(!state.area||p.a===state.area));
   if(S.id==="food"&&!state.mealPicked){
     list.innerHTML=`<div class="vlist">
       <button class="vrow" data-meal="__all"><span class="vi">${licon("utensils")}</span><span class="vt">كل أماكن الأكل</span>
