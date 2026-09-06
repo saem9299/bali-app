@@ -232,12 +232,50 @@ function renderTabs(){
   TABS.forEach(id=>{const S=secOf(id);add(S.ic,S.label,state.sec===id,()=>pickSec(id));});
   add(licon("more-horizontal"),"المزيد",!!state.sec&&!TABS.includes(state.sec),openMore);
 }
+// Region chip: "كل المناطق" is an ENTRY POINT that opens the region-selector
+// sheet (never an inline row of every area at once — that was the reported
+// confusing behavior). Once a region is picked, only that one active chip
+// shows, with its own small ✕ to drop it independently of every other filter.
 function renderChips(){
   const base=PLACES.filter(passSec);
   const ac=document.getElementById("areaChips");ac.innerHTML="";
-  ac.appendChild(chipBtn("كل المناطق",!state.area,base.length,()=>{state.area="";render();}));
-  AREAS.forEach(a=>{const n=base.filter(p=>p.a===a).length;if(!n)return;
-   ac.appendChild(chipBtn(a,state.area===a,n,()=>{state.area=state.area===a?"":a;render();}));});
+  if(!state.area){
+    ac.appendChild(chipBtn("كل المناطق ▾",true,base.length,openRegionSelector));
+    return;
+  }
+  const n=base.filter(p=>p.a===state.area).length;
+  const chip=document.createElement("button");chip.className="chip area-active";
+  chip.setAttribute("aria-pressed","true");
+  chip.innerHTML=`${esc(state.area)} <b>${n}</b>`;
+  chip.onclick=openRegionSelector;
+  ac.appendChild(chip);
+  const clr=document.createElement("button");clr.className="chip chip-x";
+  clr.setAttribute("aria-label","إزالة فلتر المنطقة");clr.textContent="✕";
+  clr.onclick=e=>{e.stopPropagation();state.area="";render();};
+  ac.appendChild(clr);
+}
+// Picking (or clearing to "كل المناطق") a region also marks the current
+// section's meal/sub step as already answered — this is what makes region
+// selection an INDEPENDENT, immediately-applied filter (PART 7/9): the user
+// never has to additionally pick a meal/sub type just to see results for the
+// region they picked, and later removing the region doesn't regress the view
+// back into the meal/sub picker screen.
+function openRegionSelector(){
+  const base=PLACES.filter(passSec);
+  const row=(v,label,n,on)=>`<button class="vrow" data-area="${esc(v)}"><span class="vi">${licon("map-pin")}</span>
+    <span class="vt">${esc(label)}</span><span class="vn">${n}</span><span class="va">${on?"✓":"‹"}</span></button>`;
+  document.getElementById("rspanel").innerHTML=`<div class="grab"></div>
+    <div class="ptitle">اختر المنطقة</div>
+    <div class="vlist">
+      ${row("__all","كل المناطق",base.length,!state.area)}
+      ${AREAS.map(a=>{const n=base.filter(p=>p.a===a).length;return n?row(a,a,n,state.area===a):"";}).join("")}
+    </div>`;
+  document.querySelectorAll("#rspanel [data-area]").forEach(b=>b.onclick=()=>{
+    const v=b.dataset.area;state.area=(v==="__all")?"":v;
+    if(state.sec){state.mealPicked=true;state.subPicked=true;}
+    close();render();});
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+  document.getElementById("regionSel").classList.add("on");
 }
 function pickSec(id){state.home=false;state.sec=state.sec===id?"":id;state.sub="";state.meal="";
  state.mealPicked=false;state.subPicked=false;state.customOnly=null;
@@ -291,19 +329,31 @@ function render(){
   const S=state.sec?secOf(state.sec):null;
   const foodStep=S&&S.id==="food"&&!state.mealPicked;
   const subStep=S&&S.subs.length&&!state.subPicked&&!state.q&&!foodStep;
-  const needPicker=(foodStep||subStep)&&!state.q;
+  // A region filter makes the section+region result set independently valid
+  // right away — never force the user through the meal/sub picker screen
+  // first just to see "أكل + Ubud" (PART 7: filters must be composable).
+  const needPicker=(foodStep||subStep)&&!state.q&&!state.area;
   tb.style.display=needPicker?"none":"";ct.style.display=needPicker?"none":"";
   renderChips();
   document.getElementById("total").textContent=PLACES.length+" مكان";
   if(needPicker){renderPicker(S);return;}
   const rows=filtered();
-  const parts=[rows.length+" نتيجة"];
-  if(S)parts.push(S.label);
-  if(state.meal)parts.push(MEALS.find(m=>m[0]===state.meal)[1]);
-  if(state.sub)parts.push(LBL[state.sub]||state.sub);
-  if(state.area)parts.push(state.area);
-  if(me)parts.push("من "+meLabel);
-  ct.textContent=parts.join(" · ");
+  // Active-filter state is shown as removable chips (PART 8) — each ✕ clears
+  // only that one filter and re-renders immediately, no reset-everything.
+  let ctHtml=`<span>${rows.length} نتيجة</span>`;
+  if(S)ctHtml+=`<span>${esc(S.label)}</span>`;
+  if(state.meal){const mm=MEALS.find(m=>m[0]===state.meal);
+    ctHtml+=`<button class="ctchip" data-clr="meal">${esc(mm[1])} ✕</button>`;}
+  if(state.sub)ctHtml+=`<button class="ctchip" data-clr="sub">${esc(LBL[state.sub]||state.sub)} ✕</button>`;
+  if(state.area)ctHtml+=`<button class="ctchip" data-clr="area">${esc(state.area)} ✕</button>`;
+  if(me)ctHtml+=`<span>من ${esc(meLabel)}</span>`;
+  ct.innerHTML=ctHtml;
+  ct.querySelectorAll("[data-clr]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.clr;
+    if(k==="meal")state.meal="";
+    else if(k==="sub")state.sub="";
+    else if(k==="area")state.area="";
+    render();});
   const list=document.getElementById("list");
   if(state.map){drawMap(rows);return;}
   if(!rows.length){renderEmpty();return;}
@@ -1193,10 +1243,23 @@ document.getElementById("q").oninput=e=>{state.q=e.target.value;if(state.q)state
 document.querySelectorAll("#sortSeg button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.s;setSortUI(k);state.sort=k;if(k==="near"&&!me){openNear();return;}render();});
 document.getElementById("filtBtn").onclick=openFilters;
-function setMapView(on){state.map=on;if(on)state.home=false;
+// mapPrevHome remembers whether the user was on Home right before opening
+// the map (e.g. via المزيد ← الخريطة, with no section picked at all) so
+// closing the map — by the ✕ or the toolbar toggle — returns to Home instead
+// of silently dumping the user into an unfiltered all-345-places list, which
+// is what happened before since state.home was force-cleared on open and
+// nothing ever restored it. Any section/region/search already active is left
+// completely untouched by opening/closing the map either way.
+let mapPrevHome=false;
+function setMapView(on){
+ if(on)mapPrevHome=state.home;
+ state.map=on;
+ if(on)state.home=false;
+ else if(mapPrevHome&&!state.sec)state.home=true;
  const b=document.getElementById("mapBtn");b.dataset.on=on?"1":"";b.textContent=on?"قائمة":"خريطة";
  document.getElementById("mapwrap").style.display=on?"block":"none";
  document.getElementById("list").style.display=on?"none":"block";render();}
 document.getElementById("mapBtn").onclick=()=>setMapView(!state.map);
+document.getElementById("mapCloseX").onclick=()=>setMapView(false);
 addEventListener("scroll",()=>{document.getElementById("hdr").classList.toggle("stuck",window.scrollY>4);},{passive:true});
 loadMarks().then(render);

@@ -48,7 +48,9 @@
 </div>
 <div class="count num" id="count"></div>
 <main class="wrapmax"><div id="list"></div>
-  <div id="mapwrap"><div id="map"></div><div id="mapbanner"></div>
+  <div id="mapwrap">
+    <button id="mapCloseX" class="mapclose" aria-label="إغلاق الخريطة">✕</button>
+    <div id="map"></div><div id="mapbanner"></div>
     <div id="mapstatus"></div>
   </div>
 </main>
@@ -65,6 +67,9 @@
 <div class="sheet" id="mapcard"><div class="scrim" data-close></div>
   <button class="sheetx" data-close aria-label="إغلاق">✕</button>
   <div class="panel" id="mcpanel"></div></div>
+<div class="sheet" id="regionSel"><div class="scrim" data-close></div>
+  <button class="sheetx" data-close aria-label="إغلاق">✕</button>
+  <div class="panel" id="rspanel"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
