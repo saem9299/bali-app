@@ -1696,8 +1696,8 @@
     "n": "IRON RENT - motorcycle rental",
     "o": "",
     "a": "Seminyak",
-    "c": "تسوق",
-    "k": "shop",
+    "c": "سكوترات ودراجات",
+    "k": "scooter",
     "r": 4.8,
     "rc": 403,
     "p": null,
@@ -1717,7 +1717,7 @@
       1200
     ],
     "cats": [
-      "shop"
+      "scooter"
     ],
     "tags": [
       "booking"

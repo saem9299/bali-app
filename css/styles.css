@@ -388,28 +388,21 @@ textarea{width:100%;margin-top:12px;padding:11px;border-radius:12px;border:1px s
 .nerr{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.28);color:var(--error);border-radius:12px;padding:11px 13px;font-size:13.5px;margin-bottom:14px}
 
 /* ---------------- خطّط يومك (itinerary) ---------------- */
-.itinmodes{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-.itinmode{display:flex;flex-direction:column;gap:4px;text-align:start;padding:16px;border-radius:14px;
- border:1px solid var(--stone);background:var(--paper);cursor:pointer}
-.itinmode b{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:700;font-family:var(--serif)}
-.itinmode b .licon{width:17px;height:17px;color:var(--primary)}
-.itinmode small{font-size:12.5px;color:var(--muted)}
-.itinhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px}
+/* Segmented control — always visible, switches the AI/manual emphasis
+ * without ever discarding itin.places (see switchItinMode()). */
+.itinseg{display:flex;gap:6px;margin-top:8px}
+.itinseg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 6px;
+ border-radius:11px;border:1px solid var(--stone);background:var(--paper);font-size:12.5px;font-weight:600;
+ cursor:pointer;color:var(--text2)}
+.itinseg button .licon{width:14px;height:14px}
+.itinseg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.itinhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:14px 0 4px}
 .itintabs{display:flex;gap:6px;margin:10px 0 14px}
 .itintabs button{flex:1;padding:8px;border-radius:10px;border:1px solid var(--stone);background:var(--paper);
  font-size:13.5px;cursor:pointer}
 .itintabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.itinlist{display:flex;flex-direction:column;gap:8px}
-.itinrow{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--hair);
- border-radius:14px;padding:8px 10px}
-.itinnum{flex:0 0 26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;
- font-size:12.5px;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
-.itinbody{flex:1;min-width:0;text-align:start;border:0;background:transparent;cursor:pointer;padding:2px 0}
 .itinname{display:block;font-size:14.5px;font-weight:600;direction:ltr;text-align:start;overflow-wrap:anywhere}
 .itinmeta{display:block;font-size:12px;color:var(--muted);margin-top:2px}
-.itinacts{flex:0 0 auto;display:flex;gap:4px}
-.itinacts button{width:28px;height:28px;border-radius:8px;border:1px solid var(--stone);background:var(--sand);
- cursor:pointer;font-size:12px;color:var(--text2);display:flex;align-items:center;justify-content:center}
 .itinnudge{margin-top:14px;padding:14px;border-radius:14px;background:rgba(27,94,74,.07);
  border:1px solid rgba(27,94,74,.2);display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .itinnudge b{font-family:var(--serif);font-size:15.5px}
@@ -436,9 +429,52 @@ textarea{width:100%;margin-top:12px;padding:11px;border-radius:12px;border:1px s
 .itinroutenote{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:10px;
  line-height:1.6}
 .itinroutenote .licon{width:14px;height:14px;flex:0 0 auto}
-.itinmarker-dot{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;
- background:var(--ring,var(--primary));color:#fff;font-weight:700;font-size:12px;border:2.5px solid #fff;
- box-shadow:0 1px 3px rgba(35,32,27,.35);font-variant-numeric:tabular-nums}
+/* Numbered markers — start/end get a visibly different ring/fill so the
+ * day's first and last stop read at a glance (PART 5). */
+.itinmarker-dot{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
+ background:var(--ring,var(--primary));color:#fff;font-weight:700;font-size:12.5px;border:3px solid #fff;
+ box-shadow:0 1px 4px rgba(35,32,27,.4);font-variant-numeric:tabular-nums}
+.itinmarker-dot.start{border-color:var(--success);box-shadow:0 0 0 2px var(--success),0 1px 4px rgba(35,32,27,.4)}
+.itinmarker-dot.end{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink),0 1px 4px rgba(35,32,27,.4)}
+.itinarrow-ic{display:block;color:var(--primary);opacity:.85}
+.itinarrow-ic .licon{width:14px;height:14px}
+.itinpopup{font-family:inherit;direction:rtl;font-size:13px;display:flex;flex-direction:column;gap:2px}
+.itinpopup b{font-size:13.5px}
+.itinpopup span{color:var(--muted);font-size:12px}
+/* Add-place section browser (PART 2) — reuses the same card language as
+ * Home's section grid. */
+.itinaddgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.itinaddcard{position:relative;text-align:start;border:1px solid var(--hair);border-radius:16px;
+ background:var(--paper);padding:14px 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px;
+ min-height:96px}
+.itinaddcard .cico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ line-height:1;margin-bottom:6px}
+.itinaddcard .cico .licon{width:16px;height:16px}
+.itinaddcard b{font-size:14px;font-weight:600;font-family:var(--serif)}
+.itinaddcard .cn{font-size:11.5px;color:var(--muted)}
+/* Timeline (PART 6) — a rail with numbered dots connected by a vertical
+ * line, each stop a card with its own editable suggested time. */
+.itintimeline{display:flex;flex-direction:column}
+.itintl{display:flex;gap:10px}
+.itintlrail{display:flex;flex-direction:column;align-items:center;flex:0 0 auto}
+.itintldot{width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;
+ font-size:12px;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;
+ flex:0 0 auto;border:2px solid #fff;box-shadow:0 0 0 1px var(--hair)}
+.itintldot.start{box-shadow:0 0 0 2px var(--success)}
+.itintldot.end{box-shadow:0 0 0 2px var(--ink)}
+.itintlline{flex:1;width:2px;background:var(--hair);margin:2px 0;min-height:24px}
+.itintlcard{flex:1;min-width:0;background:var(--paper);border:1px solid var(--hair);border-radius:14px;
+ padding:10px;margin-bottom:12px}
+.itintltime{display:inline-flex;align-items:center;gap:5px;border:0;background:rgba(27,94,74,.08);
+ color:var(--primary);border-radius:8px;padding:4px 9px;font-size:12px;font-weight:600;cursor:pointer;
+ margin-bottom:6px;font-variant-numeric:tabular-nums}
+.itintltime .licon{width:12px;height:12px}
+.itintltime small{font-weight:400;color:var(--muted);margin-inline-start:3px}
+.itintlbody{display:block;width:100%;text-align:start;border:0;background:transparent;cursor:pointer;padding:0}
+.itintlacts{display:flex;gap:4px;margin-top:8px}
+.itintlacts button{width:28px;height:28px;border-radius:8px;border:1px solid var(--stone);background:var(--sand);
+ cursor:pointer;font-size:12px;color:var(--text2);display:flex;align-items:center;justify-content:center}
+.itintimechips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 @media (max-width:392px){body{font-size:14.5px}.brand h1{font-size:20px}.rname{font-size:15px}
  .card b{font-size:14px}.vrow .vt{font-size:15px}nav button{font-size:10px}}
 @media (min-width:760px){.wrapmax{max-width:720px;margin:0 auto}.grid{grid-template-columns:repeat(3,1fr)}}

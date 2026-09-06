@@ -33,7 +33,7 @@ const EMO={cafe:"☕",coffee:"☕",matcha:"🍵",juice:"🥤",protein:"💪",bak
  indian:"🍛",me:"🥙",beachclub:"🏖️",bar:"🍸",hotel:"🏨",spa:"💆",gym:"🏋️",shop:"🛍️",nature:"🌴",
  attraction:"📸",rest:"🍽️",other:"📍",padel:"🎾",tennis:"🎾",box:"🥊",boxing:"🥊",muaythai:"🥊",
  pilates:"🤸",crossfit:"🏋️‍♂️",hyrox:"⚡",yoga:"🧘",surf:"🏄",swimming:"🏊",recovery:"♨️",adv:"⛰️",cult:"🎭",fam:"🎡",
- mall:"🏬",market:"🧺",outlet:"🏷️",fashion:"👕",gifts:"🎁",beauty:"🧴",jewelry:"💎",decor:"🏠",nightmarket:"🌙",localmarket:"🛒"};
+ mall:"🏬",market:"🧺",outlet:"🏷️",fashion:"👕",gifts:"🎁",beauty:"🧴",jewelry:"💎",decor:"🏠",nightmarket:"🌙",localmarket:"🛒",scooter:"🛵"};
 const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي",protein:"بروتين وصحي",cafe:"كافيه",
  bakery:"حلا ومخبوزات",breakfast:"فطور وبرنش",italian:"إيطالي",steak:"ستيك ومشاوي",seafood:"بحري",
  indo:"إندونيسي",asian:"آسيوي",indian:"هندي",me:"شرق أوسطي وعربي",burger:"برجر",sandwich:"ساندويتش",
@@ -43,7 +43,8 @@ const LBL={coffee:"قهوة",matcha:"ماتشا",juice:"عصائر وسموذي"
  crossfit:"كروس فت",hyrox:"هايروكس",boxing:"ملاكمة",muaythai:"موي تاي",yoga:"يوقا",
  surf:"سيرف",swimming:"سباحة",recovery:"استشفاء وساونا",
  mall:"مولات",market:"بازارات وأسواق",outlet:"أوتلت",fashion:"ملابس وأزياء",gifts:"هدايا وتذكارات",
- beauty:"بيوتي ولايف ستايل",jewelry:"مجوهرات وإكسسوارات",decor:"ديكور وحرف",nightmarket:"أسواق ليلية",localmarket:"أسواق محلية"};
+ beauty:"بيوتي ولايف ستايل",jewelry:"مجوهرات وإكسسوارات",decor:"ديكور وحرف",nightmarket:"أسواق ليلية",localmarket:"أسواق محلية",
+ scooter:"سكوترات ودراجات"};
 // Unified line-icon set (Lucide, MIT/ISC-licensed static SVGs — inlined so there's no
 // new runtime/CDN dependency) for the Home/nav chrome, replacing the mixed-style emoji
 // there (sections, bottom nav, meal picker). Per-place category glyphs in EMO above are
@@ -67,7 +68,11 @@ const LICO_PATH={
  check:'<path d="M20 6 9 17l-5-5"/>',
  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
  "map-pin":'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
- shuffle:'<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/>'
+ shuffle:'<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/>',
+ bike:'<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ "arrow-right":'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+ flag:'<path d="M4 22V4a1 1 0 0 1 1-1h13.382a1 1 0 0 1 .447 1.894L15 9l3.829 4.106A1 1 0 0 1 18.382 15H5"/>'
 };
 const licon=(name,cls)=>`<svg class="licon${cls?" "+cls:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LICO_PATH[name]||""}</svg>`;
 
@@ -83,7 +88,12 @@ const SECTIONS=[
  {id:"spa",label:"سبا وجمال",ic:licon("flower-2"),keys:["spa","recovery"],subs:[]},
  {id:"shop",label:"تسوق",ic:licon("shopping-bag"),
   keys:["mall","market","outlet","fashion","gifts","beauty","jewelry","decor","nightmarket","localmarket","shop","other"],
-  subs:["mall","market","outlet","fashion","gifts","beauty","jewelry","decor","nightmarket","localmarket","shop"]}
+  subs:["mall","market","outlet","fashion","gifts","beauty","jewelry","decor","nightmarket","localmarket","shop"]},
+ // New section (PART 7): scooter/motorbike rentals. Only ONE verified place
+ // in the current data actually is a rental business (IRON RENT, real
+ // rating/reviews/phone/hours already in data/places.json — just recategorized
+ // from "shop" into its own accurate section, not fabricated).
+ {id:"rides",label:"سكوترات ودراجات",ic:licon("bike"),keys:["scooter"],subs:[]}
 ];
 // Visual identity: one accent color per Home section. Design tokens live in
 // ONE place — the CSS :root custom properties in css/styles.css — and this
@@ -314,7 +324,6 @@ function openMore(){
     <span class="mtxt"><b>خطّط يومك</b><small>رتّب يومك في بالي بطريقتك</small></span></button>
    ${rest.map(S=>`<button data-id="${S.id}"><span style="font-size:19px">${S.ic}</span><span>${S.label}</span>
     <span class="n">${PLACES.filter(p=>inSec(p,S)).length}</span></button>`).join("")}
-   <button data-id="__plan"><span style="font-size:19px">${licon("calendar")}</span><span>خطط يومي</span><span class="n"></span></button>
    <button data-id="__star"><span style="font-size:19px">${licon("star")}</span><span>المميّزة عندي</span>
     <span class="n">${PLACES.filter(p=>mk(p.n).s).length}</span></button>
    <button data-id="__vis"><span style="font-size:19px">${licon("check")}</span><span>اللي زرتها</span>
@@ -325,7 +334,6 @@ function openMore(){
     const id=b.dataset.id;
     if(id==="__map"){close();setMapView(true);return;}
     if(id==="__itin"){close();openItinEntry();return;}
-    if(id==="__plan"){openPlan(planArea||AREAS[0]);return;}
     if(id==="__about"){openAbout();return;}
     if(id==="__star"){state.starred=true;state.home=false;state.sec="";close();render();return;}
     if(id==="__vis"){state.home=false;state.sec="";state.starred=false;state.unvisited=false;
@@ -481,8 +489,8 @@ function renderEmpty(){
 // Shopping sits with the other browsing sections instead of being buried last.
 const SECTION_BLURB={food:"مطاعم · كافيهات · حلويات",drinks:"قهوة · ماتشا · عصائر · بروتين",
  sports:"جيم · بادل · تنس · بيلاتس",beach:"بيتش كلب · طبيعة",visit:"معالم · مغامرات · ثقافة",
- shop:"مولات · أسواق · أوتلت",stay:"فنادق وفلل",spa:"سبا · استشفاء"};
-const HOME_SEC_ORDER=["food","drinks","sports","beach","visit","shop","stay","spa"];
+ shop:"مولات · أسواق · أوتلت",stay:"فنادق وفلل",spa:"سبا · استشفاء",rides:"تأجير سكوترات ودراجات"};
+const HOME_SEC_ORDER=["food","drinks","sports","beach","visit","shop","stay","spa","rides"];
 // The "⭐ يستحق الزيارة" picks reuse the existing score()/whyList() engine as-is
 // (rating+distance+openNow already weighted in score(); whyList() already only
 // states real, verified facts) — this just diversifies across sections instead
@@ -1030,95 +1038,102 @@ function askGps(then){
      :e.code===2?"ما قدر يحدد موقعك الحين. اختر منطقة.":"انتهت المهلة. اختر منطقة.");},
    {timeout:10000,maximumAge:60000});}
 
-/* ---------------- planner ---------------- */
-const SLOTS=[{t:"٧:٣٠",lab:"فطور",ok:p=>p.b&&FOODK.has(p.k)},
- {t:"١٠:٠٠",lab:"قهوة",ok:p=>hasCat(p,"coffee")||hasCat(p,"matcha")||hasCat(p,"juice")},
- {t:"١٢:٣٠",lab:"غداء",ok:p=>p.l&&FOODK.has(p.k)},
- {t:"١٥:٣٠",lab:"نشاط",ok:p=>p.act||p.k==="spa"||hasCat(p,"gym")||hasCat(p,"recovery")},
- {t:"١٧:٣٠",lab:"غروب",ok:p=>["beachclub","nature","bar","attraction"].includes(p.k)},
- {t:"٢٠:٠٠",lab:"عشاء",ok:p=>p.d&&FOODK.has(p.k)},
- {t:"٢٢:٠٠",lab:"حلا",ok:p=>hasCat(p,"bakery")}];
-let planArea="",planIdx={};
-function slotCands(i){const S=SLOTS[i];
- return PLACES.filter(p=>p.a===planArea&&S.ok(p))
-  .sort((a,b)=>(mk(b.n).s?1:0)-(mk(a.n).s?1:0)||score(b)-score(a));}
-function buildPlan(){const used=new Set(),out=[];
- SLOTS.forEach((S,i)=>{const c=slotCands(i).filter(p=>!used.has(p.n));
-  if(!c.length){out.push({S,p:null,n:0});return;}
-  const idx=((planIdx[i]||0)%c.length+c.length)%c.length;const p=c[idx];used.add(p.n);out.push({S,p,n:c.length});});
- return out;}
-function openPlan(area){
-  planArea=area||planArea||AREAS[0];const rows=buildPlan();
-  const areas=AREAS.filter(a=>PLACES.filter(p=>p.a===a).length>=6);
-  document.getElementById("ppanel").innerHTML=`<div class="grab"></div>
-   <div class="ptitle">يوم في ${esc(planArea)}</div>
-   <div class="psub">مبني على أماكنك — المميّزة ★ أول، ثم الأنسب. بدّل أي محطة بـ ⟳.</div>
-   <div class="pareas">${areas.map(a=>`<button class="chip" data-area="${esc(a)}" aria-pressed="${a===planArea}">${esc(a)}</button>`).join("")}</div>
-   ${rows.map((r,i)=>{
-    if(!r.p)return `<div class="slot"><div class="stime"><b>${r.S.t}</b><span>${r.S.lab}</span></div>
-      <div class="sbody" style="color:var(--muted);font-size:13.5px">ما فيه خيار مناسب هنا</div></div>`;
-    const op=openState(r.p);
-    return `<div class="slot"><div class="stime"><b>${r.S.t}</b><span>${r.S.lab}</span></div>
-     <div class="sbody"><span class="sname">${mk(r.p.n).s?"★ ":""}${esc(r.p.n)}</span>
-      <span class="smeta"><span class="tag" style="background:${tintBg(r.p.k)};color:${tintFg(r.p.k)}">${EMO[r.p.k]||"📍"} ${esc(r.p.c)}</span>
-      <span class="num">${r.p.r?r.p.r.toFixed(1):"—"}</span>${op===0?' <span class="shut">مسكّر الحين</span>':""}</span></div>
-     <div class="sact">${r.n>1?`<button data-swap="${i}">⟳</button>`:""}<button data-open="${esc(r.p.n)}">تفاصيل</button></div></div>`;}).join("")}
-   <div class="frow" style="margin-top:14px"><button class="tbtn" id="pcopy">انسخ الجدول</button>
-    <button class="tbtn" id="pshuffle" style="background:var(--jade);border-color:var(--jade);color:#fff">جدول ثاني</button></div>`;
-  document.querySelectorAll("#ppanel [data-area]").forEach(b=>b.onclick=()=>{planIdx={};openPlan(b.dataset.area);});
-  document.querySelectorAll("#ppanel [data-swap]").forEach(b=>b.onclick=()=>{const i=+b.dataset.swap;
-   planIdx[i]=(planIdx[i]||0)+1;openPlan(planArea);});
-  document.querySelectorAll("#ppanel [data-open]").forEach(b=>b.onclick=()=>{close();openDetail(b.dataset.open);});
-  document.getElementById("pshuffle").onclick=()=>{SLOTS.forEach((_,i)=>planIdx[i]=(planIdx[i]||0)+1);openPlan(planArea);};
-  document.getElementById("pcopy").onclick=()=>{
-   const t="يوم في "+planArea+"\n\n"+buildPlan().filter(r=>r.p)
-    .map(r=>`${r.S.t} · ${r.S.lab}: ${r.p.n}${r.p.r?" ("+r.p.r.toFixed(1)+")":""}`).join("\n")+"\n\nجالان — وين نروح اليوم؟";
-   navigator.clipboard.writeText(t).then(()=>{const b=document.getElementById("pcopy");
-    b.textContent="تم النسخ ✓";setTimeout(()=>b.textContent="انسخ الجدول",1600);}).catch(()=>{});};
-  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
-  document.getElementById("plan").classList.add("on");}
-
 /* ---------------- خطّط يومك (itinerary) ----------------
- * A standalone feature, independent of the recommendation flow ("وين نروح
- * الآن؟"/"اختَر لي") and of the older area-only "خطط يومي" planner above —
- * its own state, its own persistence, its own screen. Two entry modes:
- *  A) "خلّ JALAN يخطط لي" — builds a full day in one shot using the same
- *     SLOTS/score() engine as the older planner (real data: rating, review
- *     count, meal compatibility, opening hours — nothing random).
- *  B) "أنا أبني جدولي" — the user adds/removes/reorders places themselves;
- *     "كمّل لي اليوم" then fills only the SLOTS the user's own picks don't
- *     already cover, as reviewable suggestions (accept/reject), never a
- *     silent auto-add.
- * itinerary.places stores PLACE NAMES only (the same id pattern already
- * used by marks[p.n]) — never a duplicate copy of place data, and never a
- * write to data/places.json.
+ * UNIFIED feature (previous rounds had two overlapping, confusingly-named
+ * planners — the old area-only "خطط يومي" here, and a separate "خطط يومك".
+ * They're merged into exactly one: "خطّط يومك", reachable one way, with a
+ * persistent segmented control ["JALAN يخطط لي" | "أبني جدولي بنفسي"] that
+ * never discards the day's places when switched — see openItinEntry()).
+ *
+ * Time slots are ORDERED BY TIME OF DAY and reflect a real day's logical
+ * flow (breakfast → morning activity → a midday sight/beach → lunch → an
+ * afternoon errand/coffee → sunset → dinner → an evening drink), not just
+ * "categories in some order" — see the comment on SLOTS below.
  */
-let itin={mode:null,places:[],suggestions:[],area:null,date:null};
+const SLOTS=[
+ {t:"08:00",lab:"فطور",period:"الصباح",ok:p=>p.b&&FOODK.has(p.k)},
+ {t:"10:00",lab:"نشاط صباحي",period:"الصباح",ok:p=>p.act||hasCat(p,"surf")||hasCat(p,"yoga")||hasCat(p,"gym")||hasCat(p,"padel")||hasCat(p,"tennis")||hasCat(p,"crossfit")||hasCat(p,"pilates")||p.k==="adv"},
+ {t:"12:00",lab:"معلم أو شاطئ",period:"الظهر",ok:p=>["beachclub","nature","attraction","cult","fam"].includes(p.k)},
+ {t:"13:30",lab:"غداء",period:"الظهر",ok:p=>p.l&&FOODK.has(p.k)},
+ {t:"15:30",lab:"تسوّق أو قهوة",period:"بعد الظهر",ok:p=>hasCat(p,"coffee")||hasCat(p,"matcha")||hasCat(p,"juice")||["mall","market","outlet","shop"].includes(p.k)},
+ {t:"17:30",lab:"غروب",period:"المساء",ok:p=>["beachclub","nature","bar","attraction"].includes(p.k)},
+ {t:"20:00",lab:"عشاء",period:"المساء",ok:p=>p.d&&FOODK.has(p.k)},
+ {t:"22:00",lab:"مشروب مسائي",period:"بعد العشاء",ok:p=>p.k==="bar"||hasCat(p,"bakery")}
+];
+const TIME_CHIPS=SLOTS.map(S=>S.t);
+// itin.places stores PLACE NAMES only (the same id pattern already used by
+// marks[p.n]) — never a duplicate copy of place data, and never a write to
+// data/places.json. itin.times{name:"HH:MM"} holds a SUGGESTED, always-
+// editable time per place — never presented as a confirmed booking or real
+// opening-hours fact. itin.mode is a view toggle only (which primary action
+// is emphasized) — it never clears itin.places when switched.
+let itin={mode:null,places:[],times:{},suggestions:[],area:null,date:null};
 const ITIN_KEY="bali:itin";
 const placeByName=n=>PLACES.find(p=>p.n===n);
+const ITIN_DEFAULT=()=>({mode:null,places:[],times:{},suggestions:[],area:null,date:null});
 async function loadItin(){
   try{const r=await window.storage.get(ITIN_KEY);
-    if(r&&r.value)itin=Object.assign({mode:null,places:[],suggestions:[],area:null,date:null},JSON.parse(r.value));
+    if(r&&r.value)itin=Object.assign(ITIN_DEFAULT(),JSON.parse(r.value));
   }catch(e){}
 }
 async function saveItin(){try{await window.storage.set(ITIN_KEY,JSON.stringify(itin));}catch(e){}}
 function itinHas(n){return itin.places.includes(n);}
-function addToItin(n){if(!itinHas(n))itin.places.push(n);saveItin();}
-function removeItin(i){itin.places.splice(i,1);saveItin();renderItin();}
+// Best-matching SLOT for a place not placed by the AI/completion flow
+// (manually added) — used only to suggest a sensible default time; always
+// shown as editable, never claimed as the place's real hours.
+function bestSlotFor(p){return SLOTS.find(S=>S.ok(p))||null;}
+// Keeps the timeline itself in chronological order by default (PART 4/6:
+// "إعادة الفرز") — items without a known time stay wherever they already
+// are relative to each other, since only actual times carry ordering info.
+function resortItinByTime(){
+  itin.places=itin.places.map((n,i)=>({n,i,t:itin.times[n]}))
+    .sort((a,b)=>{
+      if(a.t&&b.t)return a.t<b.t?-1:a.t>b.t?1:a.i-b.i;
+      if(a.t&&!b.t)return -1;
+      if(!a.t&&b.t)return 1;
+      return a.i-b.i;
+    }).map(x=>x.n);
+}
+function addToItin(n){
+  if(itinHas(n))return;
+  const p=placeByName(n);
+  if(p&&!itin.times[n]){const S=bestSlotFor(p);if(S)itin.times[n]=S.t;}
+  itin.places.push(n);
+  resortItinByTime();
+  saveItin();
+}
+function removeItin(i){const n=itin.places[i];itin.places.splice(i,1);delete itin.times[n];saveItin();renderItin();}
 function moveItin(i,dir){const j=i+dir;if(j<0||j>=itin.places.length)return;
   [itin.places[i],itin.places[j]]=[itin.places[j],itin.places[i]];saveItin();renderItin();}
-function resetItin(){itin={mode:null,places:[],suggestions:[],area:null,date:null};saveItin();openItinEntry();}
+function resetItin(){itin=ITIN_DEFAULT();saveItin();openItinEntry();}
 
-// Mode A — one-shot full-day build for a region, reusing the exact SLOTS
-// definitions (فطور/قهوة/غداء/نشاط/غروب/عشاء/حلا) and score() ranking as the
-// existing "خطط يومي" planner, so "don't pick randomly" holds the same way.
+// Proximity bonus toward whatever's already anchored in the day — this is
+// what keeps the build from picking, say, a restaurant in Ubud between two
+// Canggu stops (PART 3, rule 6/7): candidates near the anchors already
+// placed score higher, on top of the existing rating/reviews/openNow score().
+// Not a real routing/TSP solve — just a practical geographic bias using the
+// same haversine dist() already used everywhere else in the app.
+function proximityBonus(p,anchors){
+  if(!p.lat)return 0;
+  const withCoords=anchors.filter(h=>h.lat);
+  if(!withCoords.length)return 0;
+  const dmin=Math.min(...withCoords.map(h=>dist(h.lat,h.lng,p.lat,p.lng)));
+  return Math.max(0,0.35*(1-dmin/25));
+}
+function candidateScore(p,anchors){return score(p)+proximityBonus(p,anchors);}
+// Mode A — one-shot full-day build for a region: walks the SLOTS in time
+// order and, for each one, greedily picks the best-scoring candidate that
+// is also close to whatever's already been placed — a simple nearest-
+// neighbor-style bias, not a full route solver, but enough to stop the day
+// from zig-zagging between far-apart spots for no reason.
 function buildItinAI(area){
-  const used=new Set(),out=[];
+  const used=new Set(),out=[],anchors=[],times={};
   SLOTS.forEach(S=>{
-    const cand=PLACES.filter(p=>p.a===area&&S.ok(p)&&!used.has(p.n)).sort((a,b)=>score(b)-score(a))[0];
-    if(cand){out.push(cand.n);used.add(cand.n);}
+    const cand=PLACES.filter(p=>p.a===area&&S.ok(p)&&!used.has(p.n))
+      .sort((a,b)=>candidateScore(b,anchors)-candidateScore(a,anchors))[0];
+    if(cand){out.push(cand.n);used.add(cand.n);anchors.push(cand);times[cand.n]=S.t;}
   });
-  return out;
+  return {places:out,times};
 }
 // Which SLOTS categories the current itinerary does NOT yet cover — this
 // (not a raw place count) is what "يومك جاهز" / "كمّل لي اليوم" are based on,
@@ -1134,83 +1149,126 @@ function itinGaps(){
 function whyForSuggestion(p,have,S,region){
   const reasons=[];
   if(region&&p.a===region)reasons.push("بنفس منطقة يومك");
-  const near=have.find(h=>h.lat&&p.lat);
-  if(near){const km=dist(near.lat,near.lng,p.lat,p.lng);if(km<20)reasons.push("قريب من محطتك ("+fmtKm(km)+" تقريبًا)");}
+  const withCoords=have.filter(h=>h.lat&&p.lat);
+  if(withCoords.length){
+    const km=Math.min(...withCoords.map(h=>dist(h.lat,h.lng,p.lat,p.lng)));
+    if(km<20)reasons.push("قريب من محطتك السابقة ("+fmtKm(km)+" تقريبًا)");
+  }
   if(S.lab==="غروب")reasons.push("يناسب وقت الغروب");
   else if((p.r||0)>=4.5)reasons.push("تقييمه "+p.r.toFixed(1)+" وهو من الأعلى");
   return reasons.length?reasons.slice(0,2).join(" · "):"يكمل تنوّع يومك";
 }
+// "كمّل لي اليوم" — the user's own picks are ANCHORS and are never touched
+// or reordered here (PART 3 rule 10): every gap slot's candidate is scored
+// with the same proximity bias toward those anchors, and a suggested (not
+// confirmed) time is attached from the slot itself.
 function completeMyDay(){
   const have=itin.places.map(placeByName).filter(Boolean);
   const haveNames=new Set(itin.places);
-  const region=itin.area||(have[0]&&have[0].a)||null;
+  const region=itin.area||modeRegion(have)||null;
   const already=new Set(itin.suggestions.map(s=>s.n));
   const added=[];
   itinGaps().forEach(S=>{
     let cand=PLACES.filter(p=>S.ok(p)&&!haveNames.has(p.n)&&!already.has(p.n));
     const inRegion=region?cand.filter(p=>p.a===region):[];
-    cand=(inRegion.length?inRegion:cand).sort((a,b)=>score(b)-score(a));
+    cand=(inRegion.length?inRegion:cand).sort((a,b)=>candidateScore(b,have)-candidateScore(a,have));
     if(!cand.length)return;
     const pick=cand[0];
-    added.push({n:pick.n,slot:S.lab,why:whyForSuggestion(pick,have,S,region)});
+    added.push({n:pick.n,slot:S.lab,time:S.t,why:whyForSuggestion(pick,have,S,region)});
     already.add(pick.n);
   });
   itin.suggestions=itin.suggestions.concat(added);
   saveItin();renderItin();
 }
-function acceptSuggestion(n){itin.suggestions=itin.suggestions.filter(s=>s.n!==n);addToItin(n);renderItin();}
+// The most common region among the day's current places — used to bias
+// "كمّل لي اليوم" toward the same area the user is already anchored in.
+function modeRegion(have){
+  if(!have.length)return null;
+  const counts={};have.forEach(p=>{counts[p.a]=(counts[p.a]||0)+1;});
+  return Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]||null;
+}
+function acceptSuggestion(n){
+  const s=itin.suggestions.find(x=>x.n===n);
+  itin.suggestions=itin.suggestions.filter(x=>x.n!==n);
+  addToItin(n);
+  if(s&&s.time)itin.times[n]=s.time;
+  saveItin();renderItin();
+}
 function rejectSuggestion(n){itin.suggestions=itin.suggestions.filter(s=>s.n!==n);saveItin();renderItin();}
 
+// Single entry point now (PART 1: unify) — always shows the same sheet with
+// a persistent segmented control, so there is never a separate "which
+// feature" fork. Re-entering with existing data goes straight back to it.
 function openItinEntry(){
-  if(itin.places.length||itin.mode){renderItin();pushOverlay("itin");
-    document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
-    document.getElementById("itin").classList.add("on");return;}
-  document.getElementById("itinpanel").innerHTML=`<div class="grab"></div>
-   <div class="ptitle">خطّط يومك</div>
-   <div class="psub">رتّب يومك في بالي بطريقتك</div>
-   <div class="itinmodes">
-    <button class="itinmode" id="modeAI"><b>${licon("compass")} خلّ JALAN يخطط لي</b><small>يوم كامل جاهز خلال ثواني</small></button>
-    <button class="itinmode" id="modeManual"><b>${licon("map-pin")} أنا أبني جدولي</b><small>أضف أماكنك، وJALAN يساعدك تكمل</small></button>
-   </div>`;
-  document.getElementById("modeAI").onclick=startAIDay;
-  document.getElementById("modeManual").onclick=()=>{itin.mode="manual";saveItin();renderItin();};
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
   document.getElementById("itin").classList.add("on");
   pushOverlay("itin");
+  renderItin();
 }
-function startAIDay(){
-  document.getElementById("itinpanel").innerHTML=`<div class="grab"></div>
-   <div class="ptitle">من أي منطقة؟</div>
+function itinModeBarHtml(){
+  return `<div class="itinseg">
+   <button data-mode="ai" aria-pressed="${itin.mode==="ai"}">${licon("compass")} JALAN يخطط لي</button>
+   <button data-mode="manual" aria-pressed="${itin.mode!=="ai"}">${licon("map-pin")} أبني جدولي بنفسي</button>
+  </div>`;
+}
+function wireItinModeBar(){
+  document.querySelectorAll("#itinpanel .itinseg button").forEach(b=>b.onclick=()=>switchItinMode(b.dataset.mode));
+}
+// Switching modes NEVER silently discards the day (PART 1: "لا يوجد طريق
+// مسدود") — manual mode just shows the same day with manual controls;
+// choosing AI while a day already exists asks first, since building a fresh
+// AI day replaces the current one.
+function switchItinMode(mode){
+  if(mode==="ai"){
+    if(itin.places.length&&!confirm("بناء يوم جديد بالكامل من JALAN سيستبدل جدولك الحالي. تكمل؟"))return;
+    openAIRegionPicker();
+    return;
+  }
+  itin.mode="manual";saveItin();renderItin();
+}
+function openAIRegionPicker(){
+  const panel=document.getElementById("itinpanel");
+  panel.innerHTML=`<div class="grab"></div>${itinModeBarHtml()}
+   <div class="ptitle" style="margin-top:14px">من أي منطقة؟</div>
    <div class="psub">نبني يومك الكامل فيها</div>
-   <div class="vlist">${AREAS.map(a=>`<button class="vrow" data-area="${esc(a)}">
+   <div class="vlist" style="padding-inline:0">${AREAS.map(a=>`<button class="vrow" data-area="${esc(a)}">
      <span class="vi">${licon("map-pin")}</span><span class="vt">${esc(a)}</span><span class="va">‹</span></button>`).join("")}</div>`;
-  document.querySelectorAll("#itinpanel [data-area]").forEach(b=>b.onclick=()=>{
-    itin.mode="ai";itin.area=b.dataset.area;itin.places=buildItinAI(itin.area);itin.suggestions=[];
+  wireItinModeBar();
+  panel.querySelectorAll("[data-area]").forEach(b=>b.onclick=()=>{
+    const area=b.dataset.area,built=buildItinAI(area);
+    itin.mode="ai";itin.area=area;itin.places=built.places;itin.times=built.times;itin.suggestions=[];
     saveItin();renderItin();});
 }
+// Timeline row: a time bullet (editable, always labeled "مقترح" — PART 4:
+// never claim a suggested time is confirmed), the place, and reorder/remove.
 function itinRowHtml(p,i,total){
-  const when=p.d?"عشاء":p.l?"غداء":p.br?"برنش":p.b?"فطور":"";
-  const meta=[p.a,when||p.c].filter(Boolean).join(" · ");
-  return `<div class="itinrow">
-   <span class="itinnum">${i+1}</span>
-   <button class="itinbody" data-open="${esc(p.n)}">
-    <span class="itinname">${esc(p.n)}</span><span class="itinmeta">${esc(meta)}</span></button>
-   <span class="itinacts">
-    ${i>0?`<button data-up="${i}" aria-label="نقل لأعلى">▲</button>`:""}
-    ${i<total-1?`<button data-down="${i}" aria-label="نقل لأسفل">▼</button>`:""}
-    <button data-rm="${i}" aria-label="إزالة">✕</button></span></div>`;
+  const time=itin.times[p.n];
+  const dotCls=i===0?"start":(i===total-1?"end":"");
+  return `<div class="itintl">
+   <div class="itintlrail"><span class="itintldot ${dotCls}">${i+1}</span>${i<total-1?'<span class="itintlline"></span>':""}</div>
+   <div class="itintlcard">
+    <button class="itintltime" data-time="${esc(p.n)}">${licon("clock")} ${time?esc(time):"حدد وقتًا"}<small>مقترح</small></button>
+    <button class="itintlbody" data-open="${esc(p.n)}">
+     <span class="itinname">${esc(p.n)}</span>
+     <span class="itinmeta">${esc(p.c)} · ${esc(p.a)}</span></button>
+    <div class="itintlacts">
+     ${i>0?`<button data-up="${i}" aria-label="نقل لأعلى">▲</button>`:""}
+     ${i<total-1?`<button data-down="${i}" aria-label="نقل لأسفل">▼</button>`:""}
+     <button data-rm="${i}" aria-label="إزالة">✕</button>
+    </div>
+   </div></div>`;
 }
 function itinSuggestionHtml(s){
   const p=placeByName(s.n);if(!p)return"";
   return `<div class="itinsugg">
-   <div class="itinsuggbody"><b>${esc(s.slot)}</b><span>${esc(p.n)}</span><small>${esc(s.why)}</small></div>
+   <div class="itinsuggbody"><b>${esc(s.slot)}${s.time?" · "+esc(s.time):""}</b><span>${esc(p.n)}</span><small>${esc(s.why)}</small></div>
    <div class="itinsuggacts"><button data-acc="${esc(s.n)}">قبول</button><button data-rej="${esc(s.n)}">تجاهل</button></div></div>`;
 }
 let itinShowMap=false;
 function renderItin(){
   const panel=document.getElementById("itinpanel");
   const places=itin.places.map(placeByName).filter(Boolean);
-  let html=`<div class="grab"></div>
+  let html=`<div class="grab"></div>${itinModeBarHtml()}
    <div class="itinhead"><div><div class="ptitle" style="margin:0">خطّط يومك</div>
     <div class="psub" style="margin:2px 0 0">${places.length?places.length+" محطات":"رتّب يومك في بالي بطريقتك"}</div></div>
     ${places.length?`<button class="tbtn" id="itinReset">جدول جديد</button>`:""}</div>`;
@@ -1218,18 +1276,19 @@ function renderItin(){
     html+=`<div class="empty" style="padding:34px 10px"><b>ابدأ بإضافة أول مكان ليومك</b>
      <button class="tbtn" id="itinAddFirst" style="margin-top:14px;background:var(--jade);border-color:var(--jade);color:#fff">+ أضف مكان</button></div>`;
     panel.innerHTML=html;
+    wireItinModeBar();
     document.getElementById("itinAddFirst").onclick=openItinAdd;
     const rb0=document.getElementById("itinReset");if(rb0)rb0.onclick=resetItin;
     return;
   }
-  html+=`<div class="itintabs"><button data-v="list" aria-pressed="${!itinShowMap}">القائمة</button>
+  html+=`<div class="itintabs"><button data-v="list" aria-pressed="${!itinShowMap}">الجدول</button>
    <button data-v="map" aria-pressed="${itinShowMap}">الخريطة</button></div>`;
   if(itinShowMap){
     html+=`<div id="itinmapwrap"><div id="itinmap"></div></div>
      <div class="itinroutenote">${licon("map-pin")} مسار يومك التقريبي — بترتيب محطاتك، وليس مسار قيادة فعلي</div>`;
   }else{
-    html+=`<div class="itinlist">${places.map((p,i)=>itinRowHtml(p,i,places.length)).join("")}</div>
-     <button class="tbtn" id="itinAddMore" style="width:100%;margin-top:8px">+ أضف مكان</button>`;
+    html+=`<div class="itintimeline">${places.map((p,i)=>itinRowHtml(p,i,places.length)).join("")}</div>
+     <button class="tbtn" id="itinAddMore" style="width:100%;margin-top:10px">+ أضف مكان</button>`;
     const gaps=itinGaps();
     if(gaps.length){
       if(places.length<=2){
@@ -1247,6 +1306,7 @@ function renderItin(){
     }
   }
   panel.innerHTML=html;
+  wireItinModeBar();
   document.querySelectorAll("#itinpanel .itintabs button").forEach(b=>b.onclick=()=>{itinShowMap=b.dataset.v==="map";renderItin();});
   const rb=document.getElementById("itinReset");if(rb)rb.onclick=resetItin;
   const addBtn=document.getElementById("itinAddMore");if(addBtn)addBtn.onclick=openItinAdd;
@@ -1255,41 +1315,130 @@ function renderItin(){
   panel.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>moveItin(+b.dataset.up,-1));
   panel.querySelectorAll("[data-down]").forEach(b=>b.onclick=()=>moveItin(+b.dataset.down,1));
   panel.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>removeItin(+b.dataset.rm));
+  panel.querySelectorAll("[data-time]").forEach(b=>b.onclick=()=>openItinTimeEdit(b.dataset.time));
   panel.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>acceptSuggestion(b.dataset.acc));
   panel.querySelectorAll("[data-rej]").forEach(b=>b.onclick=()=>rejectSuggestion(b.dataset.rej));
   if(itinShowMap)requestAnimationFrame(()=>setTimeout(()=>drawItinMap(places),30));
 }
+// Time editing — a fixed set of the day's own SLOT times as quick chips,
+// plus a native <input type=time> for anything else. Always framed as
+// "مقترح" (suggested), never a confirmed booking.
+function openItinTimeEdit(name){
+  const current=itin.times[name]||"";
+  document.getElementById("itinTimePanel").innerHTML=`<div class="grab"></div>
+   <div class="ptitle">وقت الزيارة (مقترح)</div>
+   <div class="psub">${esc(name)}</div>
+   <div class="itintimechips">${TIME_CHIPS.map(t=>`<button class="chip" data-t="${t}" aria-pressed="${t===current}">${t}</button>`).join("")}</div>
+   <div class="fgroup" style="margin-top:16px"><h3>أو وقت مخصص</h3>
+    <input type="time" id="itinTimeCustom" value="${/^\d\d:\d\d$/.test(current)?current:""}"
+     style="padding:11px;border-radius:12px;border:1px solid var(--stone);background:var(--sand);width:100%;font-size:16px"></div>
+   <button class="tbtn" id="itinTimeSave" style="width:100%;margin-top:16px;background:var(--jade);border-color:var(--jade);color:#fff">حفظ الوقت</button>`;
+  const done=t=>{if(t){itin.times[name]=t;resortItinByTime();}saveItin();
+    document.getElementById("itinTime").classList.remove("on");
+    document.getElementById("itin").classList.add("on");renderItin();};
+  document.querySelectorAll("#itinTimePanel [data-t]").forEach(b=>b.onclick=()=>done(b.dataset.t));
+  document.getElementById("itinTimeSave").onclick=()=>done(document.getElementById("itinTimeCustom").value);
+  document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
+  document.getElementById("itinTime").classList.add("on");
+}
+// Add-place browser (PART 2): reuses the app's OWN section/sub/region
+// browsing (SECTIONS, hasCat, inSec, AREAS — same arrays Home/pickSec use),
+// never a second copy of the data. Screen 1 = section grid; screen 2 =
+// region + sub-category chips + results, exactly like the main app's own
+// picker; a persistent search box on top searches across ALL of PLACES
+// regardless of which screen is showing.
+let itinAddSection=null,itinAddSub="",itinAddArea="";
 function openItinAdd(){
+  itinAddSection=null;itinAddSub="";itinAddArea="";
   document.getElementById("itinAddPanel").innerHTML=`<div class="grab"></div>
    <div class="ptitle">أضف مكانًا</div>
-   <input id="itinq" type="search" placeholder="ابحث باسم المكان أو المنطقة"
-    style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--stone);background:var(--sand);margin-top:2px">
-   <div id="itinResults" class="vlist" style="padding-inline:0;margin-top:8px"></div>`;
-  const paint=q=>{
-    const qq=(q||"").trim().toLowerCase();
-    const rows=(qq?PLACES.filter(p=>(p.n+" "+p.a+" "+p.c).toLowerCase().includes(qq)):PLACES.filter(p=>p.desc)).slice(0,30);
-    document.getElementById("itinResults").innerHTML=rows.length?rows.map(p=>{
-      const already=itinHas(p.n);
-      return `<button class="vrow" data-add="${esc(p.n)}" ${already?"disabled":""}>
-       <span class="vi">${EMO[p.k]||"📍"}</span><span class="vt">${esc(p.n)}</span>
-       <span class="vn">${esc(p.a)}</span><span class="va">${already?"✓":"+"}</span></button>`;
-    }).join(""):`<div class="empty" style="padding:20px"><b>ما لقينا نتائج</b></div>`;
-    document.querySelectorAll("#itinResults [data-add]").forEach(b=>b.onclick=()=>{
-      addToItin(b.dataset.add);paint(document.getElementById("itinq").value);});
-  };
-  paint("");
-  document.getElementById("itinq").oninput=e=>paint(e.target.value);
+   <input id="itinq" type="search" placeholder="ابحث في كل الأماكن"
+    style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--stone);background:var(--sand);margin-top:2px;font-size:16px">
+   <div id="itinAddBody" style="margin-top:10px"></div>`;
+  document.getElementById("itinq").oninput=renderItinAddBody;
+  renderItinAddBody();
   document.querySelectorAll(".sheet").forEach(x=>x.classList.remove("on"));
   document.getElementById("itinAdd").classList.add("on");
+}
+function itinAddRow(p){
+  const already=itinHas(p.n);
+  return `<button class="vrow" data-add="${esc(p.n)}" ${already?"disabled":""}>
+   <span class="vi">${EMO[p.k]||"📍"}</span><span class="vt">${esc(p.n)}</span>
+   <span class="vn">${esc(p.a)}</span><span class="va">${already?"✓":"+"}</span></button>`;
+}
+function wireItinAddRows(){
+  document.querySelectorAll("#itinAddBody [data-add]").forEach(b=>b.onclick=()=>{addToItin(b.dataset.add);renderItinAddBody();});
+}
+function renderItinAddBody(){
+  const body=document.getElementById("itinAddBody");
+  const q=(document.getElementById("itinq").value||"").trim();
+  if(q){
+    const qq=q.toLowerCase();
+    const rows=PLACES.filter(p=>(p.n+" "+p.a+" "+p.c).toLowerCase().includes(qq)).slice(0,40);
+    body.innerHTML=`<div class="vlist" style="padding-inline:0">${rows.length?rows.map(itinAddRow).join(""):
+      `<div class="empty" style="padding:20px"><b>ما لقينا نتائج</b></div>`}</div>`;
+    wireItinAddRows();return;
+  }
+  if(!itinAddSection){
+    body.innerHTML=`<div class="itinaddgrid">${SECTIONS.map(S=>{
+      const n=PLACES.filter(p=>inSec(p,S)).length;if(!n)return"";
+      return `<button class="itinaddcard" data-sec="${S.id}">
+       <span class="cico" style="background:${tintBgSec(S.id)};color:${tintFgSec(S.id)}">${S.ic}</span>
+       <b>${esc(S.label)}</b><span class="cn">${n} مكان</span></button>`;}).join("")}</div>`;
+    body.querySelectorAll("[data-sec]").forEach(b=>b.onclick=()=>{itinAddSection=b.dataset.sec;itinAddSub="";itinAddArea="";renderItinAddBody();});
+    return;
+  }
+  const S=secOf(itinAddSection);
+  const basePool=PLACES.filter(p=>inSec(p,S));
+  let pool=itinAddArea?basePool.filter(p=>p.a===itinAddArea):basePool;
+  const areas=[...new Set(basePool.map(p=>p.a))].sort((a,b)=>basePool.filter(p=>p.a===b).length-basePool.filter(p=>p.a===a).length);
+  let html=`<div class="vhead"><button id="itinAddBack">‹ رجوع</button><span>${esc(S.label)}</span></div>
+   <div class="chips">
+    <button class="chip" data-area="" aria-pressed="${!itinAddArea}">كل المناطق <b>${basePool.length}</b></button>
+    ${areas.map(a=>`<button class="chip" data-area="${esc(a)}" aria-pressed="${itinAddArea===a}">${esc(a)} <b>${basePool.filter(p=>p.a===a).length}</b></button>`).join("")}
+   </div>`;
+  if(S.subs&&S.subs.length){
+    const subsPresent=S.subs.filter(k=>pool.some(p=>hasCat(p,k)));
+    html+=`<div class="chips">
+     <button class="chip" data-sub="" aria-pressed="${!itinAddSub}">الكل</button>
+     ${subsPresent.map(k=>`<button class="chip" data-sub="${k}" aria-pressed="${itinAddSub===k}">${EMO[k]||""} ${LBL[k]||k}</button>`).join("")}
+    </div>`;
+  }
+  if(itinAddSub)pool=pool.filter(p=>hasCat(p,itinAddSub));
+  pool=pool.slice().sort((a,b)=>score(b)-score(a));
+  html+=`<div class="vlist" style="padding-inline:0">${pool.length?pool.map(itinAddRow).join(""):
+    `<div class="empty" style="padding:20px"><b>ما فيه أماكن هنا</b></div>`}</div>`;
+  body.innerHTML=html;
+  document.getElementById("itinAddBack").onclick=()=>{itinAddSection=null;renderItinAddBody();};
+  body.querySelectorAll("[data-area]").forEach(b=>b.onclick=()=>{itinAddArea=b.dataset.area;renderItinAddBody();});
+  body.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>{itinAddSub=b.dataset.sub;renderItinAddBody();});
+  wireItinAddRows();
 }
 // Numbered markers + a route line, using the SAME Leaflet setup (MAP_TILE_URL,
 // tintFg for per-kind color) as the main map — no new map provider. The line
 // is dashed and explicitly labeled "مسار تقريبي" (PART 15: never claim a real
 // driving route/time without a routing engine, which this app doesn't have).
-let ItinMap=null,itinLayer=null,itinLine=null;
-function itinNumberIcon(n,hex){
-  return L.divIcon({className:"itinmarker",iconSize:[28,28],iconAnchor:[14,14],
-    html:`<span class="itinmarker-dot" style="--ring:${hex}">${n}</span>`});
+// The first/last stop get a distinct marker style, and small rotated arrow
+// glyphs sit at each segment's midpoint pointing toward the next stop, so
+// the day's direction reads at a glance instead of just a line.
+let ItinMap=null,itinLayer=null,itinLine=null,itinArrowLayer=null;
+function itinNumberIcon(n,hex,variant){
+  return L.divIcon({className:"itinmarker",iconSize:[30,30],iconAnchor:[15,15],
+    html:`<span class="itinmarker-dot${variant?" "+variant:""}" style="--ring:${hex}">${n}</span>`});
+}
+function bearingArrowIcon(deg){
+  return L.divIcon({className:"itinarrow",iconSize:[18,18],iconAnchor:[9,9],
+    html:`<span class="itinarrow-ic" style="transform:rotate(${deg}deg)">${licon("arrow-right")}</span>`});
+}
+// Compass bearing between two points, in degrees (0=east, matching the
+// arrow-right glyph's default orientation) — used only for the small
+// direction arrows, not presented as a real routing bearing.
+function bearing(lat1,lng1,lat2,lng2){
+  const toRad=x=>x*Math.PI/180,toDeg=x=>x*180/Math.PI;
+  const dLon=toRad(lng2-lng1);
+  const y=Math.sin(dLon)*Math.cos(toRad(lat2));
+  const x=Math.cos(toRad(lat1))*Math.sin(toRad(lat2))-Math.sin(toRad(lat1))*Math.cos(toRad(lat2))*Math.cos(dLon);
+  return (toDeg(Math.atan2(y,x))+450)%360;
 }
 function drawItinMap(places){
   const el=document.getElementById("itinmap");if(!el)return;
@@ -1309,12 +1458,27 @@ function drawItinMap(places){
   }
   if(itinLayer)ItinMap.removeLayer(itinLayer);
   if(itinLine){ItinMap.removeLayer(itinLine);itinLine=null;}
+  if(itinArrowLayer){ItinMap.removeLayer(itinArrowLayer);itinArrowLayer=null;}
   itinLayer=L.layerGroup();
-  pts.forEach((p,i)=>L.marker([p.lat,p.lng],{icon:itinNumberIcon(i+1,tintFg(p.k))}).addTo(itinLayer));
+  pts.forEach((p,i)=>{
+    const variant=i===0?"start":(i===pts.length-1?"end":"");
+    const time=itin.times[p.n];
+    const marker=L.marker([p.lat,p.lng],{icon:itinNumberIcon(i+1,tintFg(p.k),variant)});
+    marker.bindPopup(`<div class="itinpopup"><b>#${i+1} ${esc(p.n)}</b>`+
+      `<span>${time?esc(time)+" · ":""}${esc(p.c)}</span></div>`);
+    marker.addTo(itinLayer);
+  });
   itinLayer.addTo(ItinMap);
   if(pts.length>1){
     itinLine=L.polyline(pts.map(p=>[p.lat,p.lng]),
-      {color:cssVar("--primary"),weight:3,opacity:.85,dashArray:"1,9",lineCap:"round"}).addTo(ItinMap);
+      {color:cssVar("--primary"),weight:3.5,opacity:.9,dashArray:"1,8",lineCap:"round"}).addTo(ItinMap);
+    itinArrowLayer=L.layerGroup();
+    for(let i=0;i<pts.length-1;i++){
+      const a=pts[i],b=pts[i+1];
+      const deg=bearing(a.lat,a.lng,b.lat,b.lng);
+      L.marker([(a.lat+b.lat)/2,(a.lng+b.lng)/2],{icon:bearingArrowIcon(deg),interactive:false}).addTo(itinArrowLayer);
+    }
+    itinArrowLayer.addTo(ItinMap);
     ItinMap.fitBounds(itinLine.getBounds().pad(.25));
   }else if(pts.length===1){ItinMap.setView([pts[0].lat,pts[0].lng],13);}
   setTimeout(()=>ItinMap.invalidateSize(),50);
@@ -1450,6 +1614,12 @@ document.querySelectorAll("#itin [data-close]").forEach(e=>e.onclick=closeOverla
 // beneath it, no separate history entry of its own.
 document.querySelectorAll("#itinAdd [data-close]").forEach(e=>e.onclick=()=>{
   document.getElementById("itinAdd").classList.remove("on");
+  renderItin();
+  document.getElementById("itin").classList.add("on");
+});
+// Same pattern for the time-edit mini-sheet.
+document.querySelectorAll("#itinTime [data-close]").forEach(e=>e.onclick=()=>{
+  document.getElementById("itinTime").classList.remove("on");
   renderItin();
   document.getElementById("itin").classList.add("on");
 });
