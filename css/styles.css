@@ -35,7 +35,8 @@ header.stuck{border-bottom-color:var(--stone)}
 .word em{font-style:normal;font-size:11px;color:var(--muted)}
 #total{font-size:12.5px;color:var(--muted)}
 .searchwrap{position:relative;margin:8px 0}
-.searchwrap input{width:100%;padding:11px 40px 11px 12px;border-radius:12px;border:1px solid var(--stone);background:var(--paper);outline:none}
+.searchwrap input{width:100%;padding:11px 40px 11px 12px;border-radius:12px;border:1px solid transparent;
+ background:var(--paper);box-shadow:0 1px 3px rgba(35,32,27,.06);outline:none}
 .searchwrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(27,94,74,.14)}
 .searchwrap .ic{position:absolute;inset-inline-end:13px;top:50%;transform:translateY(-50%);color:var(--faint)}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
@@ -61,8 +62,8 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
 /* vertical category picker — mobile first */
 .vlist{padding:8px 14px 0}
 .vrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;cursor:pointer;
- background:var(--paper);border:1px solid var(--stone);border-radius:14px;padding:15px 15px;margin-bottom:9px;
- box-shadow:0 1px 3px rgba(17,24,39,.04)}
+ background:var(--paper);border:1px solid var(--hair);border-radius:14px;padding:15px 15px;margin-bottom:9px;
+ box-shadow:0 1px 3px rgba(35,32,27,.04)}
 .vrow:active{background:rgba(27,94,74,.06)}
 .vrow .vi{font-size:22px;flex:0 0 auto}
 .vrow .vt{flex:1;font-size:16px;font-weight:600}
@@ -72,26 +73,43 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
 .vhead button{border:1px solid var(--stone);background:var(--paper);border-radius:9px;padding:6px 11px;font-size:13px;cursor:pointer}
 .vhead span{font-weight:600}
 
-.row{display:flex;gap:12px;align-items:flex-start;width:100%;max-width:100%;overflow:hidden;text-align:start;
- cursor:pointer;padding:16px 14px;background:var(--paper);border:0;border-bottom:1px solid var(--hair)}
-.row:active{background:rgba(27,94,74,.06)}
-.rmain{flex:1;min-width:0;max-width:100%}
-.rname{font-weight:600;font-size:15.5px;letter-spacing:-.01em;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start}
-.rmeta{font-size:13px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap;max-width:100%}
+/* Place card — photo is the first visual element (editorial guide, not a
+ * listings table): image on top, quiet single-line stats, one why-reason.
+ * Cards float with real gaps between them instead of a divided full-bleed
+ * list, which is most of what was reading as "dashboard" before. */
+.row{display:block;position:relative;width:100%;max-width:100%;text-align:start;cursor:pointer;
+ background:var(--paper);border:0;border-radius:18px;overflow:hidden;
+ margin:0 14px 16px;box-shadow:0 1px 3px rgba(35,32,27,.06)}
+.row:active{opacity:.92}
+.rph{position:relative;width:100%;aspect-ratio:16/11;overflow:hidden;
+ background:linear-gradient(155deg,var(--stone),var(--tint));display:flex;align-items:center;justify-content:center}
+.rph .ph-ic{color:var(--stone)}
+.rph .ph-ic .licon{width:28px;height:28px}
+.rph.empty .ph-ic{color:var(--muted);opacity:.6}
+.rph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.rbadges{position:absolute;top:9px;inset-inline-start:9px;z-index:2;display:flex;gap:5px}
+.rbadges span{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;color:#fff}
+.rbadges .b-act{background:rgba(234,88,12,.92)}
+.rbadges .b-sug{background:rgba(27,94,74,.9)}
+.rbadges .b-shut{background:rgba(35,32,27,.75)}
+.rmarks-ov{position:absolute;top:9px;inset-inline-end:9px;z-index:2;background:rgba(35,32,27,.5);
+ color:var(--accent);border-radius:8px;padding:3px 8px;font-size:12.5px;font-weight:700;letter-spacing:.03em}
+.rbody{padding:12px 14px 13px}
+.rname{font-weight:700;font-size:16px;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;
+ -webkit-box-orient:vertical;overflow:hidden;direction:ltr;text-align:start;line-height:1.3}
+.rtagrow{display:flex;align-items:center;gap:7px;margin-top:6px;overflow:hidden}
 .tag{flex:0 0 auto;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:500;line-height:1.55;max-width:52%;overflow:hidden;text-overflow:ellipsis}
-.dots{overflow:hidden;text-overflow:ellipsis}
-.why{margin-top:6px;font-size:12.5px;color:var(--jade);display:flex;flex-wrap:wrap;gap:4px 10px}
-.snip{margin-top:5px;font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.dots{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:13px}
+.rstats{margin-top:7px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-variant-numeric:tabular-nums}
+.rstats b{color:var(--accent);font-weight:700}
+.rstats .op{color:var(--success);font-weight:600}
+.why{margin-top:7px;font-size:12.5px;color:var(--jade);display:flex;flex-wrap:wrap;gap:4px 10px}
+.snip{margin-top:6px;font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .utag{color:var(--warning)}
+/* Plain (non-photo) status chips — still used in Place Details and the day-plan view */
 .act,.sug,.shut{padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:600}
 .act{background:rgba(234,88,12,.1);color:var(--warning)}.sug{background:rgba(22,163,74,.1);color:var(--success)}
 .shut{background:rgba(220,38,38,.1);color:var(--error)}
-.rside{flex:0 0 auto;min-width:52px;text-align:center;padding-top:2px}
-.rate{font-size:18px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
-.rate.hi{color:var(--primary)}
-.rc{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
-.dist{margin-top:4px;font-size:11.5px;font-weight:600;color:var(--secondary);font-variant-numeric:tabular-nums}
-.marks{margin-top:4px;font-size:12px;color:var(--accent)}
 .empty{padding:46px 24px;text-align:center;color:var(--muted)}
 .empty b{display:block;color:var(--ink);font-size:20px;margin-bottom:8px;font-family:var(--serif);font-weight:600}
 .esc{display:flex;flex-direction:column;gap:8px;margin-top:18px}
@@ -105,20 +123,20 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
 
 /* JALAN map markers, cluster bubbles, locate control, banner, preview card */
 .jmarker-dot{display:block;width:16px;height:16px;border-radius:50%;background:var(--primary);
- border:2.5px solid var(--ring,var(--primary));box-shadow:0 0 0 2px #fff,0 1px 3px rgba(17,24,39,.35)}
+ border:2.5px solid var(--ring,var(--primary));box-shadow:0 0 0 2px #fff,0 1px 3px rgba(35,32,27,.35)}
 .jmarker-me span{display:block;width:14px;height:14px;border-radius:50%;background:var(--info);
- border:3px solid #fff;box-shadow:0 0 0 2px var(--info),0 1px 4px rgba(17,24,39,.4)}
+ border:3px solid #fff;box-shadow:0 0 0 2px var(--info),0 1px 4px rgba(35,32,27,.4)}
 .jcluster{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;
  background:var(--primary);color:#fff;font-weight:700;font-size:13px;border:3px solid #fff;
- box-shadow:0 1px 4px rgba(17,24,39,.35);font-variant-numeric:tabular-nums}
+ box-shadow:0 1px 4px rgba(35,32,27,.35);font-variant-numeric:tabular-nums}
 .map-locate{width:40px;height:40px;border-radius:10px;border:0;background:var(--paper);color:var(--primary);
- display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(17,24,39,.25);
+ display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(35,32,27,.25);
  margin-top:8px}
 .map-locate .licon{width:19px;height:19px}
 .map-locate.busy{opacity:.55;pointer-events:none}
 #mapbanner{display:none;position:absolute;inset-inline:12px;top:12px;z-index:1200;background:var(--ink);
  color:#fff;border-radius:12px;padding:11px 14px;font-size:13px;align-items:center;justify-content:space-between;
- gap:10px;box-shadow:0 2px 10px rgba(17,24,39,.3)}
+ gap:10px;box-shadow:0 2px 10px rgba(35,32,27,.3)}
 #mapstatus{display:none;position:absolute;inset:0;z-index:1200;background:var(--paper);
  flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px}
 #mapstatus.on{display:flex}
@@ -132,7 +150,7 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
  * panel's own scroll area (fixed to the sheet, not the scrolling panel) so it's always
  * reachable without needing to drag the sheet down or hunt for the scrim sliver. */
 .sheetx{position:absolute;top:calc(env(safe-area-inset-top) + 12px);inset-inline-start:14px;z-index:120;
- width:36px;height:36px;border-radius:50%;border:0;background:rgba(17,24,39,.55);color:#fff;
+ width:36px;height:36px;border-radius:50%;border:0;background:rgba(35,32,27,.55);color:#fff;
  font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #mapbanner button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:6px 11px;
  font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
@@ -141,17 +159,19 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
 .mcstats{display:flex;gap:14px;margin-top:12px;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
 .mcdesc{margin:12px 0 0;font-size:13.5px;color:var(--text2);line-height:1.7}
 
-nav{position:fixed;inset-inline:0;bottom:0;z-index:60;background:var(--paper);border-top:1px solid var(--stone);
- display:flex;padding:4px 2px calc(4px + env(safe-area-inset-bottom))}
+/* Bottom nav — a quiet utility strip: hairline separation instead of a heavy
+ * border, clear active color, calm/low-contrast inactive state. */
+nav{position:fixed;inset-inline:0;bottom:0;z-index:60;background:var(--paper);border-top:1px solid var(--hair);
+ box-shadow:0 -2px 10px rgba(35,32,27,.04);display:flex;padding:4px 2px calc(4px + env(safe-area-inset-bottom))}
 nav button{flex:1;border:0;background:transparent;cursor:pointer;padding:8px 1px;min-height:52px;
- display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:11px}
-nav button .ic{font-size:20px;line-height:1}
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--faint);font-size:11px}
+nav button .ic{font-size:19px;line-height:1}
 nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 
-.hero{position:relative;margin:0 0 8px;border-radius:20px;overflow:hidden;min-height:134px;
+.hero{position:relative;margin:0 0 10px;border-radius:20px;overflow:hidden;min-height:168px;
  background:linear-gradient(150deg,var(--primary),var(--primary-d));display:flex;align-items:flex-end}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82}
-.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,24,39,.12),rgba(17,24,39,.6) 55%,rgba(17,24,39,.92))}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(35,32,27,.12),rgba(35,32,27,.6) 55%,rgba(35,32,27,.92))}
 .hero .in{position:relative;padding:14px 18px 13px;color:#fff;width:100%}
 .hero .kicker{font-size:10.5px;letter-spacing:.3em;color:rgba(255,255,255,.7);direction:ltr;margin-bottom:5px}
 .hero h2{margin:0;font-size:23px;font-weight:600;line-height:1.25;font-family:var(--serif)}
@@ -174,31 +194,48 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 .cta2 .licon{width:12px;height:12px}
 .credit{font-size:9.5px;color:var(--faint);opacity:.75;margin:-2px 0 10px;text-align:center}
 .credit a{color:var(--faint)}
-.hsec{font-family:var(--serif);font-size:18px;font-weight:600;margin:18px 0 10px;display:flex;align-items:center;gap:7px}
+.hsec{font-family:var(--serif);font-size:19px;font-weight:600;margin:30px 0 12px;display:flex;align-items:center;gap:7px}
 .hsec .licon{color:var(--accent);width:16px;height:16px}
-.quick{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
+/* Quick Actions — a quiet reference row, not a second CTA row: no fills, no
+ * borders, just icon+label and real air between them, so it never competes
+ * with the primary/secondary CTAs above it. */
+.quick{display:flex;gap:20px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px}
 .quick::-webkit-scrollbar{display:none}
-.quick button{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;
- border:1px solid var(--stone);background:var(--paper);font-size:13.5px;cursor:pointer;font-weight:500;color:var(--ink)}
+.quick button{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:4px 0;border:0;
+ background:transparent;font-size:13px;cursor:pointer;font-weight:500;color:var(--text2)}
+.quick button .licon{color:var(--muted)}
 .licon{width:1.1em;height:1.1em;flex:0 0 auto;vertical-align:-.18em}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.card{position:relative;text-align:start;border:1px solid var(--stone);border-radius:16px;background:var(--paper);
- padding:14px 13px 12px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:106px;overflow:hidden;
- box-shadow:0 1px 3px rgba(17,24,39,.045)}
-.card .cico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;
- font-size:18px;line-height:1;margin-bottom:7px}
-.card b{font-size:14.5px;font-weight:700;margin-top:0}
+/* Section cards — softened away from "dashboard tile": no colored border
+ * strip, a quiet round icon badge instead, serif label for editorial rhythm,
+ * more internal air. */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{position:relative;text-align:start;border:1px solid var(--hair);border-radius:18px;background:var(--paper);
+ padding:16px 14px 14px;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-height:118px;overflow:hidden;
+ box-shadow:0 1px 3px rgba(35,32,27,.04)}
+.card .cico{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ line-height:1;margin-bottom:9px}
+.card .cico .licon{width:19px;height:19px}
+.card b{font-size:15.5px;font-weight:600;margin-top:0;font-family:var(--serif)}
 .card .cn{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .card .cs{font-size:11.5px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* Home "⭐ يستحق الزيارة" discovery cards — a lighter-weight variant of .row,
- * just enough structure for name/meta/category/why without a new component. */
-.pick{display:block;width:100%;text-align:start;border:1px solid var(--stone);border-radius:14px;
- background:var(--paper);padding:12px 14px;margin-bottom:8px;cursor:pointer}
+/* Home "يستحق الزيارة" discovery cards — same photo-forward language as .row,
+ * horizontal (small image + text) since these sit in a tighter home context. */
+.pick{display:flex;gap:12px;align-items:stretch;width:100%;text-align:start;border-radius:16px;
+ background:var(--paper);padding:10px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 3px rgba(35,32,27,.05)}
+.pick:active{opacity:.92}
+.pickph{position:relative;flex:0 0 84px;width:84px;border-radius:11px;overflow:hidden;
+ background:linear-gradient(155deg,var(--stone),var(--tint));display:flex;align-items:center;justify-content:center}
+.pickph .ph-ic{color:var(--stone)}
+.pickph .ph-ic .licon{width:22px;height:22px}
+.pickph.empty .ph-ic{color:var(--muted);opacity:.6}
+.pickph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pickbody{flex:1;min-width:0;padding:2px 0}
 .pickname{font-size:15px;font-weight:700;color:var(--ink);direction:ltr;text-align:start;overflow-wrap:anywhere}
 .pickmeta{font-size:12.5px;color:var(--muted);margin-top:3px}
 .pickcat{font-size:12px;color:var(--muted);margin-top:2px}
-.pickwhy{font-size:12.5px;color:var(--primary);margin-top:6px;line-height:1.5}
+.pickwhy{font-size:12.5px;color:var(--primary);margin-top:5px;line-height:1.4;display:-webkit-box;
+ -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pickwhy b{font-weight:700}
 .seeall{display:block;width:100%;padding:11px;border-radius:12px;border:1px solid var(--stone);
  background:var(--paper);color:var(--text2);font-size:13.5px;font-weight:600;cursor:pointer;
@@ -212,11 +249,18 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
  * sheet (place card, its ✕ button, detail) instead of underneath it. */
 .sheet{position:fixed;inset:0;z-index:2000;display:none}
 .sheet.on{display:block}
-.scrim{position:absolute;inset:0;background:rgba(17,24,39,.45)}
+.scrim{position:absolute;inset:0;background:rgba(35,32,27,.45)}
 .panel{position:absolute;inset-inline:0;bottom:0;max-width:100%;background:var(--paper);border-radius:20px 20px 0 0;
  padding:14px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
 .grab{width:38px;height:4px;border-radius:2px;background:var(--stone);margin:0 auto 14px}
-.dband{height:72px;border-radius:14px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:32px}
+/* Place Details hero — bleeds to the sheet's edges so the photo reads as the
+ * page's lead visual, not another bordered tile. */
+.dhero{position:relative;margin:-4px -16px 16px;width:calc(100% + 32px);aspect-ratio:16/10;overflow:hidden;
+ background:linear-gradient(155deg,var(--stone),var(--tint));display:flex;align-items:center;justify-content:center}
+.dhero .ph-ic{color:var(--stone)}
+.dhero .ph-ic .licon{width:36px;height:36px}
+.dhero.empty .ph-ic{color:var(--muted);opacity:.6}
+.dhero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .dname{font-size:22px;font-weight:600;line-height:1.3;direction:ltr;text-align:start;overflow-wrap:anywhere;font-family:var(--serif)}
 .dsub{color:var(--muted);font-size:14px;margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .dstats{display:flex;flex-wrap:wrap;gap:14px 26px;margin:15px 0 2px;padding:13px 0;border-block:1px solid var(--hair)}

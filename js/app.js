@@ -107,6 +107,20 @@ const tintBg=k=>{const[r,g,b]=hexToRgb(tintFg(k));return`rgba(${r},${g},${b},.1)
 // borrow that other section's color.
 const tintFgSec=id=>cssVar(SECTION_TOKEN[id]||"--muted");
 const tintBgSec=id=>{const[r,g,b]=hexToRgb(tintFgSec(id));return`rgba(${r},${g},${b},.1)`;};
+// Real place photo, with a branded editorial placeholder (the section's own
+// line icon on a warm tint) whenever a place has no verified `image` — never
+// a stock/generic photo standing in as if it were real. `cls` is the outer
+// container class (its CSS defines the aspect-ratio/sizing); the icon markup
+// sits behind the <img> so a broken/blocked image just reveals it on error,
+// no extra JS state needed.
+const secIcon=k=>{const S=secOf(KIND_SECTION[k]);return S?S.ic:licon("map-pin");};
+function photoHtml(p,cls){
+  const url=p.image&&p.image.url;
+  const ic=`<span class="ph-ic">${secIcon(p.k)}</span>`;
+  if(!url)return `<span class="${cls} empty">${ic}</span>`;
+  return `<span class="${cls}">${ic}<img src="${esc(url)}" loading="lazy" decoding="async" alt=""
+    onerror="this.parentElement.classList.add('empty');this.remove()"></span>`;
+}
 const TABS=["food","drinks","sports"];
 const MEALS=[["b","فطور",licon("sunrise")],["br","برنش",licon("croissant")],["l","غداء",licon("utensils")],["d","عشاء",licon("moon")]];
 const secOf=id=>SECTIONS.find(s=>s.id===id);
@@ -301,22 +315,23 @@ function render(){
     <span>${esc(headBits.filter(Boolean).join(" · "))}</span></div>`:"";
   list.innerHTML=head+rows.map(p=>{
     const m=mk(p.n),km=kmOf(p),op=openState(p);
-    const d=km!=null?`<div class="dist">${fmtKm(km)}</div>`:"";
-    const rest=[p.p,p.a].filter(Boolean).join(" · ");
     const badge=(m.s?"★":"")+(m.v?"✓":"");
     const why=(state.sort==="best")?whyList(p).slice(0,2):[];
     const snip=(!why.length&&p.desc)?p.desc.replace(/\n/g," ").replace(/[⚠️📅💰💡🎾🥊🏄🧘♨️]/g,"").trim():"";
+    const stats=[p.r?`<b>★ ${p.r.toFixed(1)}</b>`:null,p.rc?p.rc.toLocaleString("en"):null,p.p||null,
+      km!=null?fmtKm(km):null,op===1?'<span class="op">مفتوح الآن</span>':null].filter(Boolean).join(" · ");
     return `<button class="row" data-n="${esc(p.n)}">
-      <span class="rmain"><span class="rname">${esc(p.n)}</span>
-      <span class="rmeta">${p.act?'<span class="act">نشاط</span>':""}${p.sug?'<span class="sug">مقترح</span>':""}
-       ${op===0?'<span class="shut">مسكّر</span>':""}
+      ${photoHtml(p,"rph")}
+      <span class="rbadges">${p.act?'<span class="b-act">نشاط</span>':""}${p.sug?'<span class="b-sug">مقترح</span>':""}
+       ${op===0?'<span class="b-shut">مسكّر</span>':""}</span>
+      ${badge?`<span class="rmarks-ov">${badge}</span>`:""}
+      <span class="rbody"><span class="rname">${esc(p.n)}</span>
+      <span class="rtagrow">
        <span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
-       <span class="dots">${esc(rest)}</span></span>
+       <span class="dots">${esc(p.a)}</span></span>
+      <span class="rstats">${stats}</span>
       ${why.length?`<span class="why">${why.map(w=>"• "+esc(w)).join(" ")}</span>`:""}
-      ${snip?`<span class="snip">${esc(snip)}</span>`:""}</span>
-      <span class="rside"><div class="rate ${p.r>=4.7?"hi":""}">${p.r?p.r.toFixed(1):"—"}</div>
-      ${p.rc?`<div class="rc">${p.rc.toLocaleString("en")}</div>`:""}${d}
-      ${badge?`<div class="marks">${badge}</div>`:""}</span></button>`;}).join("");
+      ${snip?`<span class="snip">${esc(snip)}</span>`:""}</span></button>`;}).join("");
   const bk=document.getElementById("back");
   if(bk)bk.onclick=()=>{
     if(S&&S.subs.length&&state.subPicked){state.sub="";state.subPicked=false;}
@@ -404,7 +419,7 @@ function showAllBest(){state.home=false;state.sec="";state.sort="best";setSortUI
 function renderHome(){
   const H="https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20terraces,%20Bali.jpg?width=1200";
   const cards=HOME_SEC_ORDER.map(id=>secOf(id)).filter(Boolean).map(S=>{const ps=PLACES.filter(p=>inSec(p,S));
-   return `<button class="card" data-sec="${S.id}" style="border-inline-start:3px solid ${tintFgSec(S.id)}">
+   return `<button class="card" data-sec="${S.id}">
     <span class="cico" style="background:${tintBgSec(S.id)};color:${tintFgSec(S.id)}">${S.ic}</span>
     <b>${S.label}</b><span class="cn">${ps.length} مكان</span>
     <span class="cs">${esc(SECTION_BLURB[S.id]||"")}</span></button>`;}).join("");
@@ -415,10 +430,13 @@ function renderHome(){
     const when=p.d?"عشاء":p.l?"غداء":p.br?"برنش":p.b?"فطور":"";
     const cat=[p.c,when].filter(Boolean).join(" · ");
     return `<button class="row pick" data-n="${esc(p.n)}">
-     <div class="pickname">${esc(p.n)}</div>
-     <div class="pickmeta">${esc(meta)}</div>
-     ${cat?`<div class="pickcat">${esc(cat)}</div>`:""}
-     ${why?`<div class="pickwhy"><b>ليش؟</b> ${esc(why)}</div>`:""}
+     ${photoHtml(p,"pickph")}
+     <div class="pickbody">
+      <div class="pickname">${esc(p.n)}</div>
+      <div class="pickmeta">${esc(meta)}</div>
+      ${cat?`<div class="pickcat">${esc(cat)}</div>`:""}
+      ${why?`<div class="pickwhy"><b>ليش؟</b> ${esc(why)}</div>`:""}
+     </div>
     </button>`;};
   document.getElementById("list").innerHTML=`<div class="home-wrap">
    <div class="hero"><img src="${H}" alt="" onerror="this.style.display='none'"><div class="veil"></div>
@@ -546,7 +564,7 @@ function openDetail(name){
   if(T.includes("work"))good.push("مناسب للعمل");
   const why=whyList(p);
   document.getElementById("dpanel").innerHTML=`<div class="grab"></div>
-   <div class="dband" style="background:linear-gradient(135deg,${tintBg(p.k)},${tintFg(p.k)}18)"><span>${EMO[p.k]||"📍"}</span></div>
+   ${photoHtml(p,"dhero")}
    <div class="dname">${esc(p.n)}</div>
    <div class="dsub"><span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
     <span>${esc(p.a)}${p.o?" · محفوظ باسم: "+esc(p.o):""}</span>
@@ -1051,11 +1069,12 @@ function meIcon(){return L.divIcon({className:"jmarker-me",iconSize:[20,20],icon
 function openMapCard(p){
   const km=kmOf(p);
   document.getElementById("mcpanel").innerHTML=`<div class="grab"></div>
+   ${photoHtml(p,"dhero")}
    <div class="mcname">${esc(p.n)}</div>
    <div class="mcmeta"><span class="tag" style="background:${tintBg(p.k)};color:${tintFg(p.k)}">${EMO[p.k]||"📍"} ${esc(p.c)}</span>
     <span>${esc(p.a)}</span></div>
    <div class="mcstats">
-    ${p.r?`<span>⭐ ${p.r.toFixed(1)}</span>`:""}
+    ${p.r?`<span>★ ${p.r.toFixed(1)}</span>`:""}
     ${p.p?`<span>${esc(p.p)}</span>`:""}
     ${km!=null?`<span>${fmtKm(km)}</span>`:""}
    </div>
