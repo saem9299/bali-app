@@ -77,13 +77,17 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
  * listings table): image on top, quiet single-line stats, one why-reason.
  * Cards float with real gaps between them instead of a divided full-bleed
  * list, which is most of what was reading as "dashboard" before. */
-/* width intentionally NOT 100% here: this box also carries a left/right
- * margin (the card's outer gutter), and width:100% + non-zero side margins
- * on the same box adds up to more than the container and overflows it —
- * exactly the bug that was slipping past the blanket overflow-x:hidden on
- * html/body. Block-level auto width already correctly fills "container
- * minus its own margins", which is what we want here. */
-.row{display:block;position:relative;max-width:calc(100% - 28px);text-align:start;cursor:pointer;
+/* width is explicitly calc(100% - 28px), NOT 100% and NOT auto:
+ * - width:100% plus this box's own 14px+14px side margins would add up to
+ *   more than the container and overflow it (the earlier bug here).
+ * - width:auto looks like the fix, and does work for a plain block <div> —
+ *   but this is a <button>, and browsers size buttons by shrink-to-fit
+ *   (like inline-block) even with display:block, so auto collapses it to
+ *   its content's width instead of filling the container. That was the
+ *   "cards became half-width and right-aligned" bug.
+ * An explicit width that subtracts the margins is the one value that's
+ * correct on a <button> AND never overflows. */
+.row{display:block;position:relative;width:calc(100% - 28px);text-align:start;cursor:pointer;
  background:var(--paper);border:0;border-radius:18px;overflow:hidden;
  margin:0 14px 16px;box-shadow:0 1px 3px rgba(35,32,27,.06)}
 .row:active{opacity:.92}
@@ -217,8 +221,14 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 
 /* Home "يستحق الزيارة" discovery cards — same photo-forward language as .row,
  * horizontal (small image + text) since these sit in a tighter home context. */
-.pick{display:flex;gap:12px;align-items:stretch;text-align:start;border-radius:16px;
- background:var(--paper);padding:10px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 3px rgba(35,32,27,.05)}
+/* Same <button> shrink-to-fit issue as .row (see its comment), so width is
+ * explicit here too — but .pick's container (.home-wrap) already has its
+ * own 14px side padding, so .pick needs zero side margin of its own
+ * (explicitly zeroed below, overriding the 14px it would otherwise inherit
+ * from sharing .row's margin shorthand via class="row pick") and a plain
+ * width:100% of that already-inset content box. */
+.pick{display:flex;gap:12px;align-items:stretch;text-align:start;border-radius:16px;width:100%;
+ margin:0 0 10px;background:var(--paper);padding:10px;cursor:pointer;box-shadow:0 1px 3px rgba(35,32,27,.05)}
 .pick:active{opacity:.92}
 .pickph{position:relative;flex:0 0 84px;width:84px;border-radius:11px;overflow:hidden;
  background:linear-gradient(155deg,var(--stone),var(--tint));display:flex;align-items:center;justify-content:center}
