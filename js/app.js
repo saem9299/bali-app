@@ -66,7 +66,8 @@ const LICO_PATH={
  star:'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.166-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
  check:'<path d="M20 6 9 17l-5-5"/>',
  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
- "map-pin":'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'
+ "map-pin":'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+ shuffle:'<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/>'
 };
 const licon=(name,cls)=>`<svg class="licon${cls?" "+cls:""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LICO_PATH[name]||""}</svg>`;
 
@@ -84,18 +85,28 @@ const SECTIONS=[
   keys:["mall","market","outlet","fashion","gifts","beauty","jewelry","decor","nightmarket","localmarket","shop","other"],
   subs:["mall","market","outlet","fashion","gifts","beauty","jewelry","decor","nightmarket","localmarket","shop"]}
 ];
-// Visual identity: one accent color per Home section (design tokens in css/styles.css,
-// mirrored here since section→color is a lookup the renderer needs, not a CSS rule).
-// A kind used by more than one section (e.g. "cafe" in both food and drinks) takes the
-// color of whichever section lists it first below — sections without a brand color in
-// the spec (stay/spa/shop) get the neutral secondary-text tone instead of inventing one.
-const SECTION_HEX={food:"#087F5B",drinks:"#F97316",sports:"#2563EB",beach:"#0891B2",
- visit:"#EAB308",stay:"#4B5563",spa:"#4B5563",shop:"#4B5563"};
+// Visual identity: one accent color per Home section. Design tokens live in
+// ONE place — the CSS :root custom properties in css/styles.css — and this
+// just maps each section to an existing token by name, then reads the actual
+// hex back from the computed stylesheet. No hex is duplicated/hardcoded here,
+// so CSS and JS can never drift out of sync with each other again.
+const SECTION_TOKEN={food:"--primary",drinks:"--secondary",sports:"--info",
+ beach:"--success",visit:"--accent",stay:"--muted",spa:"--muted",shop:"--muted"};
 const KIND_SECTION={};
 SECTIONS.forEach(S=>S.keys.forEach(k=>{if(!(k in KIND_SECTION))KIND_SECTION[k]=S.id;}));
 const hexToRgb=h=>{const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];};
-const tintBg=k=>{const[r,g,b]=hexToRgb(SECTION_HEX[KIND_SECTION[k]]||"#4B5563");return`rgba(${r},${g},${b},.1)`;};
-const tintFg=k=>SECTION_HEX[KIND_SECTION[k]]||"#4B5563";
+const rootStyle=getComputedStyle(document.documentElement);
+const cssVarCache={};
+const cssVar=name=>cssVarCache[name]||(cssVarCache[name]=rootStyle.getPropertyValue(name).trim());
+const tintFg=k=>cssVar(SECTION_TOKEN[KIND_SECTION[k]]||"--muted");
+const tintBg=k=>{const[r,g,b]=hexToRgb(tintFg(k));return`rgba(${r},${g},${b},.1)`;};
+// Section-level variant (Home cards represent a whole section, not one place's
+// kind) — looks the token up directly by section id instead of going through a
+// place's kind, so a section whose first-listed place happens to be a kind
+// shared with another section (e.g. "cafe" in both food and drinks) doesn't
+// borrow that other section's color.
+const tintFgSec=id=>cssVar(SECTION_TOKEN[id]||"--muted");
+const tintBgSec=id=>{const[r,g,b]=hexToRgb(tintFgSec(id));return`rgba(${r},${g},${b},.1)`;};
 const TABS=["food","drinks","sports"];
 const MEALS=[["b","فطور",licon("sunrise")],["br","برنش",licon("croissant")],["l","غداء",licon("utensils")],["d","عشاء",licon("moon")]];
 const secOf=id=>SECTIONS.find(s=>s.id===id);
@@ -353,7 +364,7 @@ function renderEmpty(){
      ${state.openNow?`<button data-e="open">اعرض المسكّرة كمان</button>`:""}
      ${state.area?`<button data-e="area">اعرض كل المناطق</button>`:""}
      <button data-e="all">امسح كل الفلاتر</button>
-     <button class="p" data-e="sur">✨ اختَر لي</button>
+     <button class="p" data-e="sur">${licon("shuffle")} اختَر لي</button>
    </div></div>`;
   document.querySelectorAll("#list [data-e]").forEach(b=>b.onclick=()=>{
     const e=b.dataset.e;
@@ -393,15 +404,14 @@ function showAllBest(){state.home=false;state.sec="";state.sort="best";setSortUI
 function renderHome(){
   const H="https://commons.wikimedia.org/wiki/Special:FilePath/Rice%20terraces,%20Bali.jpg?width=1200";
   const cards=HOME_SEC_ORDER.map(id=>secOf(id)).filter(Boolean).map(S=>{const ps=PLACES.filter(p=>inSec(p,S));
-   const k=ps[0]?ps[0].k:"other";
-   return `<button class="card" data-sec="${S.id}" style="border-inline-start:3px solid ${tintFg(k)}">
-    <span class="cico" style="background:${tintBg(k)};color:${tintFg(k)}">${S.ic}</span>
+   return `<button class="card" data-sec="${S.id}" style="border-inline-start:3px solid ${tintFgSec(S.id)}">
+    <span class="cico" style="background:${tintBgSec(S.id)};color:${tintFgSec(S.id)}">${S.ic}</span>
     <b>${S.label}</b><span class="cn">${ps.length} مكان</span>
     <span class="cs">${esc(SECTION_BLURB[S.id]||"")}</span></button>`;}).join("");
   const openCnt=PLACES.filter(p=>openState(p)===1).length;
   const picks=homePicks();
   const pickCard=p=>{const km=kmOf(p),why=whyList(p)[0];
-    const meta=[p.r?`⭐ ${p.r.toFixed(1)}`:null,p.a,km!=null?fmtKm(km):null].filter(Boolean).join(" · ");
+    const meta=[p.r?`★ ${p.r.toFixed(1)}`:null,p.a,km!=null?fmtKm(km):null].filter(Boolean).join(" · ");
     const when=p.d?"عشاء":p.l?"غداء":p.br?"برنش":p.b?"فطور":"";
     const cat=[p.c,when].filter(Boolean).join(" · ");
     return `<button class="row pick" data-n="${esc(p.n)}">
@@ -415,15 +425,15 @@ function renderHome(){
     <div class="in"><div class="kicker">JALAN</div><h2 class="serif">وين نروح اليوم؟</h2>
     <p>${PLACES.length} محطة في ${AREAS.length} مناطق · ${openCnt} مفتوحة الآن</p></div></div>
    <p class="credit">صورة: Vyacheslav Argenberg · <a href="https://creativecommons.org/licenses/by/4.0" target="_blank" rel="noopener">CC BY 4.0</a></p>
-   <button class="cta" id="flowbtn">🧭 وين نروح الآن؟<small>توصية ذكية بخمس خطوات سريعة</small></button>
-   <button class="cta2" id="surbtn">✨ اختَر لي — قرار سريع</button>
+   <button class="cta" id="flowbtn"><span class="cta-ic">${licon("compass")}</span><span>وين نروح الآن؟<small>توصية ذكية بخمس خطوات سريعة</small></span></button>
+   <button class="cta2" id="surbtn">${licon("shuffle")} اختَر لي — قرار سريع</button>
    <div class="quick">
      <button data-q="near">${licon("map-pin")} قريب مني</button><button data-q="meal">${licon("utensils")} وش آكل؟</button>
      <button data-q="drinks">${licon("cup-soda")} وش أشرب؟</button>
      <button data-q="sports">${licon("dumbbell")} رياضة</button>
    </div>
    <div class="hsec">الأقسام</div><div class="grid">${cards}</div>
-   <div class="hsec">⭐ يستحق الزيارة</div>
+   <div class="hsec">${licon("star")} يستحق الزيارة</div>
    <div id="hpicks">${picks.map(pickCard).join("")}</div>
    ${picks.length?`<button class="seeall" id="seeAllBtn">شوف الكل ‹</button>`:""}
   </div>`;

@@ -1,15 +1,19 @@
 :root{
- /* Brand — JALAN design tokens (single source of truth for color) */
- --primary:#087F5B;      /* Jalan Green */
- --secondary:#F97316;    /* Sunset Orange */
- --accent:#EAB308;       /* Bali Gold */
- /* Status */
+ /* Brand — JALAN design tokens (single source of truth for color)
+    Direction A — Modern Bali Editorial, approved production palette. */
+ --primary:#1B5E4A;      /* Field */
+ --primary-d:#134536;    /* Field, darkened — for gradients/shadows only, not a new hue */
+ --secondary:#9C4A2F;    /* Clay */
+ --accent:#C89B3C;       /* Gold */
+ /* Status (unchanged — functional, not part of the brand palette) */
  --success:#16A34A;--warning:#EA580C;--error:#DC2626;--info:#2563EB;
  /* Neutrals */
- --ink:#111827;--text2:#4B5563;--muted:#6B7280;--faint:#9CA3AF;
- --sand:#FFFDF8;--paper:#FFFFFF;--tint:#F3F4F6;--stone:#E5E7EB;--hair:#EFF1F3;
+ --ink:#23201B;--text2:#4B463C;--muted:#6E6A60;--faint:#9A917F;
+ --sand:#F4EFE6;--paper:#FFFCF6;--tint:#F1EADC;--stone:#E4DCCC;--hair:#ECE4D6;
  /* Legacy aliases so any remaining reference keeps resolving to the right role */
- --jade:var(--primary);--clay:var(--warning);--gold:var(--accent);
+ --jade:var(--primary);--clay:var(--secondary);--gold:var(--accent);
+ /* Typography */
+ --serif:"Newsreader",serif; /* editorial headlines only — see design-system doc */
  --bar:76px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;min-width:0}
@@ -18,7 +22,7 @@ html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden;overscr
 body{background:var(--sand);color:var(--ink);font-family:"IBM Plex Sans Arabic","Inter","Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.5}
 button,input,textarea{font:inherit;color:inherit}
 .num{font-variant-numeric:tabular-nums}
-.serif{font-family:inherit;font-weight:700}
+.serif{font-family:var(--serif);font-weight:600}
 
 header{position:sticky;top:0;z-index:50;background:var(--sand);padding:8px 14px 0;
  padding-top:max(8px,env(safe-area-inset-top));border-bottom:1px solid transparent}
@@ -27,12 +31,12 @@ header.stuck{border-bottom-color:var(--stone)}
 .lock{display:flex;align-items:center;gap:9px}
 .mark{width:30px;height:30px;border-radius:9px;flex:0 0 auto}
 .word{display:flex;flex-direction:column;line-height:1.15}
-.brand h1{margin:0;font-size:22px;font-weight:700;font-family:"IBM Plex Sans Arabic","Inter",sans-serif}
+.brand h1{margin:0;font-size:22px;font-weight:600;font-family:var(--serif)}
 .word em{font-style:normal;font-size:11px;color:var(--muted)}
 #total{font-size:12.5px;color:var(--muted)}
 .searchwrap{position:relative;margin:8px 0}
 .searchwrap input{width:100%;padding:11px 40px 11px 12px;border-radius:12px;border:1px solid var(--stone);background:var(--paper);outline:none}
-.searchwrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(8,127,91,.14)}
+.searchwrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(27,94,74,.14)}
 .searchwrap .ic{position:absolute;inset-inline-end:13px;top:50%;transform:translateY(-50%);color:var(--faint)}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -59,7 +63,7 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
 .vrow{display:flex;align-items:center;gap:12px;width:100%;text-align:start;cursor:pointer;
  background:var(--paper);border:1px solid var(--stone);border-radius:14px;padding:15px 15px;margin-bottom:9px;
  box-shadow:0 1px 3px rgba(17,24,39,.04)}
-.vrow:active{background:rgba(8,127,91,.06)}
+.vrow:active{background:rgba(27,94,74,.06)}
 .vrow .vi{font-size:22px;flex:0 0 auto}
 .vrow .vt{flex:1;font-size:16px;font-weight:600}
 .vrow .vn{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
@@ -70,7 +74,7 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
 
 .row{display:flex;gap:12px;align-items:flex-start;width:100%;max-width:100%;overflow:hidden;text-align:start;
  cursor:pointer;padding:16px 14px;background:var(--paper);border:0;border-bottom:1px solid var(--hair)}
-.row:active{background:rgba(8,127,91,.06)}
+.row:active{background:rgba(27,94,74,.06)}
 .rmain{flex:1;min-width:0;max-width:100%}
 .rname{font-weight:600;font-size:15.5px;letter-spacing:-.01em;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start}
 .rmeta{font-size:13px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap;max-width:100%}
@@ -89,7 +93,7 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
 .dist{margin-top:4px;font-size:11.5px;font-weight:600;color:var(--secondary);font-variant-numeric:tabular-nums}
 .marks{margin-top:4px;font-size:12px;color:var(--accent)}
 .empty{padding:46px 24px;text-align:center;color:var(--muted)}
-.empty b{display:block;color:var(--ink);font-size:19px;margin-bottom:8px;font-family:"IBM Plex Sans Arabic","Inter",sans-serif}
+.empty b{display:block;color:var(--ink);font-size:20px;margin-bottom:8px;font-family:var(--serif);font-weight:600}
 .esc{display:flex;flex-direction:column;gap:8px;margin-top:18px}
 .esc button{padding:12px;border-radius:12px;border:1px solid var(--stone);background:var(--paper);cursor:pointer;font-size:14px}
 .esc button.p{background:var(--jade);border-color:var(--jade);color:#fff;font-weight:600}
@@ -132,7 +136,7 @@ main{padding-bottom:calc(var(--bar) + 26px + env(safe-area-inset-bottom))}
  font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #mapbanner button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:6px 11px;
  font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
-.mcname{font-size:19px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.mcname{font-size:20px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;font-family:var(--serif)}
 .mcmeta{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;color:var(--muted);font-size:13px}
 .mcstats{display:flex;gap:14px;margin-top:12px;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
 .mcdesc{margin:12px 0 0;font-size:13.5px;color:var(--text2);line-height:1.7}
@@ -145,23 +149,33 @@ nav button .ic{font-size:20px;line-height:1}
 nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 
 .hero{position:relative;margin:0 0 8px;border-radius:20px;overflow:hidden;min-height:134px;
- background:linear-gradient(150deg,#087F5B,#065F45);display:flex;align-items:flex-end}
+ background:linear-gradient(150deg,var(--primary),var(--primary-d));display:flex;align-items:flex-end}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82}
 .hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,24,39,.12),rgba(17,24,39,.6) 55%,rgba(17,24,39,.92))}
 .hero .in{position:relative;padding:14px 18px 13px;color:#fff;width:100%}
 .hero .kicker{font-size:10.5px;letter-spacing:.3em;color:rgba(255,255,255,.7);direction:ltr;margin-bottom:5px}
-.hero h2{margin:0;font-size:23px;font-weight:700;line-height:1.25}
+.hero h2{margin:0;font-size:23px;font-weight:600;line-height:1.25;font-family:var(--serif)}
 .hero p{margin:4px 0 0;font-size:12.5px;color:rgba(255,255,255,.85)}
 .home-wrap{padding:6px 14px 0;animation:fade .25s ease}
-.cta{display:block;width:100%;padding:15px 17px;border-radius:16px;background:var(--primary);color:#fff;
- border:0;font-size:17px;font-weight:700;cursor:pointer;font-family:"IBM Plex Sans Arabic","Inter",sans-serif;
- margin-bottom:8px;text-align:start;box-shadow:0 2px 8px rgba(8,127,91,.22)}
-.cta small{display:block;font-family:"IBM Plex Sans Arabic",sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,.75);margin-top:3px}
-.cta2{display:block;width:100%;padding:12px;border-radius:14px;background:var(--paper);border:1px solid var(--stone);
- font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;margin-bottom:14px;text-align:center}
+/* Home hierarchy: cta ("وين نروح الآن؟") is the single strongest object on the
+ * screen; cta2 ("اختَر لي") is deliberately one full step down — outline, no
+ * fill, smaller — so the two don't compete for the same visual weight. */
+.cta{display:flex;align-items:center;gap:12px;width:100%;padding:17px 17px;border-radius:16px;
+ background:linear-gradient(155deg,var(--primary),var(--primary-d));color:var(--sand);
+ border:0;font-size:16px;font-weight:600;cursor:pointer;font-family:var(--serif);
+ margin-bottom:10px;text-align:start;box-shadow:0 6px 16px rgba(19,69,54,.25)}
+.cta .cta-ic{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:rgba(244,239,230,.16);
+ display:flex;align-items:center;justify-content:center}
+.cta .cta-ic .licon{width:18px;height:18px}
+.cta small{display:block;font-family:"IBM Plex Sans Arabic",sans-serif;font-size:11.5px;font-weight:400;color:rgba(244,239,230,.8);margin-top:3px}
+.cta2{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;
+ border-radius:12px;background:transparent;border:1px dashed var(--stone);
+ font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:16px;text-align:center}
+.cta2 .licon{width:12px;height:12px}
 .credit{font-size:9.5px;color:var(--faint);opacity:.75;margin:-2px 0 10px;text-align:center}
 .credit a{color:var(--faint)}
-.hsec{font-family:"IBM Plex Sans Arabic","Inter",sans-serif;font-size:17px;font-weight:700;margin:18px 0 10px}
+.hsec{font-family:var(--serif);font-size:18px;font-weight:600;margin:18px 0 10px;display:flex;align-items:center;gap:7px}
+.hsec .licon{color:var(--accent);width:16px;height:16px}
 .quick{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
 .quick::-webkit-scrollbar{display:none}
 .quick button{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;
@@ -203,13 +217,13 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
  padding:14px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
 .grab{width:38px;height:4px;border-radius:2px;background:var(--stone);margin:0 auto 14px}
 .dband{height:72px;border-radius:14px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:32px}
-.dname{font-size:21px;font-weight:700;line-height:1.3;direction:ltr;text-align:start;overflow-wrap:anywhere}
+.dname{font-size:22px;font-weight:600;line-height:1.3;direction:ltr;text-align:start;overflow-wrap:anywhere;font-family:var(--serif)}
 .dsub{color:var(--muted);font-size:14px;margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .dstats{display:flex;flex-wrap:wrap;gap:14px 26px;margin:15px 0 2px;padding:13px 0;border-block:1px solid var(--hair)}
 .dstats div span{display:block;font-size:11.5px;color:var(--muted)}
 .dstats div strong{font-size:17px;font-variant-numeric:tabular-nums}
-.whybox{margin-top:14px;background:rgba(8,127,91,.07);border:1px solid rgba(8,127,91,.22);border-radius:12px;padding:12px 13px}
-.whybox h4{margin:0 0 6px;font-size:13.5px;color:var(--primary)}
+.whybox{margin-top:14px;background:rgba(27,94,74,.07);border:1px solid rgba(27,94,74,.22);border-radius:12px;padding:12px 13px}
+.whybox h4{margin:0 0 6px;font-size:14.5px;color:var(--primary);font-family:var(--serif);font-weight:600;font-style:italic}
 .whybox ul{margin:0;padding-inline-start:18px;font-size:13.5px;line-height:1.9}
 .ddesc{margin:15px 0 0;font-size:14.5px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
 .dres{margin:11px 0 0;font-size:13px;color:var(--warning);font-weight:500}
@@ -219,7 +233,7 @@ nav button[aria-pressed="true"]{color:var(--primary);font-weight:600}
 .primary{display:block;margin-top:16px;padding:14px;border-radius:12px;text-align:center;text-decoration:none;background:var(--primary);color:#fff;font-weight:600}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .acts a,.acts button{padding:12px;border-radius:12px;text-align:center;text-decoration:none;border:1px solid var(--stone);background:var(--sand);font-size:14px;font-weight:500;cursor:pointer;color:var(--ink)}
-.acts .on{background:rgba(8,127,91,.09);border-color:var(--primary);color:var(--primary)}
+.acts .on{background:rgba(27,94,74,.09);border-color:var(--primary);color:var(--primary)}
 textarea{width:100%;margin-top:12px;padding:11px;border-radius:12px;border:1px solid var(--stone);background:var(--sand);resize:vertical;min-height:64px}
 .menubox{margin-top:14px;border:1px solid var(--stone);border-radius:12px;background:var(--sand);padding:12px}
 .menubox h4{margin:0 0 8px;font-size:14px;display:flex;gap:8px;align-items:center}
@@ -280,7 +294,7 @@ textarea{width:100%;margin-top:12px;padding:11px;border-radius:12px;border:1px s
 .morelist button,.nlist button{display:flex;width:100%;align-items:center;gap:11px;padding:14px 6px;border:0;border-bottom:1px solid var(--hair);background:transparent;cursor:pointer;font-size:15px;text-align:start}
 .morelist button .n,.nlist button .n{margin-inline-start:auto;color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
 .morelist .mhero{padding:14px 10px;margin-bottom:4px}
-.morelist .mheroic{flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:rgba(8,127,91,.1);
+.morelist .mheroic{flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:rgba(27,94,74,.1);
  color:var(--primary);display:flex;align-items:center;justify-content:center}
 .morelist .mheroic .licon{width:19px;height:19px}
 .morelist .mtxt{display:flex;flex-direction:column;gap:2px}
